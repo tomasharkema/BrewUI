@@ -1,33 +1,17 @@
 //
-//  ContentView.swift
+//  ItemDetailView.swift
 //  BrewUI
 //
-//  Created by Tomas Harkema on 05/05/2023.
+//  Created by Tomas Harkema on 09/05/2023.
 //
 
 import SwiftUI
 
-extension String: Identifiable {
-  public var id: Int {
-    hashValue
-  }
-}
-
-extension ListResult: Identifiable {
-  var id: Int {
-    hashValue
-  }
-}
-
-extension InfoResult: Identifiable {
-  var id: Int {
-    hashValue
-  }
-}
-
 struct ItemDetailView: View {
+  @Namespace var bottomID
+
   @Environment(\.dismiss) var dismiss
-//  @State var stream: StreamOutput?
+  //  @State var stream: StreamOutput?
   @ObservedObject var brewService: BrewService = .shared
 
   @MainActor @State var stream: StreamStreaming?
@@ -81,42 +65,45 @@ struct ItemDetailView: View {
       }
 
       Text(item.license ?? "").font(.body)
-      Text(item.homepage).font(.body)
+      Link(item.homepage, destination: URL(string: item.homepage)!)
     }
     .textSelection(.enabled)
-      .onReceive(brewService.$stream) {
-        stream = $0
-      }
-      .sheet(item: $stream) { stream in
-        VStack {
-          //        if !stream.isStreamingDone {
-          //          Button("Cancel") {
-          //            self.stream = nil
-          //            BrewService.shared.done()
-          //          }
-          //        }
-          ScrollViewReader { scroll in
-            ScrollView {
-              Text(stream.stream.stream).textSelection(.enabled)
-                .multilineTextAlignment(.leading)
-                .font(.body.monospaced())
-                .padding()
-              Text(" ").tag("bottom")
-            }
-            .onReceive(brewService.$stream) { _ in
-              scroll.scrollTo("bottom")
+    .onReceive(brewService.$stream) {
+      stream = $0
+    }
+    .sheet(item: $stream) { stream in
+      VStack {
+        if !stream.stream.isStreamingDone {
+          Button("Cancel") {
+            self.stream?.task?.cancel()
+            self.stream = nil
+            BrewService.shared.done()
+          }
+        }
+        ScrollViewReader { scroll in
+          ScrollView {
+            Text(stream.stream.stream).textSelection(.enabled)
+              .multilineTextAlignment(.leading)
+              .font(.body.monospaced())
+              .padding()
+            Text(" ").tag(bottomID)
+          }
+          .onChange(of: brewService.stream?.stream) { _ in
+            withAnimation {
+              scroll.scrollTo(bottomID, anchor: .bottom)
             }
           }
-          if stream.stream.isStreamingDone, done {
-            Button("Done") {
-              self.stream = nil
-              BrewService.shared.done()
-            }
-          } else {
-            ProgressView().progressViewStyle(CircularProgressViewStyle())
+        }
+        if stream.stream.isStreamingDone, done {
+          Button("Done") {
+            self.stream = nil
+            BrewService.shared.done()
           }
-        }.padding()
-          .frame(minWidth: 600, minHeight: 400)
-      }
+        } else {
+          ProgressView().progressViewStyle(CircularProgressViewStyle())
+        }
+      }.padding()
+        .frame(minWidth: 600, minHeight: 400)
+    }
   }
 }

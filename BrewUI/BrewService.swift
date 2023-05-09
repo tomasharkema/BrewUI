@@ -54,7 +54,7 @@ class BrewService: ObservableObject {
   @MainActor @AppStorage("cacheInstalledSorted") var cacheInstalledSorted = InfoResultSort()
   @MainActor @AppStorage("cacheAll") var cacheAll = InfoResultDict()
   @MainActor @AppStorage("cacheAllSorted") var cacheAllSorted = InfoResultSort()
-  @MainActor @Published var queryResult:InfoResultSort? 
+  @MainActor @Published var queryResult: InfoResultSort?
 
   private let listRegex = /(.+) (.+)/
 
@@ -150,6 +150,7 @@ class BrewService: ObservableObject {
     await MainActor.run {
       stream = Process.stream(command: "\(brew) install \(name)")
     }
+    try await stream!.task
     _ = try await updateAll()
   }
 
@@ -158,6 +159,7 @@ class BrewService: ObservableObject {
     await MainActor.run {
       stream = Process.stream(command: "\(brew) uninstall \(name)")
     }
+    try await stream!.task
     _ = try await updateAll()
   }
 
@@ -166,6 +168,7 @@ class BrewService: ObservableObject {
     await MainActor.run {
       stream = Process.stream(command: "\(brew) upgrade \(name)")
     }
+    try await stream!.task
     _ = try await updateAll()
   }
 
@@ -181,7 +184,7 @@ class BrewService: ObservableObject {
 
   @MainActor
   func search(query: String?) async {
-    guard let query = query else {
+    guard let query else {
       queryResult = nil
       return
     }
@@ -190,7 +193,7 @@ class BrewService: ObservableObject {
 
     await Task.detached {
       let res = await self.cacheAllSorted.filter { item in
-        return item.full_name.lowercased().contains(queryLowerCase)
+        item.full_name.lowercased().contains(queryLowerCase)
       }
       if Task.isCancelled {
         return

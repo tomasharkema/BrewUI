@@ -28,13 +28,11 @@ struct MainView: View {
 
   var body: some View {
     TabView(selection: $tabviewSelection) {
-
       InstalledView(selection: $selection)
 
       UpdatesView(selection: $selection)
 
       AllPackagesView(selection: $selection, searchTextOrNil: $searchTextOrNil)
-
     }
     .sheet(item: $selection, onDismiss: {
       selection = nil
@@ -42,11 +40,7 @@ struct MainView: View {
       ItemDetailView(item: item).padding()
     }
     .task(id: searchTextOrNil) {
-      do {
-        try await BrewService.shared.search(query: searchTextOrNil)
-      } catch {
-        print(error)
-      }
+      await BrewService.shared.search(query: searchTextOrNil)
     }
     .searchable(text: $searchText)
     .onChange(of: searchText) {
@@ -59,7 +53,7 @@ struct MainView: View {
         }
       }
     }
-//    .padding()
+    .padding()
     .background(Color("background"))
     .scrollContentBackground(.hidden)
     .navigationTitle("🍺 BrewUI")

@@ -120,7 +120,11 @@ extension Process {
         }
       }
 
-      task.waitUntilExit()
+      await withTaskCancellationHandler(operation: {
+        task.waitUntilExit()
+      }, onCancel: {
+        task.terminate()
+      })
 
       if task.terminationStatus != EXIT_SUCCESS {
         await MainActor.run {

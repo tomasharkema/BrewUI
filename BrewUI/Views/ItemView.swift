@@ -15,7 +15,6 @@ struct ItemView: View {
     let isInstalled = !info.installed.isEmpty
 
     HStack {
-      
       Text(info.full_name)
         .font(.body.monospaced())
         .foregroundColor(Color("foreground"))
@@ -25,10 +24,10 @@ struct ItemView: View {
 
       if let installed = info.installed.first {
         if showInstalled {
-          Text("INSTALLED")//.bold()//.background(Color.accentColor).cornerRadius(5)
+          Text("INSTALLED") // .bold()//.background(Color.accentColor).cornerRadius(5)
         }
         if installed.installed_as_dependency {
-          Text("INSTALLED AS DEPENDENCY")//.bold()//.background(Color.accentColor).cornerRadius(5)
+          Text("DEP") // .bold()//.background(Color.accentColor).cornerRadius(5)
         }
       }
       //      Text(info.name).font(.body.monospaced())

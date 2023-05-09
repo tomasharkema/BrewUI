@@ -8,15 +8,12 @@
 import SwiftUI
 
 struct InstalledView: View {
-
   @Binding var selection: InfoResult?
 
   @ObservedObject var brewService = BrewService.shared
 
   var body: some View {
-
-    let val = Array(brewService.cacheInstalledSorted)
-    List(val, id: \.self, selection: $selection) { item in
+    List(brewService.cacheInstalledSorted, id: \.self, selection: $selection) { item in
       ItemView(info: item, showInstalled: false)
     }
     .task {
@@ -28,7 +25,7 @@ struct InstalledView: View {
     }
     .tag(TabViewSelection.installed)
     .tabItem {
-      Text("Installed Items")
+      Text("Installed Packages")
     }
   }
 }

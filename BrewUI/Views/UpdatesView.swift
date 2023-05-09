@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct UpdatesView: View {
-
   @MainActor @State var updates = [InfoResult]()
   @Binding var selection: InfoResult?
   @State var isLoading = false
