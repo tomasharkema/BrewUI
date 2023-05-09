@@ -33,7 +33,7 @@ extension Process {
 
       task.launch()
 
-      let (output, outputErr) = await Task {
+      let (output, outputErr) = await Task.detached {
         let data = pipe.fileHandleForReading.readDataToEndOfFile()
         let dataErr = pipeErr.fileHandleForReading.readDataToEndOfFile()
         let output = String(data: data, encoding: .utf8)!
@@ -61,7 +61,7 @@ extension Process {
   static func stream(command: String) -> StreamStreaming {
     let stream = StreamStreaming()
 
-    let task = Task {
+    let task = Task.detached {
       defer {
         Task {
           await MainActor.run {
@@ -92,7 +92,7 @@ extension Process {
       pipe.fileHandleForReading.readabilityHandler = { handle in
 
         let newData: Data = handle.availableData
-        Task {
+        Task.detached {
           if newData.count == 0 {
             handle.readabilityHandler = nil // end of data signal is an empty data object.
           } else {
@@ -106,7 +106,7 @@ extension Process {
 
       pipeErr.fileHandleForReading.readabilityHandler = { handle in
         let newData: Data = handle.availableData
-        Task {
+        Task.detached {
           if newData.count == 0 {
             handle.readabilityHandler = nil // end of data signal is an empty data object.
           } else {
@@ -133,6 +133,7 @@ extension Process {
     }
 
 //    await stream.set(task: task)
+    stream.task = task
 
     return stream
   }
@@ -141,4 +142,5 @@ extension Process {
 class StreamStreaming: ObservableObject, Identifiable {
   let id = UUID()
   @MainActor @Published var stream = StreamOutput(stream: "", isStreamingDone: false)
+  var task: Task<Void, Error>?
 }

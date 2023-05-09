@@ -1,0 +1,5 @@
+project: BrewUI.xcodeproj
+schemes:
+- BrewUI
+targets:
+- BrewUI

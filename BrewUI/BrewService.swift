@@ -54,12 +54,12 @@ class BrewService: ObservableObject {
   @MainActor @AppStorage("cacheInstalledSorted") var cacheInstalledSorted = InfoResultSort()
   @MainActor @AppStorage("cacheAll") var cacheAll = InfoResultDict()
   @MainActor @AppStorage("cacheAllSorted") var cacheAllSorted = InfoResultSort()
+  @MainActor @Published var queryResult:InfoResultSort? 
 
   private let listRegex = /(.+) (.+)/
 
   private init() {}
 
-//  @MainActor private var appendedData = Data()
   @Published var stream: StreamStreaming?
 
   func whichBrew() async throws -> String {
@@ -177,6 +177,28 @@ class BrewService: ObservableObject {
     try await a
     try await b
     try await c
+  }
+
+  @MainActor
+  func search(query: String?) async {
+    guard let query = query else {
+      queryResult = nil
+      return
+    }
+
+    let queryLowerCase = query.lowercased()
+
+    await Task.detached {
+      let res = await self.cacheAllSorted.filter { item in
+        return item.full_name.lowercased().contains(queryLowerCase)
+      }
+      if Task.isCancelled {
+        return
+      }
+      await MainActor.run {
+        self.queryResult = res
+      }
+    }.value
   }
 
   func done() {

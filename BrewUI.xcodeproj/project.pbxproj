@@ -13,6 +13,11 @@
 		C37751B82A04674F00473607 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C37751B72A04674F00473607 /* Assets.xcassets */; };
 		C37751BB2A04674F00473607 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C37751BA2A04674F00473607 /* Preview Assets.xcassets */; };
 		C37751C32A04675F00473607 /* BrewService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C37751C22A04675F00473607 /* BrewService.swift */; };
+		C3AE7A4A2A0AD22E00C0012A /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3AE7A492A0AD22E00C0012A /* MainView.swift */; };
+		C3AE7A4C2A0AD29E00C0012A /* InstalledView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3AE7A4B2A0AD29E00C0012A /* InstalledView.swift */; };
+		C3AE7A4E2A0AD37B00C0012A /* UpdatesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3AE7A4D2A0AD37A00C0012A /* UpdatesView.swift */; };
+		C3AE7A502A0AD44C00C0012A /* AllPackagesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3AE7A4F2A0AD44C00C0012A /* AllPackagesView.swift */; };
+		C3AE7A542A0ADA5C00C0012A /* ItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3AE7A532A0ADA5C00C0012A /* ItemView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +29,11 @@
 		C37751BA2A04674F00473607 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		C37751BC2A04674F00473607 /* BrewUI.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BrewUI.entitlements; sourceTree = "<group>"; };
 		C37751C22A04675F00473607 /* BrewService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrewService.swift; sourceTree = "<group>"; };
+		C3AE7A492A0AD22E00C0012A /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
+		C3AE7A4B2A0AD29E00C0012A /* InstalledView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstalledView.swift; sourceTree = "<group>"; };
+		C3AE7A4D2A0AD37A00C0012A /* UpdatesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdatesView.swift; sourceTree = "<group>"; };
+		C3AE7A4F2A0AD44C00C0012A /* AllPackagesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllPackagesView.swift; sourceTree = "<group>"; };
+		C3AE7A532A0ADA5C00C0012A /* ItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -56,8 +66,8 @@
 		C37751B22A04674D00473607 /* BrewUI */ = {
 			isa = PBXGroup;
 			children = (
+				C3AE7A482A0AD20B00C0012A /* Views */,
 				C37751B32A04674D00473607 /* BrewUIApp.swift */,
-				C37751B52A04674D00473607 /* ContentView.swift */,
 				C37751B72A04674F00473607 /* Assets.xcassets */,
 				C37751BC2A04674F00473607 /* BrewUI.entitlements */,
 				C37751B92A04674F00473607 /* Preview Content */,
@@ -73,6 +83,19 @@
 				C37751BA2A04674F00473607 /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		C3AE7A482A0AD20B00C0012A /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				C37751B52A04674D00473607 /* ContentView.swift */,
+				C3AE7A492A0AD22E00C0012A /* MainView.swift */,
+				C3AE7A4B2A0AD29E00C0012A /* InstalledView.swift */,
+				C3AE7A4D2A0AD37A00C0012A /* UpdatesView.swift */,
+				C3AE7A4F2A0AD44C00C0012A /* AllPackagesView.swift */,
+				C3AE7A532A0ADA5C00C0012A /* ItemView.swift */,
+			);
+			path = Views;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -150,9 +173,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C3AE7A4E2A0AD37B00C0012A /* UpdatesView.swift in Sources */,
 				C37751B62A04674D00473607 /* ContentView.swift in Sources */,
 				C30045782A0A91FA00BE01BB /* ProcessHelper.swift in Sources */,
+				C3AE7A502A0AD44C00C0012A /* AllPackagesView.swift in Sources */,
+				C3AE7A542A0ADA5C00C0012A /* ItemView.swift in Sources */,
 				C37751C32A04675F00473607 /* BrewService.swift in Sources */,
+				C3AE7A4C2A0AD29E00C0012A /* InstalledView.swift in Sources */,
+				C3AE7A4A2A0AD22E00C0012A /* MainView.swift in Sources */,
 				C37751B42A04674D00473607 /* BrewUIApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
