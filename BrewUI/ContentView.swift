@@ -16,10 +16,10 @@ struct ItemView: View {
       Text(info.full_name).font(.body.monospaced())
       if let installed = info.installed.first {
         if showInstalled {
-          Text("INSTALLED").bold().background(Color.accentColor).cornerRadius(5)
+          Text("INSTALLED").padding(2).bold().background(Color.accentColor).cornerRadius(5)
         }
         if installed.installed_as_dependency {
-          Text("DEPENDENCEE").bold().background(Color.accentColor).cornerRadius(5)
+          Text("DEPENDENCEE").padding(2).bold().background(Color.accentColor).cornerRadius(5)
         }
       }
 //      Text(info.name).font(.body.monospaced())
@@ -158,7 +158,7 @@ struct ItemDetailView: View {
 //  @State var stream: StreamOutput?
   @ObservedObject var brewService: BrewService = .shared
 
-  @MainActor @State var stream: StreamOutput?
+  @MainActor @State var stream: StreamStreaming?
   @State var done = false
   let item: InfoResult
 
@@ -225,12 +225,12 @@ struct ItemDetailView: View {
           //        }
 
           ScrollView {
-            Text(stream.stream).textSelection(.enabled)
+            Text(stream.stream.stream).textSelection(.enabled)
               .multilineTextAlignment(.leading)
               .font(.body.monospaced())
               .padding()
           }
-          if stream.isStreamingDone, done {
+          if stream.stream.isStreamingDone, done {
             Button("Done") {
               self.stream = nil
               BrewService.shared.done()
