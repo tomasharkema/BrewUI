@@ -13,7 +13,9 @@ struct ItemView: View {
 
   var body: some View {
     HStack {
-      Text(info.full_name).font(.body.monospaced())
+      Text(info.full_name)
+        .font(.body.monospaced())
+        .foregroundColor(Color("foreground"))
       if let installed = info.installed.first {
         if showInstalled {
           Text("INSTALLED").padding(2).bold().background(Color.accentColor).cornerRadius(5)
@@ -126,6 +128,8 @@ struct ContentView: View {
       }
     }
     .padding()
+    .background(Color("background"))
+    .scrollContentBackground(.hidden)
   }
 }
 

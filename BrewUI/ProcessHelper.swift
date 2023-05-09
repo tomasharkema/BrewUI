@@ -73,7 +73,6 @@ extension Process {
 
       print("EXECUTE: \(command)")
 
-
       await MainActor.run {
         stream.stream.stream += "EXECUTE: \(command)\n"
         stream.objectWillChange.send()
@@ -97,7 +96,6 @@ extension Process {
           if newData.count == 0 {
             handle.readabilityHandler = nil // end of data signal is an empty data object.
           } else {
-
             await MainActor.run {
               stream.stream.stream += String(data: newData, encoding: .utf8) ?? ""
               stream.objectWillChange.send()
@@ -126,7 +124,7 @@ extension Process {
 
       if task.terminationStatus != EXIT_SUCCESS {
         await MainActor.run {
-          stream.stream.stream +=  "CODE: \(task.terminationStatus)"
+          stream.stream.stream += "CODE: \(task.terminationStatus)"
           stream.objectWillChange.send()
         }
 
