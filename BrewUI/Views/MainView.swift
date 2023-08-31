@@ -20,11 +20,9 @@ struct MainView: View {
   @MainActor @AppStorage("tabviewSelection") var tabviewSelection = TabViewSelection.installed
 
   @MainActor @State var selectionInstalled = Set<InfoResult>()
-  @MainActor @State var selection: InfoResult?
+  @MainActor @State var selection: PackageIdentifier?
 
   @ObservedObject var brewService: BrewService = .shared
-
-  @MainActor @State var stream: StreamOutput?
 
   var body: some View {
     TabView(selection: $tabviewSelection) {
@@ -37,10 +35,14 @@ struct MainView: View {
     .sheet(item: $selection, onDismiss: {
       selection = nil
     }) { item in
-      ItemDetailView(item: item).padding()
+      ItemDetailView(package: item).padding()
     }
     .task(id: searchTextOrNil) {
-      await BrewService.shared.search(query: searchTextOrNil)
+      do {
+        try await BrewService.shared.search(query: searchTextOrNil)
+      } catch {
+        print(error)
+      }
     }
     .searchable(text: $searchText)
     .onChange(of: searchText) {
@@ -54,7 +56,7 @@ struct MainView: View {
       }
     }
     .padding()
-    .background(Color("background"))
+    .background(Color(.background))
     .scrollContentBackground(.hidden)
     .navigationTitle("🍺 BrewUI")
   }

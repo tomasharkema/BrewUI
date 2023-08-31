@@ -5,14 +5,23 @@
 //  Created by Tomas Harkema on 09/05/2023.
 //
 
+import AsyncAlgorithms
+import Combine
 import Foundation
+import OSLog
+
+let logger = Logger(subsystem: "BrewUI", category: "Process")
 
 extension Process {
-  static func defaultShell() -> Process {
+  static func defaultShell(command: String) -> Process {
     let task = Process()
     let userShell = ProcessInfo.processInfo.environment["SHELL"]
-
-    task.launchPath = userShell
+    // sandbox-exec -p '(version 1)(allow default)(deny network*)(deny file-read-data (regex
+    // "^/Users/'$USER'/(Documents|Desktop|Developer|Movies|Music|Pictures)"))'
+    task.launchPath = userShell ?? "/bin/sh"
+    task.arguments = [
+      "-l", "-c", command,
+    ]
     task.standardInput = nil
 
     return task
@@ -20,10 +29,9 @@ extension Process {
 
   static func shell(command: String) async throws -> String {
     try await Task {
-      print("EXECUTE: \(command)")
+      logger.info("EXECUTE: \(command)")
 
-      let task = defaultShell()
-      task.arguments = ["-l", "-c", command]
+      let task = defaultShell(command: command)
 
       let pipe = Pipe()
       let pipeErr = Pipe()
@@ -33,7 +41,7 @@ extension Process {
 
       task.launch()
 
-      let (output, outputErr) = await Task.detached {
+      let (output, outputErr) = await Task {
         let data = pipe.fileHandleForReading.readDataToEndOfFile()
         let dataErr = pipeErr.fileHandleForReading.readDataToEndOfFile()
         let output = String(data: data, encoding: .utf8)!
@@ -44,8 +52,12 @@ extension Process {
         return (output, outputErr)
       }.value
 
-      await withTaskCancellationHandler(operation: {
-        task.waitUntilExit()
+      await withTaskCancellationHandler(operation: { () async in
+        await withCheckedContinuation { res in
+          task.terminationHandler = { _ in
+            res.resume()
+          }
+        }
       }, onCancel: {
         task.terminate()
       })
@@ -54,97 +66,111 @@ extension Process {
         return output
       }
 
-      throw StdErr(message: output + "\n" + outputErr)
+      throw StdErr(message: output + "\n" + outputErr, command: command)
     }.value
   }
 
-  static func stream(command: String) -> StreamStreaming {
+  static func stream(command: String) async -> StreamStreamingAndTask {
     let stream = StreamStreaming()
+    await stream.append("EXECUTE: \(command)\n\n")
+    let task = defaultShell(command: command)
 
-    let task = Task.detached {
+    let pipe = Pipe()
+    let pipeErr = Pipe()
+
+    task.standardOutput = pipe
+    task.standardError = pipeErr
+
+    let stdoutSequence = pipe.fileHandleForReading.bytes.lines.map {
+      AttributedString($0)
+    }
+    let stderrSequence = pipeErr.fileHandleForReading.bytes.lines.map {
+      var string = AttributedString($0)
+      string.foregroundColor = .red
+      return string
+    }
+
+    let sequence = merge(stdoutSequence, stderrSequence)
+
+    let receiveStreamTask = Task {
+      logger.info("stream started!!")
+      for try await line in sequence {
+        await stream.append(line)
+      }
+      logger.info("stream finished!!")
+    }
+
+    let awaitTask = Task {
       defer {
-        Task {
-          await MainActor.run {
-            stream.stream.isStreamingDone = true
-            stream.objectWillChange.send()
-          }
+        Task { @MainActor in
+          stream.isStreamingDone = true
         }
       }
-
-      print("EXECUTE: \(command)")
-
-      await MainActor.run {
-        stream.stream.stream += "EXECUTE: \(command)\n"
-        stream.objectWillChange.send()
-      }
-
-      let task = defaultShell()
-      task.arguments = ["-l", "-c", command]
-
-      let pipe = Pipe()
-      let pipeErr = Pipe()
-
-      task.standardOutput = pipe
-      task.standardError = pipeErr
 
       task.launch()
 
-      pipe.fileHandleForReading.readabilityHandler = { handle in
-
-        let newData: Data = handle.availableData
-        Task.detached {
-          if newData.count == 0 {
-            handle.readabilityHandler = nil // end of data signal is an empty data object.
-          } else {
-            await MainActor.run {
-              stream.stream.stream += String(data: newData, encoding: .utf8) ?? ""
-              stream.objectWillChange.send()
-            }
+      await withTaskCancellationHandler(operation: { () async in
+        await withCheckedContinuation { res in
+          task.terminationHandler = { _ in
+            res.resume()
           }
         }
-      }
-
-      pipeErr.fileHandleForReading.readabilityHandler = { handle in
-        let newData: Data = handle.availableData
-        Task.detached {
-          if newData.count == 0 {
-            handle.readabilityHandler = nil // end of data signal is an empty data object.
-          } else {
-            if let errorString = String(data: newData, encoding: .utf8) {
-              await MainActor.run {
-                stream.stream.stream += "ERR: \(errorString)"
-                stream.objectWillChange.send()
-              }
-            }
-          }
-        }
-      }
-
-      await withTaskCancellationHandler(operation: {
-        task.waitUntilExit()
       }, onCancel: {
         task.terminate()
       })
 
-      if task.terminationStatus != EXIT_SUCCESS {
-        await MainActor.run {
-          stream.stream.stream += "CODE: \(task.terminationStatus)"
-          stream.objectWillChange.send()
-        }
+      await stream.append("\n\nDone: \(command)\n\n")
 
-        throw NSError(domain: "EXIT_NOT_SUCCESS", code: Int(task.terminationStatus))
+      try await receiveStreamTask.value
+
+      if task.terminationStatus != EXIT_SUCCESS {
+        await stream.append("\n\nCODE: \(task.terminationStatus)")
+        throw await StdErr(message: stream.stream.description, command: command)
       }
     }
 
-//    await stream.set(task: task)
-    stream.task = task
-
-    return stream
+    return StreamStreamingAndTask(stream: stream, task: awaitTask)
   }
 }
 
-class StreamStreaming: ObservableObject, Identifiable {
+class StreamStreaming: ObservableObject {
+  @MainActor @Published var stream = AttributedString("")
+  @MainActor @Published var isStreamingDone = false
+
+  @MainActor
+  func append(_ line: AttributedString) {
+    stream.append(line)
+    stream.append(AttributedString("\n"))
+  }
+
+  @MainActor
+  func append(_ line: String) {
+    var string = AttributedString(line)
+    string.foregroundColor = .blue
+    stream.append(string)
+    stream.append(AttributedString("\n"))
+  }
+}
+
+class StreamStreamingAndTask: ObservableObject, Identifiable {
+  @MainActor @Published var stream = AttributedString("")
+  @MainActor @Published var isStreamingDone = false
+  private let task: Task<Void, Error>
   let id = UUID()
-  @MainActor @Published var stream = StreamOutput(stream: "", isStreamingDone: false)
-  var task: Task<Void, Error>?
+
+  init(stream: StreamStreaming, task: Task<Void, Error>) {
+    self.task = task
+    stream.$stream.assign(to: &$stream)
+    stream.$isStreamingDone.assign(to: &$isStreamingDone)
+  }
+
+  func cancel() {
+    task.cancel()
+  }
+
+  public var value: Void {
+    get async throws {
+      try await task.value
+    }
+  }
 }

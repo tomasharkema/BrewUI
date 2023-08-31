@@ -15,9 +15,9 @@ struct ItemView: View {
     let isInstalled = !info.installed.isEmpty
 
     HStack {
-      Text(info.full_name)
+      Text(info.full_name.rawValue)
         .font(.body.monospaced())
-        .foregroundColor(Color("foreground"))
+        .foregroundColor(Color(.foreground))
         .fontWeight(isInstalled ? .bold : .regular)
 
       Spacer()

@@ -7,16 +7,43 @@
 
 // swiftlint:disable identifier_name
 
+import Combine
 import Foundation
+import RawJson
+import SwiftData
 import SwiftUI
 
-typealias InfoResultDict = [String: InfoResult]
+struct PackageIdentifier: RawRepresentable, Hashable {
+  let rawValue: String
+}
+
+extension PackageIdentifier: Encodable {
+  func encode(to encoder: Encoder) throws {
+    var container = encoder.singleValueContainer()
+    try container.encode(rawValue)
+  }
+}
+
+extension PackageIdentifier: Decodable {
+  init(from decoder: Decoder) throws {
+    let container = try decoder.singleValueContainer()
+    rawValue = try container.decode(String.self)
+  }
+}
+
+extension PackageIdentifier: Identifiable {
+  var id: Int {
+    hashValue
+  }
+}
+
+typealias InfoResultDict = [PackageIdentifier: InfoResult]
 
 extension InfoResultDict: RawRepresentable {
   public init?(rawValue: String) {
     do {
       let res = try JSONDecoder()
-        .decode([String: InfoResult].self, from: rawValue.data(using: .utf8)!)
+        .decode([PackageIdentifier: InfoResult].self, from: rawValue.data(using: .utf8)!)
       self = res
     } catch {
       print(error)
@@ -54,13 +81,21 @@ class BrewService: ObservableObject {
   @MainActor @AppStorage("cacheInstalledSorted") var cacheInstalledSorted = InfoResultSort()
   @MainActor @AppStorage("cacheAll") var cacheAll = InfoResultDict()
   @MainActor @AppStorage("cacheAllSorted") var cacheAllSorted = InfoResultSort()
+
+  @MainActor @AppStorage("cacheOutdated") var cacheOutdated = InfoResultDict()
+  @MainActor @AppStorage("cacheOutdatedSorted") var cacheOutdatedSorted = InfoResultSort()
+
   @MainActor @Published var queryResult: InfoResultSort?
 
+  @MainActor
+  private var streamCancellable: AnyCancellable?
+  @MainActor @Published var stream: StreamStreamingAndTask?
+  @MainActor @Published private var updateTask: Task<Void, Error>?
+  @MainActor var isUpdateRunning: Bool {
+    updateTask != nil
+  }
+
   private let listRegex = /(.+) (.+)/
-
-  private init() {}
-
-  @Published var stream: StreamStreaming?
 
   func whichBrew() async throws -> String {
     let result = try await (Process.shell(command: "which brew"))
@@ -74,32 +109,75 @@ class BrewService: ObservableObject {
     return try await Process.shell(command: "\(brew) \(command)")
   }
 
-  func info(installed: Bool) async throws -> [InfoResult] {
-    let arg = installed ? " --installed" : " --eval-all"
-    if installed {
-      try await executeBrew(command: "update")
+  @MainActor
+  func update() async throws {
+    if let updateTask {
+      return try await updateTask.value
+    }
+    let updateTask = Task { @UpdateActor in
+      do {
+        _ = try await executeBrew(command: "update")
+        _ = try await fetchInfo()
+        print("UPDATE DONE!")
+      } catch {
+        print("ERROR", error)
+        throw error
+      }
     }
 
-    let info = try await executeBrew(command: "info --json=v1\(arg)")
+    self.updateTask = updateTask
+    defer {
+      self.updateTask = nil
+    }
 
-    let result = try JSONDecoder().decode([InfoResult].self, from: info.data(using: .utf8)!)
+    try await updateTask.value
+  }
 
-    let cached = Dictionary(grouping: result) {
-      $0.name
+  func fetchInfo() async throws -> [InfoResult] {
+    let info = try await executeBrew(command: "info --json=v1 --eval-all")
+
+    let result = try JSONDecoder().decode(
+      [FallbackCodable<InfoResult>].self,
+      from: info.data(using: .utf8)!
+    )
+    .compactMap(\.value)
+
+    let installed = result.filter {
+      !$0.installed.isEmpty
+    }
+    let outdated = installed.filter(\.outdated)
+
+    async let cached = Dictionary(grouping: result) {
+      $0.full_name
     }.mapValues {
       $0.first!
     }
 
-    if installed {
-      await MainActor.run {
-        cacheInstalledSorted = result
-        cacheInstalled = cached
-      }
-    } else {
-      await MainActor.run {
-        cacheAllSorted = result
-        cacheAll = cached
-      }
+    async let installedCached = Dictionary(grouping: installed) {
+      $0.full_name
+    }.mapValues {
+      $0.first!
+    }
+
+    async let outdatedCached = Dictionary(grouping: outdated) {
+      $0.full_name
+    }.mapValues {
+      $0.first!
+    }
+
+    let cacheInstalled = await installedCached
+    let cacheAll = await cached
+    let cacheOutdated = await outdatedCached
+
+    Task { @MainActor in
+      cacheInstalledSorted = installed
+      self.cacheInstalled = cacheInstalled
+
+      cacheAllSorted = result
+      self.cacheAll = cacheAll
+
+      cacheOutdatedSorted = outdated
+      self.cacheOutdated = cacheOutdated
     }
 
     return result
@@ -119,108 +197,84 @@ class BrewService: ObservableObject {
     }
   }
 
-  // func listInstalledItems() async throws -> [ListResult] {
-
-  func listInstalledItems() async throws -> [InfoResult] {
-    async let info = info(installed: true)
-
-//    async let resultCask = list(cask: false)
-//    async let result = list(cask: true)
-
-//    let combined = Set([
-//      try await resultCask,
-    ////      try await result,
-//    ].joined()).sorted {
-//      $0.name < $1.name
-//    }
-
-    return try await info
-  }
-
-  func listAllItems() async throws -> [InfoResult] {
-    try await info(installed: false)
-  }
-
-  func outdated() async throws -> [InfoResult] {
-    try await listInstalledItems().filter(\.outdated)
-  }
-
-  func install(name: String) async throws {
+  func install(name: PackageIdentifier) async throws {
     let brew = try await whichBrew()
+    let stream = await Process.stream(command: "\(brew) install \(name.rawValue)")
+
     await MainActor.run {
-      stream = Process.stream(command: "\(brew) install \(name)")
+      self.stream?.cancel()
+      streamCancellable = stream.objectWillChange.sink {
+        self.objectWillChange.send()
+      }
+      self.stream = stream
     }
-    try await stream!.task
-    _ = try await updateAll()
+    _ = try await stream.value
+    _ = try await update()
   }
 
-  func uninstall(name: String) async throws {
+  func uninstall(name: PackageIdentifier) async throws {
     let brew = try await whichBrew()
+    let stream = await Process.stream(command: "\(brew) uninstall \(name.rawValue)")
     await MainActor.run {
-      stream = Process.stream(command: "\(brew) uninstall \(name)")
+      self.stream?.cancel()
+      streamCancellable = stream.objectWillChange.sink {
+        self.objectWillChange.send()
+      }
+      self.stream = stream
     }
-    try await stream!.task
-    _ = try await updateAll()
+    try await stream.value
+    _ = try await update()
   }
 
-  func upgrade(name: String) async throws {
+  func upgrade(name: PackageIdentifier) async throws {
     let brew = try await whichBrew()
+    let stream = await Process.stream(command: "\(brew) upgrade \(name.rawValue)")
     await MainActor.run {
-      stream = Process.stream(command: "\(brew) upgrade \(name)")
+      self.stream?.cancel()
+      streamCancellable = stream.objectWillChange.sink {
+        self.objectWillChange.send()
+      }
+      self.stream = stream
     }
-    try await stream!.task
-    _ = try await updateAll()
+    try await stream.value
+    _ = try await update()
   }
 
-  func updateAll() async throws {
-    async let a = listAllItems()
-    async let b = listInstalledItems()
-    async let c = outdated()
-
-    try await a
-    try await b
-    try await c
-  }
-
-  @MainActor
-  func search(query: String?) async {
+  @SearchActor
+  func search(query: String?) async throws {
     guard let query else {
-      queryResult = nil
+      await MainActor.run {
+        queryResult = nil
+      }
       return
     }
 
+    try Task.checkCancellation()
+
     let queryLowerCase = query.lowercased()
 
-    await Task.detached {
-      let res = await self.cacheAllSorted.filter { item in
-        item.full_name.lowercased().contains(queryLowerCase)
-      }
-      if Task.isCancelled {
-        return
-      }
-      await MainActor.run {
-        self.queryResult = res
-      }
-    }.value
+    let res = await cacheAllSorted.filter { item in
+      item.full_name.rawValue.lowercased().contains(queryLowerCase)
+    }
+
+    try Task.checkCancellation()
+
+    await MainActor.run {
+      self.queryResult = res
+    }
   }
 
-  func done() {
-    Task {
-      await MainActor.run {
-        self.stream = nil
-      }
+  func done() async {
+    await MainActor.run {
+      self.stream = nil
+      self.objectWillChange.send()
     }
   }
 }
 
 struct StdErr: Error {
   let message: String
-}
-
-extension String {
-  var asciiString: String {
-    String(unicodeScalars.filter(\.isASCII))
-  }
+  let command: String
 }
 
 struct ListResult: Hashable {
@@ -231,9 +285,9 @@ struct ListResult: Hashable {
 
 struct InfoResult: Codable, Hashable {
   let name: String
-  let full_name: String
+  let full_name: PackageIdentifier
   let tap: String
-  let desc: String
+  let desc: String?
   let license: String?
   let homepage: String
   let installed: [InstalledVersion]
@@ -272,3 +326,47 @@ extension StreamOutput: Identifiable {
 }
 
 // swiftlint:enable identifier_name
+
+// actor SearchActor {
+//  func run<T>(resultType _: T.Type = T.self,
+//              body: @MainActor @Sendable () async throws -> T) async rethrows -> T where T: Sendable
+//  {
+//    try await body()
+//  }
+// }
+//
+// actor UpdateActor {
+//  func run<T>(resultType _: T.Type = T.self,
+//              body: @MainActor @Sendable () async throws -> T) async rethrows -> T where T: Sendable
+//  {
+//    try await body()
+//  }
+// }
+
+@globalActor
+enum SearchActor {
+  actor ActorType {}
+
+  static let shared: ActorType = .init()
+
+  static func run<T>(
+    resultType _: T.Type = T.self,
+    body: @SearchActor @Sendable () async throws -> T
+  ) async rethrows -> T where T: Sendable {
+    try await body()
+  }
+}
+
+@globalActor
+enum UpdateActor {
+  actor ActorType {}
+
+  static let shared: ActorType = .init()
+
+  static func run<T>(
+    resultType _: T.Type = T.self,
+    body: @UpdateActor @Sendable () async throws -> T
+  ) async rethrows -> T where T: Sendable {
+    try await body()
+  }
+}

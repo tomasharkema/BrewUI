@@ -8,19 +8,20 @@
 import SwiftUI
 
 struct AllPackagesView: View {
-  @Binding var selection: InfoResult?
+  @Binding var selection: PackageIdentifier?
   @MainActor @Binding var searchTextOrNil: String?
   @ObservedObject var brewService = BrewService.shared
 
   var body: some View {
-    List(brewService.queryResult ?? brewService.cacheAllSorted, id: \.self,
-         selection: $selection)
-    { item in
+    List(
+      brewService.queryResult ?? brewService.cacheAllSorted, id: \.full_name,
+      selection: $selection
+    ) { item in
       ItemView(info: item, showInstalled: true)
     }
     .task {
       do {
-        _ = try await BrewService.shared.listAllItems()
+        _ = try await BrewService.shared.update()
       } catch {
         print(error)
       }

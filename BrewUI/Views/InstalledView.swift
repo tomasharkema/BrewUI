@@ -8,17 +8,17 @@
 import SwiftUI
 
 struct InstalledView: View {
-  @Binding var selection: InfoResult?
+  @Binding var selection: PackageIdentifier?
 
   @ObservedObject var brewService = BrewService.shared
 
   var body: some View {
-    List(brewService.cacheInstalledSorted, id: \.self, selection: $selection) { item in
+    List(brewService.cacheInstalledSorted, id: \.full_name, selection: $selection) { item in
       ItemView(info: item, showInstalled: false)
     }
     .task {
       do {
-        _ = try await BrewService.shared.listInstalledItems()
+        _ = try await BrewService.shared.update()
       } catch {
         print(error)
       }

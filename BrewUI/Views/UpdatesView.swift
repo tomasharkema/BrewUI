@@ -9,7 +9,7 @@ import SwiftUI
 
 struct UpdatesView: View {
   @MainActor @State var updates = [InfoResult]()
-  @Binding var selection: InfoResult?
+  @Binding var selection: PackageIdentifier?
   @State var isLoading = false
   @ObservedObject var brewService = BrewService.shared
 
@@ -18,7 +18,7 @@ struct UpdatesView: View {
       if isLoading {
         ProgressView().progressViewStyle(.circular)
       } else {
-        List(updates, id: \.self, selection: $selection) { item in
+        List(brewService.cacheOutdatedSorted, id: \.full_name, selection: $selection) { item in
           ItemView(info: item, showInstalled: false)
         }
       }
@@ -29,7 +29,7 @@ struct UpdatesView: View {
         defer {
           isLoading = false
         }
-        updates = try await BrewService.shared.outdated()
+        try await BrewService.shared.update()
       } catch {
         print(error)
       }
