@@ -7,41 +7,33 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		C30045782A0A91FA00BE01BB /* ProcessHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30045772A0A91FA00BE01BB /* ProcessHelper.swift */; };
 		C37751B42A04674D00473607 /* BrewUIApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C37751B32A04674D00473607 /* BrewUIApp.swift */; };
 		C37751B62A04674D00473607 /* Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = C37751B52A04674D00473607 /* Helpers.swift */; };
 		C37751B82A04674F00473607 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C37751B72A04674F00473607 /* Assets.xcassets */; };
 		C37751BB2A04674F00473607 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C37751BA2A04674F00473607 /* Preview Assets.xcassets */; };
-		C37751C32A04675F00473607 /* BrewService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C37751C22A04675F00473607 /* BrewService.swift */; };
-		C37C3F862AA1184000E14BC6 /* PackageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = C37C3F852AA1184000E14BC6 /* PackageCache.swift */; };
-		C37C3F882AA118D500E14BC6 /* InfoResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = C37C3F872AA118D500E14BC6 /* InfoResult.swift */; };
 		C3AE7A4A2A0AD22E00C0012A /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3AE7A492A0AD22E00C0012A /* MainView.swift */; };
 		C3AE7A4C2A0AD29E00C0012A /* InstalledView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3AE7A4B2A0AD29E00C0012A /* InstalledView.swift */; };
 		C3AE7A4E2A0AD37B00C0012A /* UpdatesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3AE7A4D2A0AD37A00C0012A /* UpdatesView.swift */; };
 		C3AE7A502A0AD44C00C0012A /* AllPackagesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3AE7A4F2A0AD44C00C0012A /* AllPackagesView.swift */; };
 		C3AE7A542A0ADA5C00C0012A /* ItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3AE7A532A0ADA5C00C0012A /* ItemView.swift */; };
 		C3AE7A562A0ADF0500C0012A /* ItemDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3AE7A552A0ADF0500C0012A /* ItemDetailView.swift */; };
-		C3CE7B202A9D4164002809F3 /* BrewUIDependencies in Frameworks */ = {isa = PBXBuildFile; productRef = C3CE7B1F2A9D4164002809F3 /* BrewUIDependencies */; };
+		C3BA428E2AA155520076D070 /* BrewCore in Frameworks */ = {isa = PBXBuildFile; productRef = C3BA428D2AA155520076D070 /* BrewCore */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		C30045772A0A91FA00BE01BB /* ProcessHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessHelper.swift; sourceTree = "<group>"; };
+		C32A73232AA154A50015A66A /* BrewCore */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = BrewCore; sourceTree = "<group>"; };
 		C37751B02A04674D00473607 /* BrewUI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BrewUI.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C37751B32A04674D00473607 /* BrewUIApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrewUIApp.swift; sourceTree = "<group>"; };
 		C37751B52A04674D00473607 /* Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Helpers.swift; sourceTree = "<group>"; };
 		C37751B72A04674F00473607 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		C37751BA2A04674F00473607 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		C37751BC2A04674F00473607 /* BrewUI.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BrewUI.entitlements; sourceTree = "<group>"; };
-		C37751C22A04675F00473607 /* BrewService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrewService.swift; sourceTree = "<group>"; };
-		C37C3F852AA1184000E14BC6 /* PackageCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PackageCache.swift; sourceTree = "<group>"; };
-		C37C3F872AA118D500E14BC6 /* InfoResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoResult.swift; sourceTree = "<group>"; };
 		C3AE7A492A0AD22E00C0012A /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
 		C3AE7A4B2A0AD29E00C0012A /* InstalledView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstalledView.swift; sourceTree = "<group>"; };
 		C3AE7A4D2A0AD37A00C0012A /* UpdatesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdatesView.swift; sourceTree = "<group>"; };
 		C3AE7A4F2A0AD44C00C0012A /* AllPackagesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllPackagesView.swift; sourceTree = "<group>"; };
 		C3AE7A532A0ADA5C00C0012A /* ItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemView.swift; sourceTree = "<group>"; };
 		C3AE7A552A0ADF0500C0012A /* ItemDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemDetailView.swift; sourceTree = "<group>"; };
-		C3CE7B102A9D3F23002809F3 /* Dependencies */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = Dependencies; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -49,7 +41,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C3CE7B202A9D4164002809F3 /* BrewUIDependencies in Frameworks */,
+				C3BA428E2AA155520076D070 /* BrewCore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -59,7 +51,7 @@
 		C37751A72A04674D00473607 = {
 			isa = PBXGroup;
 			children = (
-				C3CE7B102A9D3F23002809F3 /* Dependencies */,
+				C32A73232AA154A50015A66A /* BrewCore */,
 				C37751B22A04674D00473607 /* BrewUI */,
 				C37751B12A04674D00473607 /* Products */,
 				C3CE7B1C2A9D415B002809F3 /* Frameworks */,
@@ -77,14 +69,11 @@
 		C37751B22A04674D00473607 /* BrewUI */ = {
 			isa = PBXGroup;
 			children = (
-				C37C3F842AA1183100E14BC6 /* Model */,
 				C3AE7A482A0AD20B00C0012A /* Views */,
 				C37751B32A04674D00473607 /* BrewUIApp.swift */,
 				C37751B72A04674F00473607 /* Assets.xcassets */,
 				C37751BC2A04674F00473607 /* BrewUI.entitlements */,
 				C37751B92A04674F00473607 /* Preview Content */,
-				C37751C22A04675F00473607 /* BrewService.swift */,
-				C30045772A0A91FA00BE01BB /* ProcessHelper.swift */,
 			);
 			path = BrewUI;
 			sourceTree = "<group>";
@@ -95,15 +84,6 @@
 				C37751BA2A04674F00473607 /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
-			sourceTree = "<group>";
-		};
-		C37C3F842AA1183100E14BC6 /* Model */ = {
-			isa = PBXGroup;
-			children = (
-				C37C3F852AA1184000E14BC6 /* PackageCache.swift */,
-				C37C3F872AA118D500E14BC6 /* InfoResult.swift */,
-			);
-			path = Model;
 			sourceTree = "<group>";
 		};
 		C3AE7A482A0AD20B00C0012A /* Views */ = {
@@ -145,7 +125,7 @@
 			);
 			name = BrewUI;
 			packageProductDependencies = (
-				C3CE7B1F2A9D4164002809F3 /* BrewUIDependencies */,
+				C3BA428D2AA155520076D070 /* BrewCore */,
 			);
 			productName = BrewUI;
 			productReference = C37751B02A04674D00473607 /* BrewUI.app */;
@@ -206,13 +186,9 @@
 				C3AE7A562A0ADF0500C0012A /* ItemDetailView.swift in Sources */,
 				C3AE7A4E2A0AD37B00C0012A /* UpdatesView.swift in Sources */,
 				C37751B62A04674D00473607 /* Helpers.swift in Sources */,
-				C30045782A0A91FA00BE01BB /* ProcessHelper.swift in Sources */,
 				C3AE7A502A0AD44C00C0012A /* AllPackagesView.swift in Sources */,
 				C3AE7A542A0ADA5C00C0012A /* ItemView.swift in Sources */,
-				C37C3F882AA118D500E14BC6 /* InfoResult.swift in Sources */,
-				C37751C32A04675F00473607 /* BrewService.swift in Sources */,
 				C3AE7A4C2A0AD29E00C0012A /* InstalledView.swift in Sources */,
-				C37C3F862AA1184000E14BC6 /* PackageCache.swift in Sources */,
 				C3AE7A4A2A0AD22E00C0012A /* MainView.swift in Sources */,
 				C37751B42A04674D00473607 /* BrewUIApp.swift in Sources */,
 			);
@@ -367,7 +343,7 @@
 				CODE_SIGN_ENTITLEMENTS = BrewUI/BrewUI.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 12;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"BrewUI/Preview Content\"";
 				DEVELOPMENT_TEAM = RSRVS8D9PW;
@@ -381,7 +357,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 0.0.1;
+				MARKETING_VERSION = 0.1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = io.harkema.BrewUI;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -397,7 +373,7 @@
 				CODE_SIGN_ENTITLEMENTS = BrewUI/BrewUI.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 12;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"BrewUI/Preview Content\"";
 				DEVELOPMENT_TEAM = RSRVS8D9PW;
@@ -411,7 +387,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 0.0.1;
+				MARKETING_VERSION = 0.1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = io.harkema.BrewUI;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -459,9 +435,9 @@
 			package = C37751C52A070B1D00473607 /* XCRemoteSwiftPackageReference "SwiftLint" */;
 			productName = "plugin:SwiftLintPlugin";
 		};
-		C3CE7B1F2A9D4164002809F3 /* BrewUIDependencies */ = {
+		C3BA428D2AA155520076D070 /* BrewCore */ = {
 			isa = XCSwiftPackageProductDependency;
-			productName = BrewUIDependencies;
+			productName = BrewCore;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

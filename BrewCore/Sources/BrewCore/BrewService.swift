@@ -13,28 +13,17 @@ import RawJson
 import SwiftData
 import SwiftUI
 
-class BrewService: ObservableObject {
-    static let shared = BrewService()
-    let cache = BrewCache()
-
-    //  @MainActor @AppStorage("cacheInstalled") var cacheInstalled = InfoResultDict()
+@MainActor
+public final class BrewService: ObservableObject {
+    public static let shared = BrewService()
+    public let cache = BrewCache()
 
     @Query var cacheInstalled: [InstalledCache]
-
-    //  @MainActor @AppStorage("cacheInstalledSorted") var cacheInstalledSorted = InfoResultSort()
-    //  @MainActor @AppStorage("cacheAll") var cacheAll = InfoResultDict()
-    //  @MainActor @AppStorage("cacheAllSorted") var cacheAllSorted = InfoResultSort()
-
-    //  @MainActor @AppStorage("cacheOutdated") var cacheOutdated = InfoResultDict()
-    //  @MainActor @AppStorage("cacheOutdatedSorted") var cacheOutdatedSorted = InfoResultSort()
-
-    @MainActor @Published var queryResult: InfoResultSort?
-
-    @MainActor
+    @Published public var queryResult: InfoResultSort?
     private var streamCancellable: AnyCancellable?
-    @MainActor @Published var stream: StreamStreamingAndTask?
-    @MainActor @Published private var updateTask: Task<Void, Error>?
-    @MainActor var isUpdateRunning: Bool {
+    @Published public var stream: StreamStreamingAndTask?
+    @Published private var updateTask: Task<Void, Error>?
+    var isUpdateRunning: Bool {
         updateTask != nil
     }
 
@@ -53,7 +42,7 @@ class BrewService: ObservableObject {
     }
 
     @UpdateActor
-    func update() async throws {
+    public func update() async throws {
 //    if let updateTask {
 //      return try await updateTask.value
 //    }
@@ -75,7 +64,7 @@ class BrewService: ObservableObject {
     }
 
     @UpdateActor
-    func fetchInfo() async throws -> [InfoResult] {
+    public func fetchInfo() async throws -> [InfoResult] {
         let info = try await executeBrew(command: "info --json=v1 --eval-all")
 
         let result = try JSONDecoder().decode(
@@ -95,7 +84,7 @@ class BrewService: ObservableObject {
         }
 
         let installedTask = Task {
-            await try await cache.sync(installed: installed.value)
+            try await cache.sync(installed: installed.value)
         }
 
         let outdatedTask = Task {
@@ -122,7 +111,7 @@ class BrewService: ObservableObject {
         }
     }
 
-    func install(name: PackageIdentifier) async throws {
+    public func install(name: PackageIdentifier) async throws {
         let brew = try await whichBrew()
         let stream = await Process.stream(command: "\(brew) install \(name.rawValue)")
 
@@ -137,7 +126,7 @@ class BrewService: ObservableObject {
         _ = try await update()
     }
 
-    func uninstall(name: PackageIdentifier) async throws {
+    public func uninstall(name: PackageIdentifier) async throws {
         let brew = try await whichBrew()
         let stream = await Process.stream(command: "\(brew) uninstall \(name.rawValue)")
         await MainActor.run {
@@ -151,7 +140,7 @@ class BrewService: ObservableObject {
         _ = try await update()
     }
 
-    func upgrade(name: PackageIdentifier) async throws {
+    public func upgrade(name: PackageIdentifier) async throws {
         let brew = try await whichBrew()
         let stream = await Process.stream(command: "\(brew) upgrade \(name.rawValue)")
         await MainActor.run {
@@ -166,7 +155,7 @@ class BrewService: ObservableObject {
     }
 
     @SearchActor
-    func search(query: String?) async throws {
+    public func search(query: String?) async throws {
         guard let query else {
             await MainActor.run {
                 queryResult = nil
@@ -189,7 +178,7 @@ class BrewService: ObservableObject {
         }
     }
 
-    func done() async {
+    public func done() async {
         await MainActor.run {
             self.stream = nil
             self.objectWillChange.send()

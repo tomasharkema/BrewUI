@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import BrewCore
 
 struct ItemView: View {
     let info: InfoResult

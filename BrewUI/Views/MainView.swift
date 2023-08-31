@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import BrewCore
 
 enum TabViewSelection: String, Hashable {
     case installed

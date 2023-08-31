@@ -7,6 +7,7 @@
 
 import SwiftData
 import SwiftUI
+import BrewCore
 
 @main
 struct BrewUIApp: App {

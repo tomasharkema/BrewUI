@@ -7,6 +7,7 @@
 
 import SwiftData
 import SwiftUI
+import BrewCore
 
 struct AllPackagesView: View {
     @Binding var selection: PackageIdentifier?

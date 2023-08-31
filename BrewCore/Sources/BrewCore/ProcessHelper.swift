@@ -129,11 +129,11 @@ extension Process {
             }
         }
 
-        return StreamStreamingAndTask(stream: stream, task: awaitTask)
+        return await StreamStreamingAndTask(stream: stream, task: awaitTask)
     }
 }
 
-class StreamStreaming: ObservableObject {
+final class StreamStreaming: ObservableObject {
     @MainActor @Published var stream = AttributedString("")
     @MainActor @Published var isStreamingDone = false
 
@@ -152,11 +152,12 @@ class StreamStreaming: ObservableObject {
     }
 }
 
-class StreamStreamingAndTask: ObservableObject, Identifiable {
-    @MainActor @Published var stream = AttributedString("")
-    @MainActor @Published var isStreamingDone = false
+@MainActor
+public final class StreamStreamingAndTask: ObservableObject, Identifiable {
+    @Published public var stream = AttributedString("")
+    @Published public var isStreamingDone = false
     private let task: Task<Void, Error>
-    let id = UUID()
+    public let id = UUID()
 
     init(stream: StreamStreaming, task: Task<Void, Error>) {
         self.task = task
@@ -164,7 +165,7 @@ class StreamStreamingAndTask: ObservableObject, Identifiable {
         stream.$isStreamingDone.assign(to: &$isStreamingDone)
     }
 
-    func cancel() {
+    public func cancel() {
         task.cancel()
     }
 

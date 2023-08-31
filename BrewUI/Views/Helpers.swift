@@ -12,15 +12,3 @@ extension String: Identifiable {
         hashValue
     }
 }
-
-extension ListResult: Identifiable {
-    var id: Int {
-        hashValue
-    }
-}
-
-extension InfoResult: Identifiable {
-    var id: Int {
-        hashValue
-    }
-}

@@ -7,11 +7,12 @@
 
 import SwiftData
 import SwiftUI
+import BrewCore
 
 struct InstalledView: View {
     @Binding var selection: PackageIdentifier?
 
-    @Query var installed: [InstalledCache]
+    @Query(sort: \InstalledCache.name) var installed: [InstalledCache]
 
     var body: some View {
         List(installed, selection: $selection) { item in

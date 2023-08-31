@@ -7,6 +7,7 @@
 
 import SwiftData
 import SwiftUI
+import BrewCore
 
 struct ItemDetailView: View {
     //  @Namespace var bottomID

@@ -7,6 +7,7 @@
 
 import SwiftData
 import SwiftUI
+import BrewCore
 
 struct UpdatesView: View {
     @MainActor @State var updates = [InfoResult]()
@@ -14,16 +15,15 @@ struct UpdatesView: View {
     @State var isLoading = false
     //  @ObservedObject var brewService = BrewService.shared
 
-    @Query var outdated: [OutdatedCache]
+    @Query(sort: \OutdatedCache.name) var outdated: [OutdatedCache]
 
     var body: some View {
-        Group {
+        VStack {
+            List(outdated, selection: $selection) { item in
+                ItemView(info: item.result!, showInstalled: false)
+            }
             if isLoading {
                 ProgressView().progressViewStyle(.circular)
-            } else {
-                List(outdated, selection: $selection) { item in
-                    ItemView(info: item.result!, showInstalled: false)
-                }
             }
         }
         .task {
@@ -39,7 +39,7 @@ struct UpdatesView: View {
         }
         .tag(TabViewSelection.updates)
         .tabItem {
-            Text("Updates")
+            Text("Updates (\(outdated.count))")
         }
     }
 }
