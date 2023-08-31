@@ -8,19 +8,19 @@
 import SwiftUI
 
 extension String: Identifiable {
-  public var id: Int {
-    hashValue
-  }
+    public var id: Int {
+        hashValue
+    }
 }
 
 extension ListResult: Identifiable {
-  var id: Int {
-    hashValue
-  }
+    var id: Int {
+        hashValue
+    }
 }
 
 extension InfoResult: Identifiable {
-  var id: Int {
-    hashValue
-  }
+    var id: Int {
+        hashValue
+    }
 }

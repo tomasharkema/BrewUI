@@ -13,6 +13,8 @@
 		C37751B82A04674F00473607 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C37751B72A04674F00473607 /* Assets.xcassets */; };
 		C37751BB2A04674F00473607 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C37751BA2A04674F00473607 /* Preview Assets.xcassets */; };
 		C37751C32A04675F00473607 /* BrewService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C37751C22A04675F00473607 /* BrewService.swift */; };
+		C37C3F862AA1184000E14BC6 /* PackageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = C37C3F852AA1184000E14BC6 /* PackageCache.swift */; };
+		C37C3F882AA118D500E14BC6 /* InfoResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = C37C3F872AA118D500E14BC6 /* InfoResult.swift */; };
 		C3AE7A4A2A0AD22E00C0012A /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3AE7A492A0AD22E00C0012A /* MainView.swift */; };
 		C3AE7A4C2A0AD29E00C0012A /* InstalledView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3AE7A4B2A0AD29E00C0012A /* InstalledView.swift */; };
 		C3AE7A4E2A0AD37B00C0012A /* UpdatesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3AE7A4D2A0AD37A00C0012A /* UpdatesView.swift */; };
@@ -31,6 +33,8 @@
 		C37751BA2A04674F00473607 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		C37751BC2A04674F00473607 /* BrewUI.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BrewUI.entitlements; sourceTree = "<group>"; };
 		C37751C22A04675F00473607 /* BrewService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrewService.swift; sourceTree = "<group>"; };
+		C37C3F852AA1184000E14BC6 /* PackageCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PackageCache.swift; sourceTree = "<group>"; };
+		C37C3F872AA118D500E14BC6 /* InfoResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoResult.swift; sourceTree = "<group>"; };
 		C3AE7A492A0AD22E00C0012A /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
 		C3AE7A4B2A0AD29E00C0012A /* InstalledView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstalledView.swift; sourceTree = "<group>"; };
 		C3AE7A4D2A0AD37A00C0012A /* UpdatesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdatesView.swift; sourceTree = "<group>"; };
@@ -73,6 +77,7 @@
 		C37751B22A04674D00473607 /* BrewUI */ = {
 			isa = PBXGroup;
 			children = (
+				C37C3F842AA1183100E14BC6 /* Model */,
 				C3AE7A482A0AD20B00C0012A /* Views */,
 				C37751B32A04674D00473607 /* BrewUIApp.swift */,
 				C37751B72A04674F00473607 /* Assets.xcassets */,
@@ -90,6 +95,15 @@
 				C37751BA2A04674F00473607 /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		C37C3F842AA1183100E14BC6 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				C37C3F852AA1184000E14BC6 /* PackageCache.swift */,
+				C37C3F872AA118D500E14BC6 /* InfoResult.swift */,
+			);
+			path = Model;
 			sourceTree = "<group>";
 		};
 		C3AE7A482A0AD20B00C0012A /* Views */ = {
@@ -195,8 +209,10 @@
 				C30045782A0A91FA00BE01BB /* ProcessHelper.swift in Sources */,
 				C3AE7A502A0AD44C00C0012A /* AllPackagesView.swift in Sources */,
 				C3AE7A542A0ADA5C00C0012A /* ItemView.swift in Sources */,
+				C37C3F882AA118D500E14BC6 /* InfoResult.swift in Sources */,
 				C37751C32A04675F00473607 /* BrewService.swift in Sources */,
 				C3AE7A4C2A0AD29E00C0012A /* InstalledView.swift in Sources */,
+				C37C3F862AA1184000E14BC6 /* PackageCache.swift in Sources */,
 				C3AE7A4A2A0AD22E00C0012A /* MainView.swift in Sources */,
 				C37751B42A04674D00473607 /* BrewUIApp.swift in Sources */,
 			);
@@ -364,6 +380,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 0.0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = io.harkema.BrewUI;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -393,6 +410,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 0.0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = io.harkema.BrewUI;
 				PRODUCT_NAME = "$(TARGET_NAME)";

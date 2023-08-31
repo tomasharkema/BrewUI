@@ -8,62 +8,62 @@
 import SwiftUI
 
 enum TabViewSelection: String, Hashable {
-  case installed
-  case updates
-  case all
+    case installed
+    case updates
+    case all
 }
 
 struct MainView: View {
-  @MainActor @State var searchText = ""
-  @MainActor @State var searchTextOrNil: String?
+    @MainActor @State var searchText = ""
+    @MainActor @State var searchTextOrNil: String?
 
-  @MainActor @AppStorage("tabviewSelection") var tabviewSelection = TabViewSelection.installed
+    @MainActor @AppStorage("tabviewSelection") var tabviewSelection = TabViewSelection.installed
 
-  @MainActor @State var selectionInstalled = Set<InfoResult>()
-  @MainActor @State var selection: PackageIdentifier?
+    @MainActor @State var selectionInstalled = Set<InfoResult>()
+    @MainActor @State var selection: PackageIdentifier?
 
-  @ObservedObject var brewService: BrewService = .shared
+    @ObservedObject var brewService: BrewService = .shared
 
-  var body: some View {
-    TabView(selection: $tabviewSelection) {
-      InstalledView(selection: $selection)
+    var body: some View {
+        TabView(selection: $tabviewSelection) {
+            InstalledView(selection: $selection)
 
-      UpdatesView(selection: $selection)
+            UpdatesView(selection: $selection)
 
-      AllPackagesView(selection: $selection, searchTextOrNil: $searchTextOrNil)
-    }
-    .sheet(item: $selection, onDismiss: {
-      selection = nil
-    }) { item in
-      ItemDetailView(package: item).padding()
-    }
-    .task(id: searchTextOrNil) {
-      do {
-        try await BrewService.shared.search(query: searchTextOrNil)
-      } catch {
-        print(error)
-      }
-    }
-    .searchable(text: $searchText)
-    .onChange(of: searchText) {
-      if searchText == "" {
-        searchTextOrNil = nil
-      } else {
-        searchTextOrNil = $0
-        if tabviewSelection != .all {
-          tabviewSelection = .all
+            AllPackagesView(selection: $selection, searchTextOrNil: $searchTextOrNil)
         }
-      }
+        .sheet(item: $selection, onDismiss: {
+            selection = nil
+        }) { item in
+            ItemDetailView(package: item).padding()
+        }
+        .task(id: searchTextOrNil) {
+            do {
+                try await BrewService.shared.search(query: searchTextOrNil)
+            } catch {
+                print(error)
+            }
+        }
+        .searchable(text: $searchText)
+        .onChange(of: searchText) {
+            if searchText == "" {
+                searchTextOrNil = nil
+            } else {
+                searchTextOrNil = $0
+                if tabviewSelection != .all {
+                    tabviewSelection = .all
+                }
+            }
+        }
+        .padding()
+        .background(Color(.background))
+        .scrollContentBackground(.hidden)
+        .navigationTitle("🍺 BrewUI")
     }
-    .padding()
-    .background(Color(.background))
-    .scrollContentBackground(.hidden)
-    .navigationTitle("🍺 BrewUI")
-  }
 }
 
 struct MainView_Previews: PreviewProvider {
-  static var previews: some View {
-    MainView()
-  }
+    static var previews: some View {
+        MainView()
+    }
 }

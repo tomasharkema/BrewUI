@@ -44,24 +44,6 @@
         "revision" : "506621944d39767a429fa229e59978f87fe945da",
         "version" : "0.0.26"
       }
-    },
-    {
-      "identity" : "swift-tracing",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/tomasharkema/swift-tracing",
-      "state" : {
-        "revision" : "0eefdbf2792bb32d247a5a8afff4e7de5ed2e9bc",
-        "version" : "0.0.22"
-      }
-    },
-    {
-      "identity" : "swiftdemangle",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/oozoofrog/SwiftDemangle.git",
-      "state" : {
-        "revision" : "bd8933cccc0c912c15d396fc23f51b072dc72654",
-        "version" : "5.5.9"
-      }
     }
   ],
   "version" : 2
