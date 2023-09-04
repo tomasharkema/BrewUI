@@ -75,7 +75,7 @@ public struct PackageIdentifier: Hashable, CustomStringConvertible, Codable, Ide
             tap = String(res.output.1)
             name = String(res.output.2)
         } else {
-            tap = "homebrew/core"
+            tap = Self.core
             name = raw
         }
     }

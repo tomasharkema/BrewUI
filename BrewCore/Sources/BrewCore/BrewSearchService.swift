@@ -47,22 +47,25 @@ public final class BrewSearchService: ObservableObject {
 
         searchRemote(query: query)
 
-        try await task.value
+        _ = try await task.value
     }
 
     private func searchRemote(query: String?) {
+        let concurrentFetches = 8
         guard let query, query.count >= 3 else {
             queryRemoteResult = nil
             return
         }
 
         let queryLowerCase = query.lowercased()
+
         searchRemoteTask?.cancel()
 
         queryRemoteResult = nil
 
         let task = Task {
             try Task.checkCancellation()
+            let brew = try await self.service.whichBrew()
 
             let remoteResult = try await self.service.searchFormula(query: queryLowerCase)
 
@@ -70,22 +73,18 @@ public final class BrewSearchService: ObservableObject {
 
             let results = try await withThrowingTaskGroup(of: [Result<PackageInfo, Error>].self) { group in
 
-                try Task.checkCancellation()
-
-                let brew = try await self.service.whichBrew()
-
                 for (index, pkg) in remoteResult.enumerated() {
                     try Task.checkCancellation()
 
                     let localCandidate = localResult?.first { $0.id == pkg }
 
-                    if index % 4 == 0 {
-                        try await group.next()
+                    if index % concurrentFetches == 0 {
+                        _ = try await group.next()
                     }
 
                     guard localCandidate == nil else { continue }
 
-                    group.addTaskUnlessCancelled {
+                    _ = group.addTaskUnlessCancelled {
                         do {
                             let info = try await self.service.infoFormula(package: pkg, brewOverride: brew)
                             return info.map { .success(.remote($0)) }

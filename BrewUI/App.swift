@@ -30,11 +30,7 @@ final class Dependencies: Sendable {
 
         let container = try ModelContainer.brew(url: url)
         self.modelContainer = container
-        let cache = try await Task { @UpdateActor in
-            let newCache = try BrewCache(container: container)
-            print(newCache)
-            return newCache
-        }.value
+        let cache = try await BrewCache(container: container)
         brewService = await BrewService(cache: cache)
 
         search = await BrewSearchService(cache: cache, service: brewService)

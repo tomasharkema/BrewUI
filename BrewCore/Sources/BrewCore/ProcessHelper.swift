@@ -5,7 +5,6 @@
 //  Created by Tomas Harkema on 09/05/2023.
 //
 
-import AsyncAlgorithms
 import Combine
 import Foundation
 import OSLog
@@ -28,44 +27,48 @@ extension Process {
     }
 
     static func shell(command: String) async throws -> String {
-            logger.info("EXECUTE: \(command)")
+        logger.info("EXECUTE: \(command)")
 
-            let task = defaultShell(command: command)
+        let task = defaultShell(command: command)
 
-            let pipe = Pipe()
-            let pipeErr = Pipe()
+        let pipe = Pipe()
+        let pipeErr = Pipe()
 
-            task.standardOutput = pipe
-            task.standardError = pipeErr
+        task.standardOutput = pipe
+        task.standardError = pipeErr
 
-            task.launch()
+        task.launch()
 
-            let (output, outputErr) = await Task {
-                let data = pipe.fileHandleForReading.readDataToEndOfFile()
-                let dataErr = pipeErr.fileHandleForReading.readDataToEndOfFile()
-                let output = String(data: data, encoding: .utf8)!
-                    .trimmingCharacters(in: .whitespacesAndNewlines)
-                let outputErr = String(data: dataErr, encoding: .utf8)!
-                    .trimmingCharacters(in: .whitespacesAndNewlines)
+        let outputTask = await Task {
+            let data = pipe.fileHandleForReading.readDataToEndOfFile()
+            let dataErr = pipeErr.fileHandleForReading.readDataToEndOfFile()
+            let output = String(data: data, encoding: .utf8)!
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            let outputErr = String(data: dataErr, encoding: .utf8)!
+                .trimmingCharacters(in: .whitespacesAndNewlines)
 
-                return (output, outputErr)
-            }.value
+            return (output, outputErr)
+        }
 
-            await withTaskCancellationHandler(operation: { () async in
-                await withCheckedContinuation { res in
-                    task.terminationHandler = { _ in
-                        res.resume()
-                    }
+        await withTaskCancellationHandler(operation: { () async in
+            await withCheckedContinuation { res in
+                task.terminationHandler = { _ in
+                    res.resume()
                 }
-            }, onCancel: {
-                task.terminate()
-            })
-
-            guard task.terminationStatus == EXIT_SUCCESS else {
-                throw StdErr(message: output + "\n" + outputErr, command: command)
             }
+        }, onCancel: {
+            task.terminate()
+        })
 
-            return output
+        let (output, outputErr) = await outputTask.value
+
+        try Task.checkCancellation()
+
+        guard task.terminationStatus == EXIT_SUCCESS else {
+            throw StdErr(message: output + "\n" + outputErr, command: command)
+        }
+
+        return output
     }
 
     static func stream(command: String) async -> StreamStreamingAndTask {

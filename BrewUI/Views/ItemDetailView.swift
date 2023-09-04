@@ -38,11 +38,10 @@ struct ItemDetailView: View {
 }
 
 struct ItemDetailItemView: View {
-    @Namespace var bottomID
     @Environment(\.dismiss) var dismiss
     let package: PackageInfo
 
-    @EnvironmentObject var brewService: BrewService
+    @State var stream: BrewStreaming?
 
     var body: some View {
         VStack {
@@ -51,7 +50,7 @@ struct ItemDetailItemView: View {
                     Button("Uninstall \(installedVersion)") {
                         Task {
                             do {
-                                try await Dependencies.shared().brewService.uninstall(name: package.identifier)
+                                stream = try await Dependencies.shared().brewService.uninstall(name: package.identifier)
                             } catch {
                                 print(error)
                             }
@@ -62,7 +61,7 @@ struct ItemDetailItemView: View {
                         Button("Upgrade") {
                             Task {
                                 do {
-                                    try await Dependencies.shared().brewService.upgrade(name: package.identifier)
+                                    stream = try await Dependencies.shared().brewService.upgrade(name: package.identifier)
 
                                 } catch {
                                     print(error)
@@ -75,7 +74,7 @@ struct ItemDetailItemView: View {
                     Button("Install") {
                         Task {
                             do {
-                                try await Dependencies.shared().brewService.install(name: package.identifier)
+                                stream = try await Dependencies.shared().brewService.install(name: package.identifier)
                             } catch {
                                 print(error)
                             }
@@ -98,45 +97,65 @@ struct ItemDetailItemView: View {
             Link(package.homepage, destination: URL(string: package.homepage)!)
         }
         .textSelection(.enabled)
-        .sheet(item: $brewService.stream) { stream in
-            VStack {
-                if !stream.isStreamingDone {
-                    Button("Cancel") {
-                        Task {
-                            await Dependencies.shared().brewService.stream?.cancel()
-                            await Dependencies.shared().brewService.done()
-                        }
+        .sheet(item: $stream) {
+            StreamingView(stream: $0) {
+                self.stream = nil
+            }
+        }
+    }
+}
+
+struct StreamingView: View {
+    @Namespace private var bottomID
+    @ObservedObject private var stream: BrewStreaming
+
+    private let dismiss: () -> ()
+
+    init(stream: BrewStreaming, dismiss: @escaping () -> ()) {
+        self.stream = stream
+        self.dismiss = dismiss
+    }
+
+    var body: some View {
+        VStack {
+            if !stream.stream.isStreamingDone {
+                Button("Cancel") {
+                    Task {
+                        stream.stream.cancel()
+                        dismiss()
                     }
-                }
-                ScrollViewReader { scroll in
-                    ScrollView {
-                        HStack {
-                            Text(stream.attributed).textSelection(.enabled)
-                                .multilineTextAlignment(.leading)
-                                .font(.body.monospaced())
-                                .padding()
-                            Spacer()
-                        }
-                        Text("End")
-                            .tag(bottomID)
-                            .onReceive(brewService.$stream) { _ in
-                                scroll.scrollTo(bottomID, anchor: .bottom)
-                            }
-                    }
-                    .frame(minWidth: 600, minHeight: 400)
-                }
-                if stream.isStreamingDone {
-                    Button("Done") {
-                        Task {
-                            await Dependencies.shared().brewService.done()
-                        }
-                    }
-                } else {
-                    ProgressView().progressViewStyle(CircularProgressViewStyle())
                 }
             }
-            .padding()
-            .frame(minWidth: 600, minHeight: 400)
+            ScrollViewReader { scroll in
+                ScrollView {
+                    HStack {
+                        Text(stream.stream.attributed).textSelection(.enabled)
+                            .multilineTextAlignment(.leading)
+                            .font(.body.monospaced())
+                            .padding()
+                        Spacer()
+                    }
+                    Text("End")
+                        .tag(bottomID)
+                        .onReceive(stream.$stream) { _ in
+                                scroll.scrollTo(bottomID, anchor: .bottom)
+                            }
+                }
+                .frame(minWidth: 600, minHeight: 400)
+            }
+            if stream.stream.isStreamingDone {
+                Button("Done") {
+                    dismiss()
+
+//                        Task {
+//                            await Dependencies.shared().brewService.done()
+//                        }
+                }
+            } else {
+                ProgressView().progressViewStyle(CircularProgressViewStyle())
+            }
         }
+        .padding()
+        .frame(minWidth: 600, minHeight: 400)
     }
 }

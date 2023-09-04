@@ -15,6 +15,7 @@ public actor BrewCache: ModelActor {
     public let modelExecutor: ModelExecutor
     public nonisolated let modelContainer: ModelContainer
 
+    @BrewCacheInitializer
     public init(container: ModelContainer) throws {
         dispatchPrecondition(condition: .notOnQueue(.main))
 
@@ -111,4 +112,9 @@ public actor BrewCache: ModelActor {
         dispatchPrecondition(condition: .notOnQueue(.main))
         #endif
     }
+}
+
+@globalActor
+public actor BrewCacheInitializer {
+    public static var shared = BrewCacheInitializer()
 }

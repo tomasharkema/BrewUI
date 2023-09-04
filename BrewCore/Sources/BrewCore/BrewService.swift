@@ -14,31 +14,34 @@ import SwiftData
 import SwiftUI
 import SwiftTracing
 
-@MainActor
-public final class BrewService: ObservableObject {
+public final class BrewService {
     public let cache: BrewCache
-
-    private var streamCancellable: AnyCancellable?
-    @Published public var stream: StreamStreamingAndTask?
 
     private let listRegex = /(.+) (.+)/
 
     public init(cache: BrewCache) {
         self.cache = cache
-
-        _printChanges()
     }
 
-    nonisolated func whichBrew() async throws -> String {
+    @BrewActor
+    private var brewCached: Brew?
+
+    @BrewActor
+    func whichBrew() async throws -> Brew {
+        if let brewCached {
+            return brewCached
+        }
+
         let result = try await (Process.shell(command: "which brew"))
             .trimmingCharacters(in: .whitespacesAndNewlines)
         print("FOUND BREW: \(result)")
-        return result
+        brewCached = Brew(rawValue: result)
+        return Brew(rawValue: result)
     }
 
     nonisolated func executeBrew(command: String) async throws -> String {
         let brew = try await whichBrew()
-        return try await Process.shell(command: "\(brew) \(command)")
+        return try await Process.shell(command: "\(brew.rawValue) \(command)")
     }
 
     @UpdateActor
@@ -77,22 +80,6 @@ public final class BrewService: ObservableObject {
         if let fetchInfoTask {
             return try await fetchInfoTask.value
         }
-
-//        let info = try await executeBrew(command: "info --json=v1 --eval-all")
-//
-//        let result = try JSONDecoder().decode(
-//            [FallbackCodable<InfoResult>].self,
-//            from: info.data(using: .utf8)!
-//        )
-//        .compactMap(\.value)
-
-//        let formula = try await apiResult
-
-//        let installed = Task {
-//            formula.filter {
-//                !$0.installed.isEmpty
-//            }
-//        }
 
         let resultTask = Task {
             let formulaResult = try await BrewApi.shared.formula()
@@ -152,71 +139,25 @@ public final class BrewService: ObservableObject {
 //        }
 //    }
 
-    public func install(name: PackageIdentifier) async throws {
-        let brew = try await whichBrew()
-        let stream = await Process.stream(command: "\(brew) install \(name.name)")
-
-        await MainActor.run {
-            self.stream?.cancel()
-            streamCancellable = stream.objectWillChange.sink {
-                self.objectWillChange.send()
-            }
-            self.stream = stream
-        }
-        _ = try await stream.value
-        _ = try await update()
-    }
-
-    public func uninstall(name: PackageIdentifier) async throws {
-        let brew = try await whichBrew()
-        let stream = await Process.stream(command: "\(brew) uninstall \(name.name)")
-        await MainActor.run {
-            self.stream?.cancel()
-            streamCancellable = stream.objectWillChange.sink {
-                self.objectWillChange.send()
-            }
-            self.stream = stream
-        }
-        try await stream.value
-        _ = try await update()
-    }
-
-    public func upgrade(name: PackageIdentifier) async throws {
-        let brew = try await whichBrew()
-        let stream = await Process.stream(command: "\(brew) upgrade \(name.name)")
-        await MainActor.run {
-            self.stream?.cancel()
-            streamCancellable = stream.objectWillChange.sink {
-                self.objectWillChange.send()
-            }
-            self.stream = stream
-        }
-        try await stream.value
-        _ = try await update()
-    }
 
     public func searchFormula(query: String) async throws -> [PackageIdentifier] {
         let brew = try await whichBrew()
-        let stream = await Process.stream(command: "\(brew) search --formula \(query)")
-        try await stream.value
+        let stream = try await Process.shell(command: "\(brew.rawValue) search --formula \(query)")
 
-        let stringsEntry = stream.stream.lazy
-            .filter { $0.level == .out }
-            .map(\.rawEntry)
-            .flatMap { $0.split(separator: "\n") }
-            .compactMap { try? PackageIdentifier(raw: String($0)) }
-
-        return Array(stringsEntry)
+        return stream.split(separator: "\n")
+            .compactMap {
+                try? PackageIdentifier(raw: String($0))
+            }
     }
 
-    nonisolated func infoFormula(package: PackageIdentifier, brewOverride: String? = nil) async throws -> [InfoResult] {
-        let brew: String
+    func infoFormula(package: PackageIdentifier, brewOverride: Brew? = nil) async throws -> [InfoResult] {
+        let brew: Brew
         if let brewOverride {
             brew = brewOverride
         } else {
             brew = try await whichBrew()
         }
-        let stream = try await Process.shell(command: "\(brew) info --json=v1 --formula \(package.nameWithoutCore)")
+        let stream = try await Process.shell(command: "\(brew.rawValue) info --json=v1 --formula \(package.nameWithoutCore)")
         guard let data = stream.data(using: .utf8) else {
             return []
         }
@@ -228,11 +169,16 @@ public final class BrewService: ObservableObject {
         }
     }
 
-    public func done() async {
-        await MainActor.run {
-            self.stream = nil
-            self.objectWillChange.send()
-        }
+    public func install(name: PackageIdentifier) async throws -> BrewStreaming {
+        return try await BrewStreaming.install(service: self, name: name)
+    }
+
+    public func uninstall(name: PackageIdentifier) async throws -> BrewStreaming {
+        return try await BrewStreaming.uninstall(service: self, name: name)
+    }
+
+    public func upgrade(name: PackageIdentifier) async throws -> BrewStreaming {
+        return try await BrewStreaming.upgrade(service: self, name: name)
     }
 }
 
@@ -251,24 +197,6 @@ extension StreamOutput: Identifiable {
         hashValue
     }
 }
-
-// swiftlint:enable identifier_name
-
-// actor SearchActor {
-//  func run<T>(resultType _: T.Type = T.self,
-//              body: @MainActor @Sendable () async throws -> T) async rethrows -> T where T: Sendable
-//  {
-//    try await body()
-//  }
-// }
-//
-// actor UpdateActor {
-//  func run<T>(resultType _: T.Type = T.self,
-//              body: @MainActor @Sendable () async throws -> T) async rethrows -> T where T: Sendable
-//  {
-//    try await body()
-//  }
-// }
 
 @globalActor
 actor SearchActor {
@@ -291,4 +219,14 @@ public actor UpdateActor {
     ) async rethrows -> T where T: Sendable {
         try await body()
     }
+}
+
+@globalActor
+public actor BrewActor {
+    public static let shared = BrewActor()
+}
+
+
+struct Brew: RawRepresentable {
+    let rawValue: String
 }

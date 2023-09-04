@@ -14,7 +14,7 @@ struct Main {
     static func main() async throws {
         let api = BrewApi.shared
         
-        let cache = try BrewCache() //(inMemoryStore: true)
+        let cache = try await BrewCache(container: .brew(url: URL.temporaryDirectory.appending(component: "brewui.store")))
 
         async let formulaRequest = api.formula()
         async let caskRequest = api.cask()

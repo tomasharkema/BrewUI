@@ -17,7 +17,6 @@ struct MainContainer: View {
             if let dependencies {
                 MainView()
                     .modelContainer(dependencies.modelContainer)
-                    .environmentObject(dependencies.brewService)
                     .environmentObject(dependencies.search)
             } else {
                 ProgressView().progressViewStyle(.circular)
