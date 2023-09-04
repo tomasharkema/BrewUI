@@ -11,37 +11,23 @@ import BrewCore
 
 struct AllPackagesView: View {
     @Binding var selection: PackageIdentifier?
-    @MainActor @Binding var searchTextOrNil: String?
-    @ObservedObject var brewService = BrewService.shared
+    @Query//(sort: \PackageCache.sortValue)
+    var all: [PackageCache]
 
-    @Query var all: [PackageCache]
-
-    @ViewBuilder
-    var list: some View {
-        if let queryResult = brewService.queryResult {
-            List(
-                queryResult,
-                selection: $selection
-            ) { item in
-                ItemView(info: item, showInstalled: true)
-            }
-        } else {
-            List(
-                all,
-                selection: $selection
-            ) { item in
-                ItemView(info: item.result!, showInstalled: true)
-            }
-        }
+    init(selection: Binding<PackageIdentifier?>) {
+        _selection = selection
+        var fd = FetchDescriptor<PackageCache>(sortBy: [SortDescriptor(\.sortValue)])
+        fd.fetchLimit = BrewCache.globalFetchLimit
+        _all = Query(fd)
     }
 
+
     var body: some View {
-        list.task {
-            do {
-                _ = try await BrewService.shared.update()
-            } catch {
-                print(error)
-            }
+        List(
+            all,
+            selection: $selection
+        ) { item in
+            ItemView(package: .cached(item), showInstalled: true)
         }
         .tag(TabViewSelection.all)
         .tabItem {

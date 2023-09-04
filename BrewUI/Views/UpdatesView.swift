@@ -10,32 +10,25 @@ import SwiftUI
 import BrewCore
 
 struct UpdatesView: View {
-    @MainActor @State var updates = [InfoResult]()
     @Binding var selection: PackageIdentifier?
-    @State var isLoading = false
-    //  @ObservedObject var brewService = BrewService.shared
+    @Query
+    var outdated: [OutdatedCache]
 
-    @Query(sort: \OutdatedCache.name) var outdated: [OutdatedCache]
+    init(selection: Binding<PackageIdentifier?>) {
+        _selection = selection
+        var fd = FetchDescriptor<OutdatedCache>(sortBy: [SortDescriptor(\OutdatedCache.package!.sortValue)])
+        fd.fetchLimit = BrewCache.globalFetchLimit
+        _outdated = Query(fd)
+    }
 
     var body: some View {
         VStack {
             List(outdated, selection: $selection) { item in
-                ItemView(info: item.result!, showInstalled: false)
+                ItemView(package: .cached(item.package), showInstalled: false)
             }
-            if isLoading {
-                ProgressView().progressViewStyle(.circular)
-            }
-        }
-        .task {
-            do {
-                isLoading = true
-                defer {
-                    isLoading = false
-                }
-                try await BrewService.shared.update()
-            } catch {
-                print(error)
-            }
+//            if isLoading {
+//                ProgressView().progressViewStyle(.circular)
+//            }
         }
         .tag(TabViewSelection.updates)
         .tabItem {

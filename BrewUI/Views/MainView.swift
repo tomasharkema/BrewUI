@@ -12,18 +12,27 @@ enum TabViewSelection: String, Hashable {
     case installed
     case updates
     case all
+    case table
+//    case newDesign
+    case searchResult
 }
 
 struct MainView: View {
-    @MainActor @State var searchText = ""
-    @MainActor @State var searchTextOrNil: String?
+    @State 
+    var searchText = ""
 
-    @MainActor @AppStorage("tabviewSelection") var tabviewSelection = TabViewSelection.installed
+    @AppStorage("tabviewSelection") 
+    var tabviewSelection = TabViewSelection.installed
 
-    @MainActor @State var selectionInstalled = Set<InfoResult>()
-    @MainActor @State var selection: PackageIdentifier?
+    @State 
+    var selectionInstalled = Set<InfoResult>()
+    @State 
+    var selection: PackageIdentifier?
 
-    @ObservedObject var brewService: BrewService = .shared
+    @State 
+    var presentedError: Error?
+    @State 
+    var errorIsPresented = false
 
     var body: some View {
         TabView(selection: $tabviewSelection) {
@@ -31,28 +40,58 @@ struct MainView: View {
 
             UpdatesView(selection: $selection)
 
-            AllPackagesView(selection: $selection, searchTextOrNil: $searchTextOrNil)
+            AllPackagesView(selection: $selection)
+            #if DEBUG
+            PackageTable()
+            #endif
+
+//            PackageNewDesign(selection: $selection)
+
+            SearchResult(selection: $selection)
         }
         .sheet(item: $selection, onDismiss: {
             selection = nil
         }) { item in
             ItemDetailView(package: item).padding()
         }
-        .task(id: searchTextOrNil) {
+        .task {
             do {
-                try await BrewService.shared.search(query: searchTextOrNil)
+                try await Dependencies.shared().brewService.update()
             } catch {
-                print(error)
+                if error is CancellationError {
+                    return
+                }
+                
+                print("update error \(error)")
+
+                presentedError = error
+                errorIsPresented = true
+            }
+        }
+        .alert(Text("Error"), isPresented: $errorIsPresented) {
+            if let presentedError = self.presentedError {
+                Text("Error: \(String(describing: presentedError))")
+                Button("OK", role: .cancel) { }
+            }
+        }
+        .task(id: searchText) {
+            do {
+                try await Dependencies.shared().search.search(query: searchText)
+            } catch {
+                if error is CancellationError {
+                    return
+                }
+                print("search error \(error)")
+                presentedError = error
+                errorIsPresented = true
             }
         }
         .searchable(text: $searchText)
-        .onChange(of: searchText) {
-            if searchText == "" {
-                searchTextOrNil = nil
-            } else {
-                searchTextOrNil = $0
-                if tabviewSelection != .all {
-                    tabviewSelection = .all
+        .onChange(of: searchText) { old, new in
+            guard old != new else { return }
+            if new.count >= 3 {
+                if tabviewSelection != .searchResult {
+                    tabviewSelection = .searchResult
                 }
             }
         }

@@ -8,7 +8,6 @@
 import CoreTransferable
 import Foundation
 import SwiftData
-import UniformTypeIdentifiers
 
 struct ListResult: Hashable {
     let name: String
@@ -16,9 +15,9 @@ struct ListResult: Hashable {
     //  let cask: Bool
 }
 
+
 public struct InfoResult: Codable, Hashable {
     public let name: String
-    public let full_name: PackageIdentifier
     public let tap: String
     public let desc: String?
     public let license: String?
@@ -35,6 +34,16 @@ public struct InfoResult: Codable, Hashable {
     public let disable_date: String?
     public let disable_reason: String?
     //  let service: String?
+
+    public let ruby_source_checksum: Checksum
+
+    public var identifier: PackageIdentifier {
+        PackageIdentifier(tap: tap, name: name)
+    }
+}
+
+public struct Checksum: Codable, Hashable {
+    public let sha256: String
 }
 
 public struct InstalledVersion: Codable, Hashable {
@@ -47,81 +56,46 @@ public struct Versions: Codable, Hashable {
     public let head: String?
 }
 
-public struct PackageIdentifier: RawRepresentable, Hashable, Transferable {
-    public let rawValue: String
+public struct PackageIdentifier: Hashable, CustomStringConvertible, Codable, Identifiable {
+    static let empty = PackageIdentifier(tap: "", name: "")
+    private static let core = "homebrew/core"
 
-    public init(rawValue: String) {
-        self.rawValue = rawValue
+    public let tap: String
+    public let name: String
+
+    public init(tap: String, name: String) {
+        self.tap = tap
+        self.name = name
     }
 
-    public static var transferRepresentation: some TransferRepresentation {
-        CodableRepresentation(contentType: .packageIdentifierType)
-    }
-}
+    private static let rawRegex = /(.+)\/(.+)/
 
-extension UTType {
-    static let packageIdentifierType = UTType(exportedAs: "io.harkema.packageIdentifierType")
-}
-
-extension PackageIdentifier: Encodable {
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.singleValueContainer()
-        try container.encode(rawValue)
-    }
-}
-
-extension PackageIdentifier: Decodable {
-    public init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
-        rawValue = try container.decode(String.self)
-    }
-}
-
-extension PackageIdentifier: Identifiable {
-    public var id: String {
-        rawValue
-    }
-}
-
-typealias InfoResultDict = [PackageIdentifier: InfoResult]
-
-extension InfoResultDict: RawRepresentable {
-    public init?(rawValue: String) {
-        do {
-            let res = try JSONDecoder()
-                .decode([PackageIdentifier: InfoResult].self, from: rawValue.data(using: .utf8)!)
-            self = res
-        } catch {
-            print(error)
-            return nil
+    public init(raw: String) throws {
+        if let res = try Self.rawRegex.firstMatch(in: raw) {
+            tap = String(res.output.1)
+            name = String(res.output.2)
+        } else {
+            tap = "homebrew/core"
+            name = raw
         }
     }
 
-    public var rawValue: String {
-        String(data: (try? JSONEncoder().encode(self))!, encoding: .utf8) ?? ""
+    public var description: String {
+        "\(tap)/\(name)"
+    }
+
+    public var id: Self {
+        self
+    }
+
+    public var nameWithoutCore: String {
+        if tap == Self.core {
+            return name
+        } else {
+            return description
+        }
     }
 }
-
-public typealias InfoResultSort = [InfoResult]
-//
-//extension InfoResultSort: RawRepresentable {
-//    public init?(rawValue: String) {
-//        do {
-//            let res = try JSONDecoder().decode(
-//                [InfoResult].self,
-//                from: rawValue.data(using: .utf8)!
-//            )
-//            self = res
-//        } catch {
-//            print(error)
-//            return nil
-//        }
-//    }
-//
-//    public var rawValue: String {
-//        String(data: (try? JSONEncoder().encode(self))!, encoding: .utf8) ?? ""
-//    }
-//}
 
 extension ListResult: Identifiable {
     public var id: Int {
@@ -130,7 +104,7 @@ extension ListResult: Identifiable {
 }
 
 extension InfoResult: Identifiable {
-    public var id: String {
-        full_name.id
+    public var id: PackageIdentifier {
+        identifier
     }
 }

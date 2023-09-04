@@ -10,20 +10,22 @@ import SwiftUI
 import BrewCore
 
 struct InstalledView: View {
-    @Binding var selection: PackageIdentifier?
+    @Binding 
+    var selection: PackageIdentifier?
 
-    @Query(sort: \InstalledCache.name) var installed: [InstalledCache]
+    @Query
+    var installed: [InstalledCache]
+
+    init(selection: Binding<PackageIdentifier?>) {
+        _selection = selection
+        var fd = FetchDescriptor<InstalledCache>(sortBy: [SortDescriptor(\InstalledCache.package!.sortValue)])
+        fd.fetchLimit = BrewCache.globalFetchLimit
+        _installed = Query(fd)
+    }
 
     var body: some View {
         List(installed, selection: $selection) { item in
-            ItemView(info: item.result!, showInstalled: false)
-        }
-        .task {
-            do {
-                _ = try await BrewService.shared.update()
-            } catch {
-                print(error)
-            }
+            ItemView(package: .cached(item.package), showInstalled: false)
         }
         .tag(TabViewSelection.installed)
         .tabItem {

@@ -18,13 +18,18 @@ struct ItemDetailView: View {
     var items: [PackageCache]
 
     init(package: PackageIdentifier) {
-        _items = Query(filter: #Predicate<PackageCache> { $0.name == package.rawValue })
+        let pred = #Predicate<PackageCache> {
+            $0.identifier == package.description
+        }
+        var fd = FetchDescriptor<PackageCache>(predicate: pred)
+        fd.fetchLimit = 1
+        _items = Query(fd)
         self.package = package
     }
 
     var body: some View {
-        if let item = items.first?.result {
-            ItemDetailItemView(item: item)
+        if let item = items.first {
+            ItemDetailItemView(package: .cached(item))
 
         } else {
             Text("Package not found...")
@@ -35,29 +40,29 @@ struct ItemDetailView: View {
 struct ItemDetailItemView: View {
     @Namespace var bottomID
     @Environment(\.dismiss) var dismiss
-    let item: InfoResult
+    let package: PackageInfo
 
-    @ObservedObject var brewService = BrewService.shared
+    @EnvironmentObject var brewService: BrewService
 
     var body: some View {
         VStack {
             HStack {
-                if let installed = item.installed.first {
-                    Button("Uninstall \(installed.version)") {
+                if let installedVersion = package.installedVersion {
+                    Button("Uninstall \(installedVersion)") {
                         Task {
                             do {
-                                try await BrewService.shared.uninstall(name: item.full_name)
+                                try await Dependencies.shared().brewService.uninstall(name: package.identifier)
                             } catch {
                                 print(error)
                             }
                         }
                     }
                     // .disabled(brewService.isUpdateRunning)
-                    if item.outdated {
+                    if package.outdated {
                         Button("Upgrade") {
                             Task {
                                 do {
-                                    try await BrewService.shared.upgrade(name: item.full_name)
+                                    try await Dependencies.shared().brewService.upgrade(name: package.identifier)
 
                                 } catch {
                                     print(error)
@@ -70,7 +75,7 @@ struct ItemDetailItemView: View {
                     Button("Install") {
                         Task {
                             do {
-                                try await BrewService.shared.install(name: item.full_name)
+                                try await Dependencies.shared().brewService.install(name: package.identifier)
                             } catch {
                                 print(error)
                             }
@@ -85,28 +90,28 @@ struct ItemDetailItemView: View {
             }
 
             HStack(alignment: .firstTextBaseline) {
-                Text(item.full_name.rawValue).font(.title.monospaced())
-                Text(item.versions.stable ?? "").font(.body)
+                Text(package.identifier.description).font(.title.monospaced())
+                Text(package.versionsStable ?? "").font(.body)
             }
 
-            Text(item.license ?? "").font(.body)
-            Link(item.homepage, destination: URL(string: item.homepage)!)
+            Text(package.license ?? "").font(.body)
+            Link(package.homepage, destination: URL(string: package.homepage)!)
         }
         .textSelection(.enabled)
         .sheet(item: $brewService.stream) { stream in
             VStack {
                 if !stream.isStreamingDone {
                     Button("Cancel") {
-                        BrewService.shared.stream?.cancel()
                         Task {
-                            await BrewService.shared.done()
+                            await Dependencies.shared().brewService.stream?.cancel()
+                            await Dependencies.shared().brewService.done()
                         }
                     }
                 }
                 ScrollViewReader { scroll in
                     ScrollView {
                         HStack {
-                            Text(stream.stream).textSelection(.enabled)
+                            Text(stream.attributed).textSelection(.enabled)
                                 .multilineTextAlignment(.leading)
                                 .font(.body.monospaced())
                                 .padding()
@@ -114,7 +119,7 @@ struct ItemDetailItemView: View {
                         }
                         Text("End")
                             .tag(bottomID)
-                            .onReceive(BrewService.shared.$stream) { _ in
+                            .onReceive(brewService.$stream) { _ in
                                 scroll.scrollTo(bottomID, anchor: .bottom)
                             }
                     }
@@ -123,7 +128,7 @@ struct ItemDetailItemView: View {
                 if stream.isStreamingDone {
                     Button("Done") {
                         Task {
-                            await BrewService.shared.done()
+                            await Dependencies.shared().brewService.done()
                         }
                     }
                 } else {

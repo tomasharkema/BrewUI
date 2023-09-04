@@ -9,34 +9,78 @@ import SwiftUI
 import BrewCore
 
 struct ItemView: View {
-    let info: InfoResult
+    let package: PackageInfo
     let showInstalled: Bool
 
-    var body: some View {
-        let isInstalled = !info.installed.isEmpty
-
-        HStack {
-            Text(info.full_name.rawValue)
-                .font(.body.monospaced())
-                .foregroundColor(Color(.foreground))
-                .fontWeight(isInstalled ? .bold : .regular)
-
-            Spacer()
-
-            if let installed = info.installed.first {
-                if showInstalled {
-                    Text("INSTALLED") // .bold()//.background(Color.accentColor).cornerRadius(5)
-                }
-                if installed.installed_as_dependency {
-                    Text("DEP") // .bold()//.background(Color.accentColor).cornerRadius(5)
-                }
-            }
-            //      Text(info.name).font(.body.monospaced())
-            if let version = info.installed.first {
-                Text(version.version)
-            } else if let stable = info.versions.stable {
-                Text(stable)
+    @ViewBuilder
+    private func version() -> some View {
+        if package.outdated, let installedVersion = package.installedVersion, let stable = package.versionsStable {
+            Text("\(installedVersion) > \(stable)").font(.body.monospaced())
+        } else {
+            if let version = package.installedVersion {
+                Text(version).font(.body.monospaced())
+            } else if let stable = package.versionsStable {
+                Text(stable).font(.body.monospaced())
             }
         }
     }
+
+    var body: some View {
+        HStack {
+//            Text(package.nameTapAttributedString(isInstalled: package.installedVersion != nil))
+
+            VStack(alignment: .leading) {
+                Text(package.identifier.name)
+                    .font(.body.monospaced())
+                    .foregroundColor(.foreground)
+                Text(package.identifier.tap)
+                    .font(.body.monospaced())
+                    .foregroundColor(.gray)
+                version()
+            }
+
+
+            Spacer()
+            version()
+//            if let installed = info.installed.first {
+//                if showInstalled {
+//                    Text("INSTALLED").font(.body.monospaced()) // .bold()//.background(Color.accentColor).cornerRadius(5)
+//                }
+//                if installed.installed_as_dependency {
+//                    Text("DEP").font(.body.monospaced()) // .bold()//.background(Color.accentColor).cornerRadius(5)
+//                }
+//            }
+            
+            //      Text(info.name).font(.body.monospaced())
+
+        }
+    }
 }
+
+//
+//private extension PackageInfo {
+//    func nameAttributedString(size: CGFloat = 12, isInstalled: Bool) -> AttributedString {
+//        var a = AttributedString(identifier.name)
+//        a.font = .monospacedSystemFont(ofSize: size, weight: isInstalled ? .bold : .light)
+//        a.foregroundColor = .foreground
+//        return a
+//    }
+//
+//    func tapAttributedString(size: CGFloat = 12) -> AttributedString {
+//        var a = AttributedString(identifier.tap)
+//        a.foregroundColor = .gray
+//        a.font = .monospacedSystemFont(ofSize: size, weight: .ultraLight)
+//        return a
+//    }
+//
+//    func slashAttributedString(size: CGFloat = 12) -> AttributedString {
+//        var a = AttributedString("/")
+//        a.foregroundColor = .gray
+//        a.font = .monospacedSystemFont(ofSize: size, weight: .ultraLight)
+//        return a
+//    }
+//
+//    func nameTapAttributedString(size: CGFloat = 12, isInstalled: Bool) -> AttributedString {
+//        tapAttributedString(size: size) + slashAttributedString(size: size) + nameAttributedString(size: size, isInstalled: isInstalled)
+//    }
+//}

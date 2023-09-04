@@ -28,7 +28,6 @@ extension Process {
     }
 
     static func shell(command: String) async throws -> String {
-        try await Task {
             logger.info("EXECUTE: \(command)")
 
             let task = defaultShell(command: command)
@@ -62,17 +61,16 @@ extension Process {
                 task.terminate()
             })
 
-            if task.terminationStatus == EXIT_SUCCESS {
-                return output
+            guard task.terminationStatus == EXIT_SUCCESS else {
+                throw StdErr(message: output + "\n" + outputErr, command: command)
             }
 
-            throw StdErr(message: output + "\n" + outputErr, command: command)
-        }.value
+            return output
     }
 
     static func stream(command: String) async -> StreamStreamingAndTask {
         let stream = StreamStreaming()
-        await stream.append("EXECUTE: \(command)\n\n")
+        await stream.append(StreamElement(level: .dev, rawEntry: "EXECUTE: \(command)\n\n"))
         let task = defaultShell(command: command)
 
         let pipe = Pipe()
@@ -81,21 +79,21 @@ extension Process {
         task.standardOutput = pipe
         task.standardError = pipeErr
 
-        let stdoutSequence = pipe.fileHandleForReading.bytes.lines.map {
-            AttributedString($0)
-        }
-        let stderrSequence = pipeErr.fileHandleForReading.bytes.lines.map {
-            var string = AttributedString($0)
-            string.foregroundColor = .red
-            return string
-        }
-
-        let sequence = merge(stdoutSequence, stderrSequence)
+        let stdoutSequence = pipe.fileHandleForReading.bytes.lines
+        let stderrSequence = pipeErr.fileHandleForReading.bytes.lines
 
         let receiveStreamTask = Task {
             logger.info("stream started!!")
-            for try await line in sequence {
-                await stream.append(line)
+            for try await line in stdoutSequence {
+                await stream.append(StreamElement(level: .out, rawEntry: line))
+            }
+            logger.info("stream finished!!")
+        }
+
+        let receiveStreamErrTask = Task {
+            logger.info("stream started!!")
+            for try await line in stderrSequence {
+                await stream.append(StreamElement(level: .err, rawEntry: line))
             }
             logger.info("stream finished!!")
         }
@@ -119,13 +117,17 @@ extension Process {
                 task.terminate()
             })
 
-            await stream.append("\n\nDone: \(command)\n\n")
+            try Task.checkCancellation()
+
+            await stream.append(StreamElement(level: .dev, rawEntry: "\n\nDone: \(command)\n\n"))
 
             try await receiveStreamTask.value
 
+            try Task.checkCancellation()
+
             if task.terminationStatus != EXIT_SUCCESS {
-                await stream.append("\n\nCODE: \(task.terminationStatus)")
-                throw await StdErr(message: stream.stream.description, command: command)
+                await stream.append(StreamElement(level: .dev, rawEntry: "\n\nCODE: \(task.terminationStatus)"))
+                throw StdErr(message: stream.stream.description, command: command)
             }
         }
 
@@ -133,28 +135,60 @@ extension Process {
     }
 }
 
+public struct StreamElement {
+    public let level: Level
+    public let rawEntry: String
+    public let attributedString: AttributedString
+
+    init(level: Level, rawEntry: String) {
+        self.level = level
+        self.rawEntry = rawEntry
+//        self.attributedString = attributedString
+
+        switch level {
+        case .dev:
+            var a = AttributedString(rawEntry)
+            a.foregroundColor = .blue
+            self.attributedString = a
+        case .err:
+            var a = AttributedString(rawEntry)
+            a.foregroundColor = .red
+            self.attributedString = a
+        case .out:
+            var a = AttributedString(rawEntry)
+            self.attributedString = a
+        }
+    }
+
+    public enum Level {
+        case out
+        case err
+        case dev
+    }
+}
+
 final class StreamStreaming: ObservableObject {
-    @MainActor @Published var stream = AttributedString("")
+    @Published public var stream = [StreamElement]()
     @MainActor @Published var isStreamingDone = false
 
     @MainActor
-    func append(_ line: AttributedString) {
+    func append(_ line: StreamElement) {
         stream.append(line)
-        stream.append(AttributedString("\n"))
     }
 
-    @MainActor
-    func append(_ line: String) {
-        var string = AttributedString(line)
-        string.foregroundColor = .blue
-        stream.append(string)
-        stream.append(AttributedString("\n"))
-    }
+//    @MainActor
+//    func append(_ line: String) {
+//        var string = AttributedString(line)
+//        string.foregroundColor = .blue
+//        streamAttributed.append(string)
+//        streamAttributed.append(AttributedString("\n"))
+//        stream.append(line)
+//    }
 }
 
 @MainActor
 public final class StreamStreamingAndTask: ObservableObject, Identifiable {
-    @Published public var stream = AttributedString("")
+    @Published public var stream = [StreamElement]()
     @Published public var isStreamingDone = false
     private let task: Task<Void, Error>
     public let id = UUID()
@@ -173,5 +207,19 @@ public final class StreamStreamingAndTask: ObservableObject, Identifiable {
         get async throws {
             try await task.value
         }
+    }
+
+    public var attributed: AttributedString {
+        stream.reduce(into: AttributedString()) { prev, new in
+            prev += (new.attributedString + AttributedString("\n"))
+        }
+    }
+
+    public var strings: [String] {
+        stream.map(\.rawEntry)
+    }
+
+    public var out: any Sequence<String> {
+        stream.lazy.filter { $0.level == .out }.map(\.rawEntry)
     }
 }

@@ -13,8 +13,7 @@ import BrewCore
 struct BrewUIApp: App {
     var body: some Scene {
         WindowGroup {
-            MainView()
-                .modelContainer(BrewService.shared.cache.modelContainer)
+            MainContainer()
         }
     }
 }
