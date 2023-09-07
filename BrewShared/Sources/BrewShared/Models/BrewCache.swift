@@ -15,8 +15,7 @@ public actor BrewCache: ModelActor {
     public let modelExecutor: ModelExecutor
     public nonisolated let modelContainer: ModelContainer
 
-    @BrewCacheInitializer
-    public init(container: ModelContainer) throws {
+    public nonisolated init(container: ModelContainer) async throws {
         dispatchPrecondition(condition: .notOnQueue(.main))
 
         modelContainer = container
@@ -28,7 +27,6 @@ public actor BrewCache: ModelActor {
         guard !all.isEmpty else {
             return
         }
-        check()
 
         for pkgs in all.chunks(ofCount: 100) {
             try modelContext.transaction {
@@ -38,9 +36,8 @@ public actor BrewCache: ModelActor {
             }
         }
     }
-
-    func sync(outdated: [InfoResult]) throws {
-        check()
+    
+    public func sync(outdated: [InfoResult]) throws {
 
         try modelContext.transaction {
             try modelContext.delete(model: OutdatedCache.self, where: .true)
@@ -53,8 +50,7 @@ public actor BrewCache: ModelActor {
         }
     }
 
-    func sync(installed: [InfoResult]) throws {
-        check()
+    public func sync(installed: [InfoResult]) throws {
 
         try modelContext.transaction {
             try modelContext.delete(model: InstalledCache.self, where: .true)
@@ -67,18 +63,16 @@ public actor BrewCache: ModelActor {
         }
     }
 
-    func package(by name: PackageIdentifier) throws -> PackageCache? {
-        check()
+    public func package(by name: PackageIdentifier) throws -> PackageCache? {
 
         var descriptor = FetchDescriptor<PackageCache>()
         descriptor.predicate = #Predicate {
             $0.identifier == name.description
         }
-        return try! modelContext.fetch(descriptor).first
+        return try modelContext.fetch(descriptor).first
     }
 
-    func packageGetOrCreate(info: InfoResult, isLocal: Bool) throws -> PackageCache {
-        check()
+    public func packageGetOrCreate(info: InfoResult, isLocal: Bool) throws -> PackageCache {
 
         if let model = try package(by: info.identifier) {
             model.update(info: info, isLocal: isLocal)
@@ -98,23 +92,16 @@ public actor BrewCache: ModelActor {
         return model
     }
 
-    func search(query: String) throws -> [PackageCache] {
+    public func search(query: String) throws -> [PackageCache] {
         var descriptor = FetchDescriptor<PackageCache>()
         descriptor.predicate = #Predicate {
             $0.identifier.contains(query) || $0.desc.contains(query)
         }
         return try modelContext.fetch(descriptor)
     }
-
-    private func check() {
-        #if DEBUG
-        assertIsolated()
-        dispatchPrecondition(condition: .notOnQueue(.main))
-        #endif
-    }
 }
 
-@globalActor
-public actor BrewCacheInitializer {
-    public static var shared = BrewCacheInitializer()
-}
+//@globalActor
+//public actor BrewCacheInitializer {
+//    public static var shared = BrewCacheInitializer()
+//}

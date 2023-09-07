@@ -5,7 +5,7 @@
 //  Created by Tomas Harkema on 31/08/2023.
 //
 
-import CoreTransferable
+
 import Foundation
 import SwiftData
 
@@ -15,8 +15,9 @@ struct ListResult: Hashable {
     //  let cask: Bool
 }
 
+// swiftlint:disable identifier_name
 
-public struct InfoResult: Codable, Hashable {
+public struct InfoResult: Codable, Hashable, Equatable {
     public let name: String
     public let tap: String
     public let desc: String?
@@ -42,6 +43,7 @@ public struct InfoResult: Codable, Hashable {
     }
 }
 
+
 public struct Checksum: Codable, Hashable {
     public let sha256: String
 }
@@ -50,6 +52,8 @@ public struct InstalledVersion: Codable, Hashable {
     public let version: String
     public let installed_as_dependency: Bool
 }
+
+// swiftlint:enable identifier_name
 
 public struct Versions: Codable, Hashable {
     public let stable: String?
@@ -80,10 +84,6 @@ public struct PackageIdentifier: Hashable, CustomStringConvertible, Codable, Ide
         }
     }
 
-    public var description: String {
-        "\(tap)/\(name)"
-    }
-
     public var id: Self {
         self
     }
@@ -95,11 +95,15 @@ public struct PackageIdentifier: Hashable, CustomStringConvertible, Codable, Ide
             return description
         }
     }
+
+    public var description: String {
+        "\(tap)/\(name)"
+    }
 }
 
 extension ListResult: Identifiable {
-    public var id: Int {
-        hashValue
+    public var id: String {
+        "\(name)-\(version)"
     }
 }
 

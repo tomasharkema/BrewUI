@@ -1,12 +1,14 @@
 //
-//  File.swift
-//  
+//  BrewStreaming.swift
+//
 //
 //  Created by Tomas Harkema on 05/09/2023.
 //
 
 import Foundation
 import Combine
+import BrewShared
+import SwiftTracing
 
 @MainActor
 public final class BrewStreaming: ObservableObject, Identifiable {
@@ -32,9 +34,7 @@ public final class BrewStreaming: ObservableObject, Identifiable {
     }
 
     public static func install(service: BrewService, name: PackageIdentifier) async throws -> BrewStreaming {
-        let brew = try await service.whichBrew()
-        let stream = await Process.stream(command: "\(brew.rawValue) install \(name.name)")
-
+        let stream = try await BrewProcess.stream(command: "install \(name.name)")
 
         return BrewStreaming(service: service, stream: stream)
 
@@ -50,8 +50,7 @@ public final class BrewStreaming: ObservableObject, Identifiable {
     }
 
     public static func uninstall(service: BrewService, name: PackageIdentifier) async throws -> BrewStreaming {
-        let brew = try await service.whichBrew()
-        let stream = await Process.stream(command: "\(brew.rawValue) uninstall \(name.name)")
+        let stream = try await BrewProcess.stream(command: "uninstall \(name.name)")
 
         return BrewStreaming(service: service, stream: stream)
 //        await MainActor.run {
@@ -66,8 +65,7 @@ public final class BrewStreaming: ObservableObject, Identifiable {
     }
 
     public static func upgrade(service: BrewService, name: PackageIdentifier) async throws -> BrewStreaming {
-        let brew = try await service.whichBrew()
-        let stream = await Process.stream(command: "\(brew.rawValue) upgrade \(name.name)")
+        let stream = try await BrewProcess.stream(command: "upgrade \(name.name)")
 
         return BrewStreaming(service: service, stream: stream)
 //        await MainActor.run {

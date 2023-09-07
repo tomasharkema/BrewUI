@@ -7,10 +7,16 @@
 
 import SwiftUI
 import BrewCore
+import BrewShared
 
 struct ItemView: View {
-    let package: PackageInfo
-    let showInstalled: Bool
+    private let package: PackageInfo
+    private let showInstalled: Bool
+
+    init(package: PackageInfo, showInstalled: Bool) {
+        self.package = package
+        self.showInstalled = showInstalled
+    }
 
     @ViewBuilder
     private func version() -> some View {
@@ -30,15 +36,14 @@ struct ItemView: View {
 //            Text(package.nameTapAttributedString(isInstalled: package.installedVersion != nil))
 
             VStack(alignment: .leading) {
-                Text(package.identifier.name)
+                Text((try? package.identifier.name) ?? "")
                     .font(.body.monospaced())
-                    .foregroundColor(.foreground)
-                Text(package.identifier.tap)
+                    .foregroundColor(Color(.foreground))
+                Text((try? package.identifier.tap) ?? "")
                     .font(.body.monospaced())
                     .foregroundColor(.gray)
                 version()
             }
-
 
             Spacer()
             version()

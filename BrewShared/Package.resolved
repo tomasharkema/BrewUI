@@ -30,7 +30,7 @@
     {
       "identity" : "swift-algorithms",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/apple/swift-algorithms",
+      "location" : "https://github.com/apple/swift-algorithms.git",
       "state" : {
         "revision" : "b14b7f4c528c942f121c8b860b9410b2bf57825e",
         "version" : "1.0.0"
@@ -55,15 +55,6 @@
       }
     },
     {
-      "identity" : "swift-rawjson",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/tomasharkema/swift-rawjson.git",
-      "state" : {
-        "revision" : "506621944d39767a429fa229e59978f87fe945da",
-        "version" : "0.0.26"
-      }
-    },
-    {
       "identity" : "swift-syntax",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-syntax.git",
@@ -73,27 +64,9 @@
       }
     },
     {
-      "identity" : "swift-tracing",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/tomasharkema/swift-tracing.git",
-      "state" : {
-        "revision" : "8c001a817917060502ed8836ab7c861605ef8b50",
-        "version" : "0.0.25"
-      }
-    },
-    {
-      "identity" : "swiftdemangle",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/oozoofrog/SwiftDemangle.git",
-      "state" : {
-        "revision" : "bd8933cccc0c912c15d396fc23f51b072dc72654",
-        "version" : "5.5.9"
-      }
-    },
-    {
       "identity" : "swiftlint",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/realm/SwiftLint.git",
+      "location" : "https://github.com/realm/SwiftLint",
       "state" : {
         "revision" : "9eaecbedce469a51bd8487effbd4ab46ec8384ae",
         "version" : "0.52.4"

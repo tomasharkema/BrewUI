@@ -35,7 +35,7 @@ public final class PackageCache {
     public internal(set) var tap: String
     public internal(set) var desc: String
 
-    init(
+    public init(
         identifier: PackageIdentifier, checksum: String, json: Data,
         homepage: String, versionsStable: String, desc: String,
         lastUpdated: Date = .now
@@ -53,8 +53,8 @@ public final class PackageCache {
         self.versionsStable = versionsStable
         self.desc = desc
     }
-    
-    func update(info: InfoResult, isLocal: Bool) {
+
+    public func update(info: InfoResult, isLocal: Bool) {
         var isChanged = false
 
         if isLocal {
@@ -114,10 +114,16 @@ public protocol PackageCachable {
 
 @Model
 public final class InstalledCache: PackageCachable {
+    @Attribute
     public var package: PackageCache!
+    @Attribute
     public var lastUpdated: Date
     @Attribute(.unique)
     public var identifier: PackageIdentifierString
+//    @Attribute
+//    public var sortValue: String {
+//        package.sortValue
+//    }
 
     private init() {
         package = nil
@@ -125,34 +131,40 @@ public final class InstalledCache: PackageCachable {
         identifier = ""
     }
 
-    static func create(package: PackageCache) -> InstalledCache {
-        let c = InstalledCache()
-        c.package = package
-        c.lastUpdated = .now
-        c.identifier = package.identifier
-        return c
+    public static func create(package: PackageCache) -> InstalledCache {
+        let cached = InstalledCache()
+        cached.package = package
+        cached.lastUpdated = .now
+        cached.identifier = package.identifier
+        return cached
     }
 }
 
 @Model
 public final class OutdatedCache: PackageCachable {
+    @Attribute
     public var package: PackageCache!
+    @Attribute
     public var lastUpdated: Date
     @Attribute(.unique)
     public var identifier: PackageIdentifierString
-
+//    @Attribute
+//    public var sortValue: String {
+//        package.sortValue
+//    }
+    
     private init() {
         package = nil
         lastUpdated = .now
         identifier = ""
     }
 
-    static func create(package: PackageCache) -> OutdatedCache {
-        let c = OutdatedCache()
-        c.package = package
-        c.lastUpdated = .now
-        c.identifier = package.identifier
-        return c
+    public static func create(package: PackageCache) -> OutdatedCache {
+        let cached = OutdatedCache()
+        cached.package = package
+        cached.lastUpdated = .now
+        cached.identifier = package.identifier
+        return cached
     }
 }
 
@@ -170,12 +182,12 @@ public final class UpdateCache: PackageCachable {
         identifier = ""
     }
 
-    static func create(package: PackageCache) -> UpdateCache {
-        let c = UpdateCache()
-        c.package = package
-        c.lastUpdated = .now
-        c.identifier = package.identifier
-        return c
+    public static func create(package: PackageCache) -> UpdateCache {
+        let cached = UpdateCache()
+        cached.package = package
+        cached.lastUpdated = .now
+        cached.identifier = package.identifier
+        return cached
     }
 }
 

@@ -7,24 +7,36 @@
 
 import Foundation
 import BrewCore
+import BrewShared
 
 @main
 struct Main {
     static func main() async throws {
-        let api = BrewApi.shared
-        let tmp = URL.temporaryDirectory
-        print(tmp)
-        let cache = try BrewCache(baseFolder: tmp) //, inMemoryStore: true)
+        let api = BrewApi()
 
-        async let formulaRequest = api.formula()
-        async let caskRequest = api.cask()
+        let f = try await api.formula()
 
-        let formula = try await formulaRequest
-//        let cask = try await caskRequest
-
-//        print(formula)
-//        print(cask)
-
-        try await cache.sync(all: formula.compactMap { $0.value })
+        print(f)
     }
 }
+
+// @main
+// struct Main {
+//     static func main() async throws {
+//         let api = BrewApi.shared
+//         let tmp = URL.temporaryDirectory
+//         print(tmp)
+//         let cache = try await BrewCache(container: .brew(url: .brewStorage)) //, inMemoryStore: true)
+
+//         async let formulaRequest = api.formula()
+//         async let caskRequest = api.cask()
+
+//         let formula = try await formulaRequest
+// //        let cask = try await caskRequest
+
+// //        print(formula)
+// //        print(cask)
+
+//         try await cache.sync(all: formula.compactMap { $0.value })
+//     }
+// }

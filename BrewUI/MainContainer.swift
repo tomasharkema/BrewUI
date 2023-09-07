@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import BrewDesign
 
 struct MainContainer: View {
     @State
@@ -18,12 +19,17 @@ struct MainContainer: View {
                 MainView()
                     .modelContainer(dependencies.modelContainer)
                     .environmentObject(dependencies.search)
+                    .environmentObject(dependencies.brewService)
             } else {
                 ProgressView().progressViewStyle(.circular)
             }
         }.task {
-            if dependencies == nil {
-                dependencies = await Dependencies.shared()
+            do {
+                if dependencies == nil {
+                    dependencies = try await Dependencies.shared()
+                }
+            } catch {
+                print(error)
             }
         }
     }

@@ -9,20 +9,16 @@ import Foundation
 import SwiftData
 import SwiftUI
 import RawJson
+import BrewShared
 
 public final class BrewApi {
 
-    public static let shared = BrewApi()
-
-    private let session: URLSession
+    private let session = URLSession(configuration: .default)
     private let decoder = JSONDecoder()
 
-    private init() {
-        let config = URLSessionConfiguration.default
-        session = URLSession(configuration: config)
-    }
+    public init() { }
 
-    private func request<ResultType: Codable>(url: URL, _ resultType: ResultType.Type) async throws -> ResultType {
+    private nonisolated func request<ResultType: Codable>(url: URL, _ resultType: ResultType.Type) async throws -> ResultType {
         let (data, response) = try await session.data(from: url)
 
         guard let httpResponse = response as? HTTPURLResponse else {
@@ -36,8 +32,11 @@ public final class BrewApi {
         guard (200..<400).contains(httpResponse.statusCode) else {
             throw NSError(domain: "status code", code: httpResponse.statusCode)
         }
-
+        
+        #if DEBUG
         dispatchPrecondition(condition: .notOnQueue(.main))
+        #endif
+
         let result = try decoder.decode(
             ResultType.self,
             from: data
@@ -46,12 +45,12 @@ public final class BrewApi {
         return result
     }
 
-    public func formula() async throws -> [PartialCodable<InfoResult>] {
+    public nonisolated func formula() async throws -> [PartialCodable<InfoResult>] {
         let result = try await request(url: URL(string: "https://formulae.brew.sh/api/formula.json")!, [PartialCodable<InfoResult>].self)
         return result
     }
 
-    public func cask() async throws -> [PartialCodable<InfoResult>] {
+    public nonisolated func cask() async throws -> [PartialCodable<InfoResult>] {
         let result = try await request(url: URL(string: "https://formulae.brew.sh/api/cask.json")!, [PartialCodable<InfoResult>].self)
         return result
     }

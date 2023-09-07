@@ -1,0 +1,24 @@
+{
+  "configurations": [
+    {
+      "type": "lldb",
+      "request": "launch",
+      "sourceLanguages": ["swift"],
+      "name": "Debug BrewImport",
+      "program": "${workspaceFolder:BrewCore}/.build/debug/BrewImport",
+      "args": [],
+      "cwd": "${workspaceFolder:BrewCore}",
+      "preLaunchTask": "swift: Build Debug BrewImport"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "sourceLanguages": ["swift"],
+      "name": "Release BrewImport",
+      "program": "${workspaceFolder:BrewCore}/.build/release/BrewImport",
+      "args": [],
+      "cwd": "${workspaceFolder:BrewCore}",
+      "preLaunchTask": "swift: Build Release BrewImport"
+    }
+  ]
+}

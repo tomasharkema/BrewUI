@@ -7,6 +7,8 @@
 
 import SwiftUI
 import BrewCore
+import BrewDesign
+import BrewShared
 
 enum TabViewSelection: String, Hashable {
     case installed
@@ -18,36 +20,57 @@ enum TabViewSelection: String, Hashable {
 }
 
 struct MainView: View {
-    @State 
-    var searchText = ""
+    @State
+    private var searchText = ""
 
     @AppStorage("tabviewSelection") 
-    var tabviewSelection = TabViewSelection.installed
+    private var tabviewSelection = TabViewSelection.installed
 
     @State 
-    var selectionInstalled = Set<InfoResult>()
-    @State 
-    var selection: PackageIdentifier?
+    private var selectionInstalled = Set<InfoResult>()
+    @State
+    private var selection: PackageIdentifier?
 
     @State 
-    var presentedError: Error?
-    @State 
-    var errorIsPresented = false
+    private var presentedError: Error?
 
     var body: some View {
         TabView(selection: $tabviewSelection) {
             InstalledView(selection: $selection)
+                .tag(TabViewSelection.installed)
+                .tabItem {
+                    Text("Installed Packages")
+                }
 
             UpdatesView(selection: $selection)
+                .tag(TabViewSelection.updates)
+                .tabItem {
+                    Text("Updates")
+                }
 
             AllPackagesView(selection: $selection)
-            #if DEBUG
-            PackageTable()
-            #endif
+                .tag(TabViewSelection.all)
+                .tabItem {
+                    Text("All Packages")
+                }
 
-//            PackageNewDesign(selection: $selection)
+            #if DEBUG
+            _PackageTable()
+                .tag(TabViewSelection.table)
+                .tabItem {
+                    Text("Table")
+                }
+            #endif
+            
+//            if false {
+//                PackageNewDesign(selection: $selection)
+//            }
 
             SearchResult(selection: $selection)
+                .tag(TabViewSelection.searchResult)
+                .tabItem {
+                    Text("Search")
+                }
         }
         .sheet(item: $selection, onDismiss: {
             selection = nil
@@ -65,15 +88,9 @@ struct MainView: View {
                 print("update error \(error)")
 
                 presentedError = error
-                errorIsPresented = true
             }
         }
-        .alert(Text("Error"), isPresented: $errorIsPresented) {
-            if let presentedError = self.presentedError {
-                Text("Error: \(String(describing: presentedError))")
-                Button("OK", role: .cancel) { }
-            }
-        }
+        .alert(error: $presentedError)
         .task(id: searchText) {
             do {
                 try await Dependencies.shared().search.search(query: searchText)
@@ -83,7 +100,6 @@ struct MainView: View {
                 }
                 print("search error \(error)")
                 presentedError = error
-                errorIsPresented = true
             }
         }
         .searchable(text: $searchText)
@@ -96,14 +112,20 @@ struct MainView: View {
             }
         }
         .padding()
-        .background(Color(.background))
+        .background(PublicColor.background)
         .scrollContentBackground(.hidden)
         .navigationTitle("🍺 BrewUI")
     }
 }
 
-struct MainView_Previews: PreviewProvider {
-    static var previews: some View {
-        MainView()
+//struct MainView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        MainView()
+//    }
+//}
+
+extension Binding {
+    func map<NewValue>(_ transform: @escaping (Value) -> NewValue) -> Binding<NewValue> {
+        Binding<NewValue>(get: { transform(wrappedValue) }, set: { _ in })
     }
 }

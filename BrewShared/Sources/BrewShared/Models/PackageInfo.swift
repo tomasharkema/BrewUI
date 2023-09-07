@@ -6,14 +6,29 @@
 //
 
 import Foundation
-import ExtractCaseValue
 
-@ExtractCaseValue<InfoResult?>(name: "remote", kind: .firstMatchingType)
-@ExtractCaseValue<PackageCache?>(name: "cached", kind: .firstMatchingType)
-public enum PackageInfo: Hashable {
+public enum PackageInfo: Hashable, Equatable {
     case remote(InfoResult)
     case cached(PackageCache)
 }
+
+//extension PackageInfo: Hashable, Equatable {
+//    
+//    public static func == (lhs: PackageInfo, rhs: PackageInfo) -> Bool {
+//        lhs.hashValue == rhs.hashValue
+//    }
+//
+//    public func hash(into hasher: inout Hasher) {
+//        switch self {
+//        case .remote(let remote):
+//            hasher.combine("remote")
+//            remote.hash(into: &hasher)
+//        case .cached(let cached):
+//            hasher.combine("cached")
+//            cached.hash(into: &hasher)
+//        }
+//    }
+//}
 
 extension PackageInfo: Identifiable {
     public var id: Int {
@@ -50,7 +65,15 @@ extension PackageInfo {
     }
 
     public var identifier: PackageIdentifier {
-        remote?.identifier ?? (try! PackageIdentifier(raw: cached!.identifier))
+        get throws {
+            switch self {
+            case .remote(let remote):
+                return remote.identifier
+
+            case .cached(let cached):
+                return try PackageIdentifier(raw: cached.identifier)
+            }
+        }
     }
 
     public var outdated: Bool {
@@ -68,5 +91,24 @@ extension PackageInfo {
 
     public var homepage: String {
         remote?.homepage ?? cached!.homepage
+    }
+}
+
+extension PackageInfo {
+    var remote: InfoResult? {
+        switch self {
+        case .remote(let remote):
+            return remote
+        default:
+            return nil
+        }
+    }
+    var cached: PackageCache? {
+        switch self {
+        case .cached(let cached):
+            return cached
+        default:
+            return nil
+        }
     }
 }

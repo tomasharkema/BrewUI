@@ -13,35 +13,21 @@ import RawJson
 import SwiftData
 import SwiftUI
 import SwiftTracing
+import BrewShared
 
-public final class BrewService {
+public final class BrewService: ObservableObject {
+    private static let listRegex = /(.+) (.+)/
+
     public let cache: BrewCache
+    public let api: BrewApi
 
-    private let listRegex = /(.+) (.+)/
-
-    public init(cache: BrewCache) {
+    public init(cache: BrewCache, api: BrewApi) {
         self.cache = cache
+        self.api = api
     }
 
-    @BrewActor
-    private var brewCached: Brew?
-
-    @BrewActor
-    func whichBrew() async throws -> Brew {
-        if let brewCached {
-            return brewCached
-        }
-
-        let result = try await (Process.shell(command: "which brew"))
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-        print("FOUND BREW: \(result)")
-        brewCached = Brew(rawValue: result)
-        return Brew(rawValue: result)
-    }
-
-    nonisolated func executeBrew(command: String) async throws -> String {
-        let brew = try await whichBrew()
-        return try await Process.shell(command: "\(brew.rawValue) \(command)")
+    private nonisolated func executeBrew(command: String) async throws -> String {
+        return try await BrewProcess.shell(command: "\(command)")
     }
 
     @UpdateActor
@@ -82,7 +68,7 @@ public final class BrewService {
         }
 
         let resultTask = Task {
-            let formulaResult = try await BrewApi.shared.formula()
+            let formulaResult = try await api.formula()
             let formula = formulaResult.compactMap(\.value)
             try await cache.sync(all: formula)
             return formula
@@ -139,25 +125,18 @@ public final class BrewService {
 //        }
 //    }
 
+    public nonisolated func searchFormula(query: String) async throws -> [PackageIdentifier] {
+        let stream = try await BrewProcess.shell(command: "search --formula \(query)")
 
-    public func searchFormula(query: String) async throws -> [PackageIdentifier] {
-        let brew = try await whichBrew()
-        let stream = try await Process.shell(command: "\(brew.rawValue) search --formula \(query)")
-
-        return stream.split(separator: "\n")
+        return try stream.split(separator: "\n")
             .compactMap {
-                try? PackageIdentifier(raw: String($0))
+                try PackageIdentifier(raw: String($0))
             }
     }
 
-    func infoFormula(package: PackageIdentifier, brewOverride: Brew? = nil) async throws -> [InfoResult] {
-        let brew: Brew
-        if let brewOverride {
-            brew = brewOverride
-        } else {
-            brew = try await whichBrew()
-        }
-        let stream = try await Process.shell(command: "\(brew.rawValue) info --json=v1 --formula \(package.nameWithoutCore)")
+    nonisolated func infoFormula(package: PackageIdentifier) async throws -> [InfoResult] {
+        let stream = try await BrewProcess.shell(command: "info --json=v1 --formula \(package.nameWithoutCore)")
+
         guard let data = stream.data(using: .utf8) else {
             return []
         }
@@ -169,22 +148,43 @@ public final class BrewService {
         }
     }
 
-    public func install(name: PackageIdentifier) async throws -> BrewStreaming {
+    public nonisolated func install(name: PackageIdentifier) async throws -> BrewStreaming {
         return try await BrewStreaming.install(service: self, name: name)
     }
 
-    public func uninstall(name: PackageIdentifier) async throws -> BrewStreaming {
+    public nonisolated func uninstall(name: PackageIdentifier) async throws -> BrewStreaming {
         return try await BrewStreaming.uninstall(service: self, name: name)
     }
 
-    public func upgrade(name: PackageIdentifier) async throws -> BrewStreaming {
+    public nonisolated func upgrade(name: PackageIdentifier) async throws -> BrewStreaming {
         return try await BrewStreaming.upgrade(service: self, name: name)
     }
 }
 
 public struct StdErr: Error {
-    public let message: String
+    public let stdout: String
+    public let stderr: String
     public let command: String
+
+    init(stdout: String, stderr: String, command: String) {
+        self.stdout = stdout
+        self.stderr = stderr
+        self.command = command
+    }
+
+    init(stream: [StreamElement], command: String) {
+        stdout = stream.lazy.filter {
+            $0.level == .out
+        }
+        .map { $0.rawEntry }
+        .joined(separator: "\n")
+        stderr = stream.lazy.filter {
+            $0.level == .err
+        }
+        .map { $0.rawEntry }
+        .joined(separator: "\n")
+        self.command = command
+    }
 }
 
 struct StreamOutput: Hashable {
@@ -226,7 +226,8 @@ public actor BrewActor {
     public static let shared = BrewActor()
 }
 
-
 struct Brew: RawRepresentable {
     let rawValue: String
 }
+
+// swiftlint:enable identifier_name

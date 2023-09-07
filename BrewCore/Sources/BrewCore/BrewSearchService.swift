@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import BrewShared
 
 @MainActor
 public final class BrewSearchService: ObservableObject {
@@ -15,8 +16,8 @@ public final class BrewSearchService: ObservableObject {
     private var searchTask: Task<[PackageCache], Error>?
     private var searchRemoteTask: Task<Void, Error>?
 
-    @Published public var queryResult: [PackageCache]?
-    @Published public var queryRemoteResult: [Result<PackageInfo, Error>]?
+    @Published public var queryResult: LoadingState<[PackageCache]> = .idle
+    @Published public var queryRemoteResult: LoadingState<[Result<PackageInfo, Error>]> = .idle
 
     public init(cache: BrewCache, service: BrewService) {
         self.cache = cache
@@ -25,7 +26,8 @@ public final class BrewSearchService: ObservableObject {
 
     public func search(query: String?) async throws {
         guard let query, query.count >= 3 else {
-            queryResult = nil
+            searchTask?.cancel()
+            queryResult = .idle
             return
         }
 
@@ -33,14 +35,18 @@ public final class BrewSearchService: ObservableObject {
 
         let queryLowerCase = query.lowercased()
 
+        self.queryResult = .loading
 
         searchTask?.cancel()
-        let task = Task {
-            let localResult = try await cache.search(query: queryLowerCase)
+        let task = Task.detached {
+            let localResult = try await self.cache.search(query: queryLowerCase)
 
             try Task.checkCancellation()
 
-            self.queryResult = localResult
+            Task { @MainActor in
+                self.queryResult = .result(localResult)
+            }
+
             return localResult
         }
         searchTask = task
@@ -53,7 +59,7 @@ public final class BrewSearchService: ObservableObject {
     private func searchRemote(query: String?) {
         let concurrentFetches = 8
         guard let query, query.count >= 3 else {
-            queryRemoteResult = nil
+            queryRemoteResult = .idle
             return
         }
 
@@ -61,15 +67,14 @@ public final class BrewSearchService: ObservableObject {
 
         searchRemoteTask?.cancel()
 
-        queryRemoteResult = nil
+        queryRemoteResult = .loading
 
-        let task = Task {
+        let task = Task.detached {
             try Task.checkCancellation()
-            let brew = try await self.service.whichBrew()
 
             let remoteResult = try await self.service.searchFormula(query: queryLowerCase)
 
-            let localResult = try await searchTask?.value
+            let localResult = try await self.searchTask?.value
 
             let results = try await withThrowingTaskGroup(of: [Result<PackageInfo, Error>].self) { group in
 
@@ -86,7 +91,7 @@ public final class BrewSearchService: ObservableObject {
 
                     _ = group.addTaskUnlessCancelled {
                         do {
-                            let info = try await self.service.infoFormula(package: pkg, brewOverride: brew)
+                            let info = try await self.service.infoFormula(package: pkg)
                             return info.map { .success(.remote($0)) }
                         } catch {
                             print(error)
@@ -100,8 +105,8 @@ public final class BrewSearchService: ObservableObject {
 
             Task {
                 try await self.cache.sync(all: results.compactMap {
-                    if case .success(.remote(let r)) = $0 {
-                        return r
+                    if case .success(.remote(let remote)) = $0 {
+                        return remote
                     } else {
                         return nil
                     }
@@ -109,7 +114,9 @@ public final class BrewSearchService: ObservableObject {
             }
 
             try Task.checkCancellation()
-            queryRemoteResult = results
+            Task { @MainActor in
+                self.queryRemoteResult = .result(results)
+            }
         }
         searchRemoteTask = task
     }
