@@ -27,7 +27,7 @@ let package = Package(
                 ])
             ],
             plugins: [
-               .plugin(name: "SwiftLintPlugin", package: "SwiftLint"),
+//               .plugin(name: "SwiftLintPlugin", package: "SwiftLint"),
             ]
         ),
 //        .testTarget(

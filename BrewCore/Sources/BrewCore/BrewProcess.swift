@@ -63,9 +63,6 @@ fileprivate extension Process {
         try Task.checkCancellation()
         return result
     }
-}
-
-fileprivate extension Process {
 
     static func defaultShell(command: String) -> Process {
         let task = Process()
@@ -169,7 +166,7 @@ fileprivate extension Process {
             try Task.checkCancellation()
 
             if termination != .exit {
-                await stream.append(level: .dev, rawEntry: "CODE: \(task.terminationStatus)")
+                await stream.append(level: .dev, rawEntry: "CODE: \(task.terminationStatus) \(termination)")
                 throw await StdErr(stream: stream.stream, command: command)
             }
         }

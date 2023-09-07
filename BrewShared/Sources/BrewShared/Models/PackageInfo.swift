@@ -12,24 +12,6 @@ public enum PackageInfo: Hashable, Equatable {
     case cached(PackageCache)
 }
 
-//extension PackageInfo: Hashable, Equatable {
-//    
-//    public static func == (lhs: PackageInfo, rhs: PackageInfo) -> Bool {
-//        lhs.hashValue == rhs.hashValue
-//    }
-//
-//    public func hash(into hasher: inout Hasher) {
-//        switch self {
-//        case .remote(let remote):
-//            hasher.combine("remote")
-//            remote.hash(into: &hasher)
-//        case .cached(let cached):
-//            hasher.combine("cached")
-//            cached.hash(into: &hasher)
-//        }
-//    }
-//}
-
 extension PackageInfo: Identifiable {
     public var id: Int {
         hashValue
@@ -44,7 +26,8 @@ extension InfoResult {
         installed.first?.installed_as_dependency
     }
     public var installedOther: String? {
-        (try? JSONEncoder().encode(installed)).flatMap { String(data: $0, encoding: .utf8) }
+        dispatchPrecondition(condition: .notOnQueue(.main))
+        return (try? JSONEncoder().encode(installed)).flatMap { String(data: $0, encoding: .utf8) }
     }
 
     public var versionsStable: String? {
@@ -54,14 +37,32 @@ extension InfoResult {
 
 extension PackageInfo {
     public var installedVersion: String? {
-        remote?.installedVersion ?? cached?.installedVersion
+        switch self {
+        case .remote(let remote):
+            return remote.installedVersion
+
+        case .cached(let cached):
+            return cached.installedVersion
+        }
     }
     public var installedAsDependency: Bool? {
-        remote?.installedAsDependency ?? cached?.installedAsDependency
+        switch self {
+        case .remote(let remote):
+            return remote.installedAsDependency
+
+        case .cached(let cached):
+            return cached.installedAsDependency
+        }
     }
 
     public var versionsStable: String? {
-        remote?.versionsStable ?? cached?.versionsStable
+        switch self {
+        case .remote(let remote):
+            return remote.versionsStable
+
+        case .cached(let cached):
+            return cached.versionsStable
+        }
     }
 
     public var identifier: PackageIdentifier {
@@ -79,18 +80,32 @@ extension PackageInfo {
     public var outdated: Bool {
         switch self {
         case .remote:
+            assertionFailure()
             return false // cause not installed!
+
         case .cached(let pkg):
             return pkg.outdated
         }
     }
 
     public var license: String? {
-        remote?.license ?? cached?.license
+        switch self {
+        case .remote(let remote):
+            return remote.license
+
+        case .cached(let cached):
+            return cached.license
+        }
     }
 
     public var homepage: String {
-        remote?.homepage ?? cached!.homepage
+        switch self {
+        case .remote(let remote):
+            return remote.homepage
+
+        case .cached(let cached):
+            return cached.homepage
+        }
     }
 }
 
