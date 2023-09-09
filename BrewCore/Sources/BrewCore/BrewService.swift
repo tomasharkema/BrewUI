@@ -14,151 +14,119 @@ import SwiftData
 import SwiftUI
 import SwiftTracing
 import BrewShared
+import OSLog
+import BrewHelpers
 
 public final class BrewService: ObservableObject {
-    private static let listRegex = /(.+) (.+)/
+    private let cache: BrewCache
+    private let api: BrewApi
+    private let process: BrewProcessService
 
-    public let cache: BrewCache
-    public let api: BrewApi
+    private let logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "BrewService")
 
-    public init(cache: BrewCache, api: BrewApi) {
+    @MainActor @Published
+    public var isLoading: Bool = false
+
+    public init(cache: BrewCache, api: BrewApi, process: BrewProcessService) {
         self.cache = cache
         self.api = api
-    }
-
-    private nonisolated func executeBrew(command: String) async throws -> String {
-        return try await BrewProcess.shell(command: "\(command)")
+        self.process = process
     }
 
     @UpdateActor
-    private var updateTask: Task<Void, Error>?
+    private var updateTask: Task<Void, any Error>?
 
     @UpdateActor
     public func update() async throws {
-        if let updateTask {
-          return try await updateTask.value
-        }
-
-        let updateTask = Task {
+        try await EnsureOnce.once {
+            await MainActor.run {
+                self.isLoading = true
+            }
+            defer {
+                Task { @MainActor in
+                    self.isLoading = false
+                }
+            }
             do {
-                _ = try await executeBrew(command: "update")
-                _ = try await fetchInfo()
-                print("UPDATE DONE!")
+                let res = try await self.process.update()
+                self.logger.info("UPDATE DONE! \(String(describing: res)), fetching info...")
+                _ = try await self.fetchInfo()
+                self.logger.info("UPDATE DONE!")
             } catch {
-                print("ERROR", error)
+                self.logger.error("ERROR \(error)")
                 throw error
             }
         }
-
-        self.updateTask = updateTask
-        defer {
-          self.updateTask = nil
-        }
-
-        try await updateTask.value
     }
 
-    @UpdateActor
-    private var fetchInfoTask: Task<[InfoResult], Error>?
+    public func fetchInfo() async throws {
+        return try await EnsureOnce.once {
 
-    @UpdateActor
-    public func fetchInfo() async throws -> [InfoResult] {
-        if let fetchInfoTask {
-            return try await fetchInfoTask.value
-        }
+            let resultTask = Task {
+                let formulaResult = try await self.api.formula()
+                let formula = formulaResult.compactMap(\.value)
+                try await self.cache.sync(all: formula)
+                return formula
+            }
 
-        let resultTask = Task {
-            let formulaResult = try await api.formula()
-            let formula = formulaResult.compactMap(\.value)
-            try await cache.sync(all: formula)
-            return formula
-        }
+            let installedTask = Task {
+                _ = try? await resultTask.value
+                return try await self.process.infoFormulaInstalled()
+            }
 
-        let installedTask = Task {
-            _ = try? await resultTask.value
-            let info = try await self.executeBrew(command: "info --json=v1 --installed")
+            let installedSyncTask = Task {
+                try await self.cache.sync(installed: installedTask.value)
+            }
 
-            let installed = try JSONDecoder().decode(
-                [FallbackCodable<InfoResult>].self,
-                from: info.data(using: .utf8)!
-            ).compactMap(\.value)
-            return installed
-        }
+            let outdatedTask = Task {
+                let outdated = try await installedTask.value.filter(\.outdated)
+                try await self.cache.sync(outdated: outdated)
+            }
 
-        let installedSyncTask = Task {
-            try await cache.sync(installed: installedTask.value)
-        }
-
-        let outdatedTask = Task {
-            let outdated = try await installedTask.value.filter(\.outdated)
-            try await cache.sync(outdated: outdated)
-        }
-
-        let fetchInfoTask = Task {
             let date = Date()
 
-            let (res, _, _, _) = try await (resultTask.value, installedTask.value, installedSyncTask.value, outdatedTask.value)   //, outdatedTask.value)
+            //            async let list = self.listFormula()
 
-            print("timetaken", abs(date.timeIntervalSinceNow))
-            return res
+            let (res, _, _, _) = try await (
+                resultTask.value, installedTask.value, installedSyncTask.value, outdatedTask.value
+            )
+            //            print(listthing)
+            self.logger.info("timetaken \(abs(date.timeIntervalSinceNow))")
+//            return res
         }
-
-        self.fetchInfoTask = fetchInfoTask
-        defer {
-            self.fetchInfoTask = nil
-        }
-
-        return try await fetchInfoTask.value
     }
 
-//    func list(cask: Bool) async throws -> [ListResult] {
-//        let caskFlag = cask ? " --cask" : ""
-//
-//        let result = try await executeBrew(command: "list --versions\(caskFlag)")
-//
-//        return result.matches(of: listRegex).map {
-//            ListResult(
-//                name: $0.output.1.trimmingCharacters(in: .whitespacesAndNewlines),
-//                version: $0.output.2.trimmingCharacters(in: .whitespacesAndNewlines)
-////        cask: cask
-//            )
-//        }
-//    }
-
-    public nonisolated func searchFormula(query: String) async throws -> [PackageIdentifier] {
-        let stream = try await BrewProcess.shell(command: "search --formula \(query)")
-
-        return try stream.split(separator: "\n")
-            .compactMap {
-                try PackageIdentifier(raw: String($0))
-            }
+    static func parseListVersions(input: String) -> [ListResult] {
+        let matches = input.matches(of: /(\S+) (\S+)/)
+        return matches.map {
+            ListResult(name: String($0.output.1), version: String($0.output.2))
+        }
     }
 
-    nonisolated func infoFormula(package: PackageIdentifier) async throws -> [InfoResult] {
-        let stream = try await BrewProcess.shell(command: "info --json=v1 --formula \(package.nameWithoutCore)")
-
-        guard let data = stream.data(using: .utf8) else {
-            return []
-        }
-        do {
-            return try JSONDecoder().decode([InfoResult].self, from: data)
-        } catch {
-            print(error)
-            throw error
-        }
+    nonisolated func listFormula() async throws -> [ListResult] {
+        let listResult = try await process.shell(command: "list --versions")
+        return Self.parseListVersions(input: listResult)
     }
 
     public nonisolated func install(name: PackageIdentifier) async throws -> BrewStreaming {
-        return try await BrewStreaming.install(service: self, name: name)
+        return try await BrewStreaming.install(service: self, process: process, name: name)
     }
 
     public nonisolated func uninstall(name: PackageIdentifier) async throws -> BrewStreaming {
-        return try await BrewStreaming.uninstall(service: self, name: name)
+        return try await BrewStreaming.uninstall(service: self, process: process, name: name)
     }
 
     public nonisolated func upgrade(name: PackageIdentifier) async throws -> BrewStreaming {
-        return try await BrewStreaming.upgrade(service: self, name: name)
+        return try await BrewStreaming.upgrade(service: self, process: process, name: name)
     }
+
+//    public nonisolated func searchFormula(query: String) async throws -> [PackageIdentifier] {
+//        return try await process.searchFormula(query: query)
+//    }
+//
+//    nonisolated func infoFormula(package: PackageIdentifier) async throws -> [InfoResult] {
+//        return try await process.infoFormula(package: package)
+//    }
 }
 
 public struct StdErr: Error {
@@ -178,11 +146,13 @@ public struct StdErr: Error {
         }
         .map { $0.rawEntry }
         .joined(separator: "\n")
+
         stderr = stream.lazy.filter {
             $0.level == .err
         }
         .map { $0.rawEntry }
         .joined(separator: "\n")
+
         self.command = command
     }
 }
@@ -202,28 +172,23 @@ extension StreamOutput: Identifiable {
 actor SearchActor {
     static let shared = SearchActor()
 
-    static func run<T>(
-        resultType _: T.Type = T.self,
-        body: @SearchActor @Sendable () async throws -> T
-    ) async rethrows -> T where T: Sendable {
-        try await body()
-    }
+//    static func run<T>(
+//        resultType _: T.Type = T.self,
+//        body: @SearchActor @Sendable () async throws -> T
+//    ) async rethrows -> T where T: Sendable {
+//        try await body()
+//    }
 }
 
 @globalActor
 public actor UpdateActor {
     public static let shared = UpdateActor()
-    public static func run<T>(
-        resultType _: T.Type = T.self,
-        body: @UpdateActor @Sendable () async throws -> T
-    ) async rethrows -> T where T: Sendable {
-        try await body()
-    }
-}
-
-@globalActor
-public actor BrewActor {
-    public static let shared = BrewActor()
+//    public static func run<T>(
+//        resultType _: T.Type = T.self,
+//        body: @UpdateActor @Sendable () async throws -> T
+//    ) async rethrows -> T where T: Sendable {
+//        try await body()
+//    }
 }
 
 struct Brew: RawRepresentable {

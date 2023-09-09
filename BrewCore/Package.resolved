@@ -1,30 +1,12 @@
 {
   "pins" : [
     {
-      "identity" : "collectionconcurrencykit",
+      "identity" : "extract-case-value",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/JohnSundell/CollectionConcurrencyKit.git",
+      "location" : "https://github.com/tomasharkema/extract-case-value",
       "state" : {
-        "revision" : "b4f23e24b5a1bff301efc5e70871083ca029ff95",
-        "version" : "0.2.0"
-      }
-    },
-    {
-      "identity" : "cryptoswift",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/krzyzanowskim/CryptoSwift.git",
-      "state" : {
-        "revision" : "32f641cf24fc7abc1c591a2025e9f2f572648b0f",
-        "version" : "1.7.2"
-      }
-    },
-    {
-      "identity" : "sourcekitten",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/jpsim/SourceKitten.git",
-      "state" : {
-        "revision" : "b6dc09ee51dfb0c66e042d2328c017483a1a5d56",
-        "version" : "0.34.1"
+        "branch" : "main",
+        "revision" : "8d13c33f1eaeeb87a4b47147e76919bd2276d78b"
       }
     },
     {
@@ -37,12 +19,21 @@
       }
     },
     {
-      "identity" : "swift-argument-parser",
+      "identity" : "swift-async-algorithms",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/apple/swift-argument-parser.git",
+      "location" : "https://github.com/apple/swift-async-algorithms",
       "state" : {
-        "revision" : "8f4d2753f0e4778c76d5f05ad16c74f707390531",
-        "version" : "1.2.3"
+        "revision" : "9cfed92b026c524674ed869a4ff2dcfdeedf8a2a",
+        "version" : "0.1.0"
+      }
+    },
+    {
+      "identity" : "swift-collections",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-collections",
+      "state" : {
+        "revision" : "937e904258d22af6e447a0b72c0bc67583ef64a2",
+        "version" : "1.0.4"
       }
     },
     {
@@ -52,6 +43,15 @@
       "state" : {
         "revision" : "0a5bc04095a675662cf24757cc0640aa2204253b",
         "version" : "1.0.2"
+      }
+    },
+    {
+      "identity" : "swift-power-assert",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/kishikawakatsumi/swift-power-assert.git",
+      "state" : {
+        "revision" : "2fa10dcbbff807fad73b4e2469b43300a50e9bbc",
+        "version" : "0.12.0"
       }
     },
     {
@@ -68,8 +68,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-syntax.git",
       "state" : {
-        "revision" : "59ed009d2c4a5a6b78f75a25679b6417ac040dcf",
-        "version" : "509.0.0-swift-DEVELOPMENT-SNAPSHOT-2023-07-04-a"
+        "revision" : "7bb5231dad28c6dceabf7a439867f39d2c105e4f",
+        "version" : "509.0.0-swift-DEVELOPMENT-SNAPSHOT-2023-09-05-a"
       }
     },
     {
@@ -91,39 +91,21 @@
       }
     },
     {
-      "identity" : "swiftlint",
+      "identity" : "swiftmacros",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/realm/SwiftLint",
+      "location" : "https://github.com/ShenghaiWang/SwiftMacros.git",
       "state" : {
-        "revision" : "9eaecbedce469a51bd8487effbd4ab46ec8384ae",
-        "version" : "0.52.4"
+        "revision" : "c27dec0c68c783cc091fda32915cff9c8a6325bc",
+        "version" : "1.2.0"
       }
     },
     {
-      "identity" : "swiftytexttable",
+      "identity" : "utilitytype",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/scottrhoyt/SwiftyTextTable.git",
+      "location" : "https://github.com/bannzai/UtilityType",
       "state" : {
-        "revision" : "c6df6cf533d120716bff38f8ff9885e1ce2a4ac3",
-        "version" : "0.9.0"
-      }
-    },
-    {
-      "identity" : "swxmlhash",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/drmohundro/SWXMLHash.git",
-      "state" : {
-        "revision" : "a853604c9e9a83ad9954c7e3d2a565273982471f",
-        "version" : "7.0.2"
-      }
-    },
-    {
-      "identity" : "yams",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/jpsim/Yams.git",
-      "state" : {
-        "revision" : "0d9ee7ea8c4ebd4a489ad7a73d5c6cad55d6fed3",
-        "version" : "5.0.6"
+        "revision" : "1226c6a9af2365ee89e24b49c9137915e922af37",
+        "version" : "1.0.0"
       }
     }
   ],

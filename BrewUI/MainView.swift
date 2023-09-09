@@ -26,13 +26,16 @@ struct MainView: View {
     @AppStorage("tabviewSelection") 
     private var tabviewSelection = TabViewSelection.installed
 
-    @State 
-    private var selectionInstalled = Set<InfoResult>()
+//    @State 
+//    private var selectionInstalled = Set<InfoResult>()
     @State
     private var selection: PackageIdentifier?
 
     @State 
     private var presentedError: Error?
+
+    @EnvironmentObject
+    var service: BrewService
 
     var body: some View {
         TabView(selection: $tabviewSelection) {
@@ -90,7 +93,7 @@ struct MainView: View {
                 presentedError = error
             }
         }
-        .alert(error: $presentedError)
+        .errorAlert(error: $presentedError)
         .task(id: searchText) {
             do {
                 try await Dependencies.shared().search.search(query: searchText)
@@ -115,6 +118,18 @@ struct MainView: View {
         .background(PublicColor.background)
         .scrollContentBackground(.hidden)
         .navigationTitle("🍺 BrewUI")
+        .toolbar {
+            Button(action: {
+                print("REFRESH")
+            }) {
+                if service.isLoading {
+                    ProgressView()
+                        .controlSize(.small)
+                } else {
+                    Label("Refresh", systemImage: "arrow.counterclockwise")
+                }
+            }
+        }
     }
 }
 
@@ -124,8 +139,8 @@ struct MainView: View {
 //    }
 //}
 
-extension Binding {
-    func map<NewValue>(_ transform: @escaping (Value) -> NewValue) -> Binding<NewValue> {
-        Binding<NewValue>(get: { transform(wrappedValue) }, set: { _ in })
-    }
-}
+//extension Binding {
+//    func map<NewValue>(_ transform: @escaping (Value) -> NewValue) -> Binding<NewValue> {
+//        Binding<NewValue>(get: { transform(wrappedValue) }, set: { _ in })
+//    }
+//}

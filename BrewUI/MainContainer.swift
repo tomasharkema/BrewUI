@@ -21,7 +21,8 @@ struct MainContainer: View {
                     .environmentObject(dependencies.search)
                     .environmentObject(dependencies.brewService)
             } else {
-                ProgressView().progressViewStyle(.circular)
+                ProgressView()
+                    .controlSize(.small)
             }
         }.task {
             do {

@@ -21,12 +21,13 @@ public struct SearchResult: View {
     private func remoteSection() -> some View {
         switch search.queryRemoteResult {
         case .idle:
-            EmptyView()
+            let _ = print("idle!")
 
         case .loading:
             HStack {
                 Text("Also looking remotely...").font(.body.monospaced())
                 ProgressView()
+                    .controlSize(.small)
             }
 
         case .error:
@@ -42,7 +43,7 @@ public struct SearchResult: View {
     }
 
     @ViewBuilder
-    private func remoteSection(item: Result<PackageInfo, Error>) -> some View {
+    private func remoteSection(item: Result<PackageInfo, any Error>) -> some View {
         switch item {
         case .success(let item):
             ItemView(package: item, showInstalled: true)
@@ -71,6 +72,7 @@ public struct SearchResult: View {
                 HStack {
                     Text("Also looking remotely...").font(.body.monospaced())
                     ProgressView()
+                        .controlSize(.small)
                 }
 
             case .error:

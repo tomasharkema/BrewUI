@@ -35,10 +35,10 @@ final class StreamStreaming: ObservableObject {
 public final class StreamStreamingAndTask: ObservableObject, Identifiable {
     @Published public var stream = [StreamElement]()
     @Published public var isStreamingDone = false
-    private let task: Task<Void, Error>
+    private let task: Task<Void, any Error>
     public let id = UUID()
 
-    init(stream: StreamStreaming, task: Task<Void, Error>) {
+    init(stream: StreamStreaming, task: Task<Void, any Error>) {
         self.task = task
         stream.$stream.assign(to: &$stream)
         stream.$isStreamingDone.assign(to: &$isStreamingDone)

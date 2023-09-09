@@ -46,12 +46,10 @@ public final class BrewApi {
     }
 
     public nonisolated func formula() async throws -> [PartialCodable<InfoResult>] {
-        let result = try await request(url: URL(string: "https://formulae.brew.sh/api/formula.json")!, [PartialCodable<InfoResult>].self)
-        return result
+        try await request(url: URL(string: "https://formulae.brew.sh/api/formula.json")!, [PartialCodable<InfoResult>].self)
     }
 
     public nonisolated func cask() async throws -> [PartialCodable<InfoResult>] {
-        let result = try await request(url: URL(string: "https://formulae.brew.sh/api/cask.json")!, [PartialCodable<InfoResult>].self)
-        return result
+        try await request(url: URL(string: "https://formulae.brew.sh/api/cask.json")!, [PartialCodable<InfoResult>].self)
     }
 }

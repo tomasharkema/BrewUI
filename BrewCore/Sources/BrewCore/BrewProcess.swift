@@ -8,45 +8,107 @@
 import Combine
 import Foundation
 import OSLog
+import BrewShared
 
-private let logger = Logger(subsystem: "BrewUI", category: "Process")
+public final class BrewProcessService {
+    private let logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "BrewProcessService")
 
-class BrewProcess {
+    public init() {} 
+
     @BrewActor
-    static private var brewCached: Brew?
+    private var brewCached: Brew?
 
     @BrewActor
-    static func whichBrew() async throws -> Brew {
+    private func whichBrew() async throws -> Brew {
         if let brewCached {
             return brewCached
         }
 
-        let result = try await (Process.shell(command: "which brew"))
+        let result = try await (Process.shell(logger: logger, command: "which brew"))
             .trimmingCharacters(in: .whitespacesAndNewlines)
         print("FOUND BREW: \(result)")
         brewCached = Brew(rawValue: result)
         return Brew(rawValue: result)
     }
 
-    static func stream(brew brewOverride: Brew? = nil, command: String) async throws -> StreamStreamingAndTask {
+    nonisolated func stream(brew brewOverride: Brew? = nil, command: String) async throws -> StreamStreamingAndTask {
         let brew: Brew
         if let brewOverride {
             brew = brewOverride
         } else {
             brew = try await whichBrew()
         }
-        return await Process.stream(command: "\(brew.rawValue) \(command)")
+        return await Process.stream(logger: logger, command: "\(brew.rawValue) \(command)")
     }
 
-    static func shell(brew brewOverride: Brew? = nil, command: String) async throws -> String {
+    nonisolated func shell(brew brewOverride: Brew? = nil, command: String) async throws -> String {
         let brew: Brew
         if let brewOverride {
             brew = brewOverride
         } else {
             brew = try await whichBrew()
         }
-        return try await Process.shell(command: "\(brew.rawValue) \(command)")
+        return try await Process.shell(logger: logger, command: "\(brew.rawValue) \(command)")
     }
+
+    nonisolated func infoFromBrew(command: String) async throws -> [InfoResult] {
+        do {
+            let stream = try await shell(command: command)
+            try Task.checkCancellation()
+
+            guard let data = stream.data(using: .utf8) else {
+                throw NSError(domain: "data error", code: 0)
+            }
+            return try JSONDecoder().decode([InfoResult].self, from: data)
+        } catch {
+            logger.error("Error: \(error)")
+            throw error
+        }
+    }
+
+    nonisolated func infoFormulaInstalled() async throws -> [InfoResult] {
+        try await infoFromBrew(command: "info --json=v1 --installed")
+    }
+
+    nonisolated func infoFormula(package: PackageIdentifier) async throws -> [InfoResult] {
+        try await infoFromBrew(command: "info --json=v1 --formula \(package.nameWithoutCore)")
+    }
+
+    nonisolated func update() async throws -> UpdateResult {
+        let res = try await shell(command: "update")
+
+        if res.contains("Already up-to-date") {
+            return .alreadyUpToDate
+        }
+        print(res)
+        fatalError()
+    }
+
+    nonisolated func searchFormula(query: String) async throws -> [PackageIdentifier] {
+        do {
+            logger.info("Search for \(query)")
+            let stream = try await shell(command: "search --formula \(query)")
+            try Task.checkCancellation()
+            return try stream.split(separator: "\n")
+                .compactMap {
+                    try PackageIdentifier(raw: String($0))
+                }
+
+        } catch {
+            if error is CancellationError {
+                logger.info("Search for \(query) cancelled")
+            }
+            throw error
+        }
+    }
+}
+
+enum UpdateResult {
+    case alreadyUpToDate
+}
+
+enum BrewCommand {
+
 }
 
 fileprivate extension Process {
@@ -78,7 +140,7 @@ fileprivate extension Process {
         return task
     }
 
-    static func shell(command: String) async throws -> String {
+    static func shell(logger: Logger, command: String) async throws -> String {
         logger.info("EXECUTE: \(command)")
 
         let task = defaultShell(command: command)
@@ -114,7 +176,7 @@ fileprivate extension Process {
         return output
     }
 
-    static func stream(command: String) async -> StreamStreamingAndTask {
+    static func stream(logger: Logger, command: String) async -> StreamStreamingAndTask {
         let stream = await StreamStreaming()
         await stream.append(level: .dev, rawEntry: "EXECUTE: \(command)")
         let task = defaultShell(command: command)
@@ -173,4 +235,9 @@ fileprivate extension Process {
 
         return await StreamStreamingAndTask(stream: stream, task: awaitTask)
     }
+}
+
+@globalActor
+actor BrewActor {
+    static let shared = BrewActor()
 }

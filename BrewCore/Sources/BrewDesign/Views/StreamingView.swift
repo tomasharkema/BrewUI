@@ -55,7 +55,8 @@ struct StreamingView: View {
                     //                        }
                 }
             } else {
-                ProgressView().progressViewStyle(CircularProgressViewStyle())
+                ProgressView()
+                    .controlSize(.small)
             }
         }
         .padding()

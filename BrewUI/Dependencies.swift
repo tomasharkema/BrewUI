@@ -14,6 +14,7 @@ import BrewShared
 final class Dependencies {
     let modelContainer: ModelContainer
     let search: BrewSearchService
+    private let process: BrewProcessService
     let brewService: BrewService
     let api: BrewApi
 
@@ -25,9 +26,10 @@ final class Dependencies {
         self.modelContainer = container
         let cache = try await BrewCache(container: container)
         api = BrewApi()
-        brewService = BrewService(cache: cache, api: api)
+        process = BrewProcessService()
+        brewService = BrewService(cache: cache, api: api, process: process)
 
-        search = BrewSearchService(cache: cache, service: brewService)
+        search = BrewSearchService(cache: cache, service: brewService, process: process)
     }
 
     private static var sharedTask: Task<Dependencies, Error>?

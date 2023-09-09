@@ -8,11 +8,29 @@
 import SwiftUI
 
 extension View {
-    @ViewBuilder
-    func alert(error: Binding<Error?>) -> some View {
-        self.alert(Text("Error"), isPresented: error.map { $0 != nil }, presenting: error.wrappedValue) { error in
-            Text("Error: \(String(describing: error))")
-            Button("OK", role: .cancel) { }
+    func errorAlert(error: Binding<Error?>, buttonTitle: String = "OK") -> some View {
+        let localizedAlertError = LocalizedAlertError(error: error.wrappedValue)
+        return alert(isPresented: .constant(localizedAlertError != nil), error: localizedAlertError) { _ in
+            Button(buttonTitle) {
+                error.wrappedValue = nil
+            }
+        } message: { error in
+            Text(error.recoverySuggestion ?? "")
         }
+    }
+}
+
+struct LocalizedAlertError: LocalizedError {
+    let underlyingError: LocalizedError
+    var errorDescription: String? {
+        underlyingError.errorDescription
+    }
+    var recoverySuggestion: String? {
+        underlyingError.recoverySuggestion
+    }
+
+    init?(error: Error?) {
+        guard let localizedError = error as? LocalizedError else { return nil }
+        underlyingError = localizedError
     }
 }

@@ -1,5 +1,9 @@
-// The Swift Programming Language
-// https://docs.swift.org/swift-book
+//
+//  BrewDesign.swift
+//
+//
+//  Created by Tomas Harkema on 05/09/2023.
+//
 
 import SwiftUI
 

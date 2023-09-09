@@ -59,7 +59,6 @@
 		C31B49D22AA698AD001D3ADC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C32999952AA40905007408B2 /* Dependencies.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dependencies.swift; sourceTree = "<group>"; };
 		C32A73232AA154A50015A66A /* BrewCore */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = BrewCore; sourceTree = "<group>"; };
-		C3381CF52AA91F0D00D0736B /* BrewDesign */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = BrewDesign; sourceTree = "<group>"; };
 		C33B7A152AA40D0800351780 /* MainContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainContainer.swift; sourceTree = "<group>"; };
 		C365B5912AA9706300A40621 /* Alert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Alert.swift; sourceTree = "<group>"; };
 		C37751B02A04674D00473607 /* BrewUI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BrewUI.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -70,7 +69,6 @@
 		C3B0FACD2AA2B19A001B81FD /* BrewRunner */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = BrewRunner; sourceTree = BUILT_PRODUCTS_DIR; };
 		C3B0FACF2AA2B19A001B81FD /* Main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Main.swift; sourceTree = "<group>"; };
 		C3D8BF302AA9215A00D2A088 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
-		C3D8BF342AA9242300D2A088 /* BrewShared */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = BrewShared; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -98,8 +96,6 @@
 		C37751A72A04674D00473607 = {
 			isa = PBXGroup;
 			children = (
-				C3D8BF342AA9242300D2A088 /* BrewShared */,
-				C3381CF52AA91F0D00D0736B /* BrewDesign */,
 				C32A73232AA154A50015A66A /* BrewCore */,
 				C37751B22A04674D00473607 /* BrewUI */,
 				C3B0FACE2AA2B19A001B81FD /* BrewRunner */,
@@ -420,7 +416,7 @@
 				CODE_SIGN_ENTITLEMENTS = BrewUI/BrewUI.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 13;
+				CURRENT_PROJECT_VERSION = 15;
 				DEAD_CODE_STRIPPING = NO;
 				DEVELOPMENT_ASSET_PATHS = "\"BrewUI/Preview Content\"";
 				DEVELOPMENT_TEAM = RSRVS8D9PW;
@@ -434,7 +430,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 0.1.3;
+				MARKETING_VERSION = 0.1.5;
 				MERGEABLE_LIBRARY = NO;
 				MERGED_BINARY_TYPE = automatic;
 				PRODUCT_BUNDLE_IDENTIFIER = io.harkema.BrewUI;
@@ -454,7 +450,7 @@
 				CODE_SIGN_ENTITLEMENTS = BrewUI/BrewUI.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 13;
+				CURRENT_PROJECT_VERSION = 15;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"BrewUI/Preview Content\"";
 				DEVELOPMENT_TEAM = RSRVS8D9PW;
@@ -468,7 +464,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 0.1.3;
+				MARKETING_VERSION = 0.1.5;
 				MERGEABLE_LIBRARY = NO;
 				MERGED_BINARY_TYPE = automatic;
 				PRODUCT_BUNDLE_IDENTIFIER = io.harkema.BrewUI;

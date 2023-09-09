@@ -8,10 +8,15 @@
 import Foundation
 import SwiftData
 
-struct ListResult: Hashable {
+public struct ListResult: Hashable, Equatable {
     let name: String
     let version: String
     //  let cask: Bool
+
+    public init(name: String, version: String) {
+        self.name = name
+        self.version = version
+    }
 }
 
 // swiftlint:disable identifier_name

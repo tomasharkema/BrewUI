@@ -12,11 +12,13 @@ import Algorithms
 
 public actor BrewCache: ModelActor {
     public static let globalFetchLimit = 100
-    public let modelExecutor: ModelExecutor
+    public let modelExecutor: any ModelExecutor
     public nonisolated let modelContainer: ModelContainer
 
     public nonisolated init(container: ModelContainer) async throws {
+        #if DEBUG
         dispatchPrecondition(condition: .notOnQueue(.main))
+        #endif
 
         modelContainer = container
         let context = ModelContext(container)
@@ -50,8 +52,7 @@ public actor BrewCache: ModelActor {
         }
     }
 
-    public func sync(installed: [InfoResult]) throws {
-
+    public func sync(installed: [InfoResult]) throws -> [InfoResult] {
         try modelContext.transaction {
             try modelContext.delete(model: InstalledCache.self, where: .true)
 
@@ -61,6 +62,7 @@ public actor BrewCache: ModelActor {
                 modelContext.insert(installed)
             }
         }
+        return installed
     }
 
     public func package(by name: PackageIdentifier) throws -> PackageCache? {
@@ -100,8 +102,3 @@ public actor BrewCache: ModelActor {
         return try modelContext.fetch(descriptor)
     }
 }
-
-//@globalActor
-//public actor BrewCacheInitializer {
-//    public static var shared = BrewCacheInitializer()
-//}

@@ -16,7 +16,7 @@ public struct UpdatesView: View {
 
     @Query(
         FetchDescriptor<OutdatedCache>(sortBy: [SortDescriptor(\.identifier)])
-            .withFetchLimit(BrewCache.globalFetchLimit)
+//            .withFetchLimit(BrewCache.globalFetchLimit)
     )
     private var outdated: [OutdatedCache]
 
@@ -25,10 +25,11 @@ public struct UpdatesView: View {
     }
 
     public var body: some View {
-        VStack {
-            List(outdated, selection: $selection) { item in
-                ItemView(package: .cached(item.package), showInstalled: false)
-            }
+        List(outdated, selection: $selection) { item in
+            ItemView(package: .cached(item.package), showInstalled: false)
+        }
+        .tabItem {
+            Text("Updates (\(outdated.count))")
         }
     }
 }

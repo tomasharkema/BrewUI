@@ -14,14 +14,16 @@ import SwiftTracing
 public final class BrewStreaming: ObservableObject, Identifiable {
 
     private let service: BrewService
+    private let process: BrewProcessService
 
     public let id = UUID()
 
     private var streamCancellable: AnyCancellable?
     @Published public var stream: StreamStreamingAndTask
 
-    init(service: BrewService, stream: StreamStreamingAndTask) {
+    init(service: BrewService, process: BrewProcessService, stream: StreamStreamingAndTask) {
         self.service = service
+        self.process = process
         self.stream = stream
 
         streamCancellable = stream.objectWillChange.sink {
@@ -33,50 +35,28 @@ public final class BrewStreaming: ObservableObject, Identifiable {
 #endif
     }
 
-    public static func install(service: BrewService, name: PackageIdentifier) async throws -> BrewStreaming {
-        let stream = try await BrewProcess.stream(command: "install \(name.name)")
+    static func install(
+        service: BrewService, process: BrewProcessService, name: PackageIdentifier
+    ) async throws -> BrewStreaming {
+        let stream = try await process.stream(command: "install \(name.name)")
 
-        return BrewStreaming(service: service, stream: stream)
-
-//        await MainActor.run {
-//            self.stream?.cancel()
-//            streamCancellable = stream.objectWillChange.sink {
-//                self.objectWillChange.send()
-//            }
-//            self.stream = stream
-//        }
-//        _ = try await stream.value
-//        _ = try await service.update()
+        return BrewStreaming(service: service, process: process, stream: stream)
     }
 
-    public static func uninstall(service: BrewService, name: PackageIdentifier) async throws -> BrewStreaming {
-        let stream = try await BrewProcess.stream(command: "uninstall \(name.name)")
+    static func uninstall(
+        service: BrewService, process: BrewProcessService, name: PackageIdentifier
+    ) async throws -> BrewStreaming {
+        let stream = try await process.stream(command: "uninstall \(name.name)")
 
-        return BrewStreaming(service: service, stream: stream)
-//        await MainActor.run {
-//            self.stream?.cancel()
-//            streamCancellable = stream.objectWillChange.sink {
-//                self.objectWillChange.send()
-//            }
-//            self.stream = stream
-//        }
-//        try await stream.value
-//        _ = try await service.update()
+        return BrewStreaming(service: service, process: process, stream: stream)
     }
 
-    public static func upgrade(service: BrewService, name: PackageIdentifier) async throws -> BrewStreaming {
-        let stream = try await BrewProcess.stream(command: "upgrade \(name.name)")
+    static func upgrade(
+        service: BrewService, process: BrewProcessService, name: PackageIdentifier
+    ) async throws -> BrewStreaming {
+        let stream = try await process.stream(command: "upgrade \(name.name)")
 
-        return BrewStreaming(service: service, stream: stream)
-//        await MainActor.run {
-//            self.stream?.cancel()
-//            streamCancellable = stream.objectWillChange.sink {
-//                self.objectWillChange.send()
-//            }
-//            self.stream = stream
-//        }
-//        try await stream.value
-//        _ = try await service.update()
+        return BrewStreaming(service: service, process: process, stream: stream)
     }
 
 //    public func done() async {
