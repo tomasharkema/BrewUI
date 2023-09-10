@@ -5,16 +5,16 @@
 //  Created by Tomas Harkema on 03/09/2023.
 //
 
-import SwiftUI
 import BrewCore
 import BrewShared
+import SwiftUI
 
 public struct SearchResult: View {
     @Binding private var selection: PackageIdentifier?
     @EnvironmentObject private var search: BrewSearchService
 
     public init(selection: Binding<PackageIdentifier?>) {
-        self._selection = selection
+        _selection = selection
     }
 
     @ViewBuilder
@@ -33,7 +33,7 @@ public struct SearchResult: View {
         case .error:
             Text("ERROR")
 
-        case .result(let result):
+        case let .result(result):
             Section("Remote") {
                 ForEach(result) { item in
                     remoteSection(item: item)
@@ -45,19 +45,19 @@ public struct SearchResult: View {
     @ViewBuilder
     private func remoteSection(item: Result<PackageInfo, any Error>) -> some View {
         switch item {
-        case .success(let item):
+        case let .success(item):
             ItemView(package: item, showInstalled: true)
 
-        case .failure(let error as StdErr):
+        case let .failure(error as StdErr):
             VStack {
-                Text(error.stdout)
+                Text(error.out.out)
                     .font(.body.monospaced())
-                Text(error.stderr)
+                Text(error.out.err)
                     .font(.body.monospaced())
                     .foregroundColor(.red)
             }
 
-        case .failure(let error):
+        case let .failure(error):
             Text("Error: \(error.localizedDescription)")
                 .font(.body.monospaced())
                 .foregroundColor(.red)
@@ -78,18 +78,16 @@ public struct SearchResult: View {
             case .error:
                 Text("ERROR")
 
-            case .result(let result):
+            case let .result(result):
                 ForEach(result) { item in
                     ItemView(package: .cached(item), showInstalled: true)
                 }
-
             }
         }
     }
 
     public var body: some View {
         if case .idle = search.queryResult {
-            
         } else {
             List {
                 remoteSection()
@@ -102,9 +100,9 @@ public struct SearchResult: View {
 extension Result<PackageInfo, Error>: Identifiable where Success: Hashable {
     public var id: Int {
         switch self {
-        case .success(let has):
+        case let .success(has):
             return has.hashValue
-        case .failure(let err):
+        case let .failure(err):
             return "\(err)".hashValue
         }
     }

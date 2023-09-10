@@ -1,19 +1,22 @@
 //
-//  ProcessHelper.swift
+//  BrewProcess.swift
 //  BrewUI
 //
 //  Created by Tomas Harkema on 09/05/2023.
 //
 
+import BrewShared
 import Combine
 import Foundation
 import OSLog
-import BrewShared
 
 public final class BrewProcessService {
-    private let logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "BrewProcessService")
+    private let logger = Logger(
+        subsystem: Bundle.main.bundleIdentifier!,
+        category: "BrewProcessService"
+    )
 
-    public init() {} 
+    public init() {}
 
     @BrewActor
     private var brewCached: Brew?
@@ -24,14 +27,17 @@ public final class BrewProcessService {
             return brewCached
         }
 
-        let result = try await (Process.shell(logger: logger, command: "which brew"))
-            .trimmingCharacters(in: .whitespacesAndNewlines)
+        let commandResult = try await (Process.shell(logger: logger, command: "which brew"))
+        let result = commandResult.out.trimmingCharacters(in: .whitespacesAndNewlines)
         print("FOUND BREW: \(result)")
         brewCached = Brew(rawValue: result)
         return Brew(rawValue: result)
     }
 
-    nonisolated func stream(brew brewOverride: Brew? = nil, command: String) async throws -> StreamStreamingAndTask {
+    nonisolated func stream(
+        brew brewOverride: Brew? = nil,
+        command: String
+    ) async throws -> StreamStreamingAndTask {
         let brew: Brew
         if let brewOverride {
             brew = brewOverride
@@ -41,7 +47,7 @@ public final class BrewProcessService {
         return await Process.stream(logger: logger, command: "\(brew.rawValue) \(command)")
     }
 
-    nonisolated func shell(brew brewOverride: Brew? = nil, command: String) async throws -> String {
+    nonisolated func shell(brew brewOverride: Brew? = nil, command: String) async throws -> CommandOutput {
         let brew: Brew
         if let brewOverride {
             brew = brewOverride
@@ -56,7 +62,7 @@ public final class BrewProcessService {
             let stream = try await shell(command: command)
             try Task.checkCancellation()
 
-            guard let data = stream.data(using: .utf8) else {
+            guard let data = stream.out.data(using: .utf8) else {
                 throw NSError(domain: "data error", code: 0)
             }
             return try JSONDecoder().decode([InfoResult].self, from: data)
@@ -77,10 +83,10 @@ public final class BrewProcessService {
     nonisolated func update() async throws -> UpdateResult {
         let res = try await shell(command: "update")
 
-        if res.contains("Already up-to-date") {
+        if res.out.contains("Already up-to-date") || res.err.contains("Already up-to-date") {
             return .alreadyUpToDate
         }
-        print(res)
+        print(res.out, res.err)
         fatalError()
     }
 
@@ -89,7 +95,7 @@ public final class BrewProcessService {
             logger.info("Search for \(query)")
             let stream = try await shell(command: "search --formula \(query)")
             try Task.checkCancellation()
-            return try stream.split(separator: "\n")
+            return try stream.out.split(separator: "\n")
                 .compactMap {
                     try PackageIdentifier(raw: String($0))
                 }
@@ -107,11 +113,9 @@ enum UpdateResult {
     case alreadyUpToDate
 }
 
-enum BrewCommand {
+enum BrewCommand {}
 
-}
-
-fileprivate extension Process {
+private extension Process {
     func awaitTermination() async throws -> Process.TerminationReason {
         let result = await withTaskCancellationHandler(operation: { () async in
             await withCheckedContinuation { res in
@@ -140,7 +144,7 @@ fileprivate extension Process {
         return task
     }
 
-    static func shell(logger: Logger, command: String) async throws -> String {
+    nonisolated static func shell(logger: Logger, command: String) async throws -> CommandOutput {
         logger.info("EXECUTE: \(command)")
 
         let task = defaultShell(command: command)
@@ -170,13 +174,13 @@ fileprivate extension Process {
         try Task.checkCancellation()
 
         guard termination == .exit else {
-            throw StdErr(stdout: output, stderr: outputErr, command: command)
+            throw StdErr(out: CommandOutput(out: output, err: outputErr), command: command)
         }
 
-        return output
+        return CommandOutput(out: output, err: outputErr)
     }
 
-    static func stream(logger: Logger, command: String) async -> StreamStreamingAndTask {
+    nonisolated static func stream(logger: Logger, command: String) async -> StreamStreamingAndTask {
         let stream = await StreamStreaming()
         await stream.append(level: .dev, rawEntry: "EXECUTE: \(command)")
         let task = defaultShell(command: command)
@@ -186,6 +190,8 @@ fileprivate extension Process {
 
         task.standardOutput = pipe
         task.standardError = pipeErr
+        
+        task.launch()
 
         let stdoutSequence = pipe.fileHandleForReading.bytes.lines
         let stderrSequence = pipeErr.fileHandleForReading.bytes.lines
@@ -228,7 +234,10 @@ fileprivate extension Process {
             try Task.checkCancellation()
 
             if termination != .exit {
-                await stream.append(level: .dev, rawEntry: "CODE: \(task.terminationStatus) \(termination)")
+                await stream.append(
+                    level: .dev,
+                    rawEntry: "CODE: \(task.terminationStatus) \(termination)"
+                )
                 throw await StdErr(stream: stream.stream, command: command)
             }
         }

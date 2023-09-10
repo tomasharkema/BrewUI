@@ -47,7 +47,6 @@ public struct InfoResult: Codable, Hashable, Equatable {
     }
 }
 
-
 public struct Checksum: Codable, Hashable {
     public let sha256: String
 }
@@ -76,10 +75,8 @@ public struct PackageIdentifier: Hashable, CustomStringConvertible, Codable, Ide
         self.name = name
     }
 
-    private static let rawRegex = /(.+)\/(.+)/
-
     public init(raw: String) throws {
-        if let res = try Self.rawRegex.firstMatch(in: raw) {
+        if let res = raw.firstMatch(of: /(\S+)\/(\S+)/) {
             tap = String(res.output.1)
             name = String(res.output.2)
         } else {

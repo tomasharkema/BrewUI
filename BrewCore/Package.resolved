@@ -1,15 +1,6 @@
 {
   "pins" : [
     {
-      "identity" : "extract-case-value",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/tomasharkema/extract-case-value",
-      "state" : {
-        "branch" : "main",
-        "revision" : "8d13c33f1eaeeb87a4b47147e76919bd2276d78b"
-      }
-    },
-    {
       "identity" : "swift-algorithms",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-algorithms",
@@ -68,8 +59,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-syntax.git",
       "state" : {
-        "revision" : "7bb5231dad28c6dceabf7a439867f39d2c105e4f",
-        "version" : "509.0.0-swift-DEVELOPMENT-SNAPSHOT-2023-09-05-a"
+        "revision" : "e42bece52df2496d60b1b2a762fee9ffde7fc205",
+        "version" : "509.0.0-swift-DEVELOPMENT-SNAPSHOT-2023-08-07-a"
       }
     },
     {
@@ -97,15 +88,6 @@
       "state" : {
         "revision" : "c27dec0c68c783cc091fda32915cff9c8a6325bc",
         "version" : "1.2.0"
-      }
-    },
-    {
-      "identity" : "utilitytype",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/bannzai/UtilityType",
-      "state" : {
-        "revision" : "1226c6a9af2365ee89e24b49c9137915e922af37",
-        "version" : "1.0.0"
       }
     }
   ],

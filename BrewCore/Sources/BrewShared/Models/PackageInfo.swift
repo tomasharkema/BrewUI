@@ -6,7 +6,9 @@
 //
 
 import Foundation
+import SwiftMacros
 
+@AddAssociatedValueVariable
 public enum PackageInfo: Hashable, Equatable {
     case remote(InfoResult)
     case cached(PackageCache)
@@ -18,96 +20,96 @@ extension PackageInfo: Identifiable {
     }
 }
 
-extension InfoResult {
-    public var installedVersion: String? {
+public extension InfoResult {
+    var installedVersion: String? {
         installed.first?.version
     }
 
-    public var installedAsDependency: Bool? {
+    var installedAsDependency: Bool? {
         installed.first?.installed_as_dependency
     }
 
-    public var installedOther: String? {
-#if DEBUG
-        dispatchPrecondition(condition: .notOnQueue(.main))
-#endif
-        return (try? JSONEncoder().encode(installed)).flatMap { String(data: $0, encoding: .utf8) }
-    }
+//    var installedOther: String? {
+//        #if DEBUG
+//            dispatchPrecondition(condition: .notOnQueue(.main))
+//        #endif
+//        return (try? JSONEncoder().encode(installed)).flatMap { String(data: $0, encoding: .utf8) }
+//    }
 
-    public var versionsStable: String? {
+    var versionsStable: String? {
         versions.stable
     }
 }
 
-extension PackageInfo {
-    public var installedVersion: String? {
+public extension PackageInfo {
+    var installedVersion: String? {
         switch self {
-        case .remote(let remote):
+        case let .remote(remote):
             return remote.installedVersion
 
-        case .cached(let cached):
+        case let .cached(cached):
             return cached.installedVersion
         }
     }
 
-    public var installedAsDependency: Bool? {
+    var installedAsDependency: Bool? {
         switch self {
-        case .remote(let remote):
+        case let .remote(remote):
             return remote.installedAsDependency
 
-        case .cached(let cached):
+        case let .cached(cached):
             return cached.installedAsDependency
         }
     }
 
-    public var versionsStable: String? {
+    var versionsStable: String? {
         switch self {
-        case .remote(let remote):
+        case let .remote(remote):
             return remote.versionsStable
 
-        case .cached(let cached):
+        case let .cached(cached):
             return cached.versionsStable
         }
     }
 
-    public var identifier: PackageIdentifier {
+    var identifier: PackageIdentifier {
         get throws {
             switch self {
-            case .remote(let remote):
+            case let .remote(remote):
                 return remote.identifier
 
-            case .cached(let cached):
+            case let .cached(cached):
                 return try PackageIdentifier(raw: cached.identifier)
             }
         }
     }
 
-    public var outdated: Bool {
+    var outdated: Bool {
         switch self {
         case .remote:
             return false // cause not installed!
 
-        case .cached(let pkg):
+        case let .cached(pkg):
             return pkg.outdated
         }
     }
 
-    public var license: String? {
+    var license: String? {
         switch self {
-        case .remote(let remote):
+        case let .remote(remote):
             return remote.license
 
-        case .cached(let cached):
+        case let .cached(cached):
             return cached.license
         }
     }
 
-    public var homepage: String {
+    var homepage: String {
         switch self {
-        case .remote(let remote):
+        case let .remote(remote):
             return remote.homepage
 
-        case .cached(let cached):
+        case let .cached(cached):
             return cached.homepage
         }
     }
@@ -116,18 +118,20 @@ extension PackageInfo {
 extension PackageInfo {
     var remote: InfoResult? {
         switch self {
-        case .remote(let remote):
+        case let .remote(remote):
             return remote
-        default:
+
+        case .cached:
             return nil
         }
     }
-    
+
     var cached: PackageCache? {
         switch self {
-        case .cached(let cached):
+        case let .cached(cached):
             return cached
-        default:
+            
+        case .remote:
             return nil
         }
     }

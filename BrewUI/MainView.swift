@@ -32,10 +32,12 @@ struct MainView: View {
     private var selection: PackageIdentifier?
 
     @State 
-    private var presentedError: Error?
+    private var updatingState: UpdateButton.LoadingState = .idle
 
     @EnvironmentObject
     var service: BrewService
+
+    @State private var stream: BrewStreaming?
 
     var body: some View {
         TabView(selection: $tabviewSelection) {
@@ -57,13 +59,13 @@ struct MainView: View {
                     Text("All Packages")
                 }
 
-            #if DEBUG
-            _PackageTable()
-                .tag(TabViewSelection.table)
-                .tabItem {
-                    Text("Table")
-                }
-            #endif
+//            #if DEBUG
+//            _PackageTable()
+//                .tag(TabViewSelection.table)
+//                .tabItem {
+//                    Text("Table")
+//                }
+//            #endif
             
 //            if false {
 //                PackageNewDesign(selection: $selection)
@@ -90,10 +92,11 @@ struct MainView: View {
                 
                 print("update error \(error)")
 
-                presentedError = error
+//                presentedError = error
+                updatingState = .error(error)
             }
         }
-        .errorAlert(error: $presentedError)
+        .errorAlert(state: $updatingState)
         .task(id: searchText) {
             do {
                 try await Dependencies.shared().search.search(query: searchText)
@@ -102,7 +105,7 @@ struct MainView: View {
                     return
                 }
                 print("search error \(error)")
-                presentedError = error
+                updatingState = .error(error)
             }
         }
         .searchable(text: $searchText)
@@ -118,17 +121,16 @@ struct MainView: View {
         .background(PublicColor.background)
         .scrollContentBackground(.hidden)
         .navigationTitle("🍺 BrewUI")
-        .toolbar {
-            Button(action: {
-                print("REFRESH")
-            }) {
-                if service.isLoading {
-                    ProgressView()
-                        .controlSize(.small)
-                } else {
-                    Label("Refresh", systemImage: "arrow.counterclockwise")
-                }
+        .sheet(item: $stream) {
+            StreamingView(stream: $0) {
+                stream = nil
             }
+        }
+        .toolbar {
+            UpdateButton(type: .upgradeAll, state: $updatingState)
+                .disabled(service.isLoading)
+
+            UpdateButton(type: .updateAll, state: $updatingState)
         }
     }
 }

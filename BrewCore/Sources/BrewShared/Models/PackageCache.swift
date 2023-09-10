@@ -41,15 +41,15 @@ public final class PackageCache {
         lastUpdated: Date = .now
     ) {
         self.identifier = identifier.description
-        self.sortValue = "\(identifier.name)--\(identifier.tap)"
+        sortValue = "\(identifier.name)--\(identifier.tap)"
         self.checksum = checksum
         self.json = json
         self.lastUpdated = lastUpdated
-        self.outdated = false
+        outdated = false
         self.lastUpdated = lastUpdated
         self.homepage = homepage
-        self.baseName = identifier.name
-        self.tap = identifier.tap
+        baseName = identifier.name
+        tap = identifier.tap
         self.versionsStable = versionsStable
         self.desc = desc
     }
@@ -70,10 +70,10 @@ public final class PackageCache {
                 installedAsDependency = info.installedAsDependency
                 isChanged = true
             }
-            if installedOther != info.installedOther {
-                installedOther = info.installedOther
-                isChanged = true
-            }
+//            if installedOther != info.installedOther {
+//                installedOther = info.installedOther
+//                isChanged = true
+//            }
         }
 
         let newVersionsStable = info.versions.stable ?? info.versions.head ?? ""
@@ -152,7 +152,7 @@ public final class OutdatedCache: PackageCachable {
 //    public var sortValue: String {
 //        package.sortValue
 //    }
-    
+
     private init() {
         package = nil
         lastUpdated = .now

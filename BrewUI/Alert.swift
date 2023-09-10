@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import BrewDesign
 
 extension View {
     func errorAlert(error: Binding<Error?>, buttonTitle: String = "OK") -> some View {
@@ -17,6 +18,11 @@ extension View {
         } message: { error in
             Text(error.recoverySuggestion ?? "")
         }
+    }
+
+
+    func errorAlert(state: Binding<UpdateButton.LoadingState>, buttonTitle: String = "OK") -> some View {
+        return errorAlert(error: .constant(state.wrappedValue.errorValue), buttonTitle: buttonTitle)
     }
 }
 

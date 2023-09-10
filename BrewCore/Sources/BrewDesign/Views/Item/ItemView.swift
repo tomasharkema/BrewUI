@@ -5,9 +5,9 @@
 //  Created by Tomas Harkema on 09/05/2023.
 //
 
-import SwiftUI
 import BrewCore
 import BrewShared
+import SwiftUI
 
 struct ItemView: View {
     private let package: PackageInfo
@@ -20,7 +20,9 @@ struct ItemView: View {
 
     @ViewBuilder
     private func version() -> some View {
-        if package.outdated, let installedVersion = package.installedVersion, let stable = package.versionsStable {
+        if package.outdated, let installedVersion = package.installedVersion,
+           let stable = package.versionsStable
+        {
             Text("\(installedVersion) > \(stable)").font(.body.monospaced())
         } else {
             if let version = package.installedVersion {
@@ -49,21 +51,22 @@ struct ItemView: View {
             version()
 //            if let installed = info.installed.first {
 //                if showInstalled {
-//                    Text("INSTALLED").font(.body.monospaced()) // .bold()//.background(Color.accentColor).cornerRadius(5)
+//                    Text("INSTALLED").font(.body.monospaced()) //
+//                    .bold()//.background(Color.accentColor).cornerRadius(5)
 //                }
 //                if installed.installed_as_dependency {
-//                    Text("DEP").font(.body.monospaced()) // .bold()//.background(Color.accentColor).cornerRadius(5)
+//                    Text("DEP").font(.body.monospaced()) //
+//                    .bold()//.background(Color.accentColor).cornerRadius(5)
 //                }
 //            }
-            
-            //      Text(info.name).font(.body.monospaced())
 
+            //      Text(info.name).font(.body.monospaced())
         }
     }
 }
 
 //
-//private extension PackageInfo {
+// private extension PackageInfo {
 //    func nameAttributedString(size: CGFloat = 12, isInstalled: Bool) -> AttributedString {
 //        var a = AttributedString(identifier.name)
 //        a.font = .monospacedSystemFont(ofSize: size, weight: isInstalled ? .bold : .light)
@@ -88,4 +91,4 @@ struct ItemView: View {
 //    func nameTapAttributedString(size: CGFloat = 12, isInstalled: Bool) -> AttributedString {
 //        tapAttributedString(size: size) + slashAttributedString(size: size) + nameAttributedString(size: size, isInstalled: isInstalled)
 //    }
-//}
+// }

@@ -1,14 +1,14 @@
 //
 //  BrewCache.swift
-//  
+//
 //
 //  Created by Tomas Harkema on 01/09/2023.
 //
 
+import Algorithms
 import Foundation
 import SwiftData
 import SwiftUI
-import Algorithms
 
 public actor BrewCache: ModelActor {
     public static let globalFetchLimit = 100
@@ -17,7 +17,7 @@ public actor BrewCache: ModelActor {
 
     public nonisolated init(container: ModelContainer) async throws {
         #if DEBUG
-        dispatchPrecondition(condition: .notOnQueue(.main))
+            dispatchPrecondition(condition: .notOnQueue(.main))
         #endif
 
         modelContainer = container
@@ -38,9 +38,8 @@ public actor BrewCache: ModelActor {
             }
         }
     }
-    
-    public func sync(outdated: [InfoResult]) throws {
 
+    public func sync(outdated: [InfoResult]) throws {
         try modelContext.transaction {
             try modelContext.delete(model: OutdatedCache.self, where: .true)
 
@@ -66,7 +65,6 @@ public actor BrewCache: ModelActor {
     }
 
     public func package(by name: PackageIdentifier) throws -> PackageCache? {
-
         var descriptor = FetchDescriptor<PackageCache>()
         descriptor.predicate = #Predicate {
             $0.identifier == name.description
@@ -75,7 +73,6 @@ public actor BrewCache: ModelActor {
     }
 
     public func packageGetOrCreate(info: InfoResult, isLocal: Bool) throws -> PackageCache {
-
         if let model = try package(by: info.identifier) {
             model.update(info: info, isLocal: isLocal)
             return model

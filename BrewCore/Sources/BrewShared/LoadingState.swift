@@ -6,7 +6,9 @@
 //
 
 import Foundation
+import SwiftMacros
 
+@AddAssociatedValueVariable
 public enum LoadingState<Result> {
     case idle
     case loading

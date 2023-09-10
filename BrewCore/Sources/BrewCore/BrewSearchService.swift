@@ -5,8 +5,8 @@
 //  Created by Tomas Harkema on 04/09/2023.
 //
 
-import Foundation
 import BrewShared
+import Foundation
 import SwiftTracing
 
 @MainActor
@@ -21,7 +21,10 @@ public final class BrewSearchService: ObservableObject {
     @Published public var queryResult: LoadingState<[PackageCache]> = .idle
     @Published public var queryRemoteResult: LoadingState<[Result<PackageInfo, any Error>]> = .idle
 
-    private let signposter = Signposter(subsystem: Bundle.main.bundleIdentifier!, category: "BrewSearchService")
+    private let signposter = Signposter(
+        subsystem: Bundle.main.bundleIdentifier!,
+        category: "BrewSearchService"
+    )
 
     public init(cache: BrewCache, service: BrewService, process: BrewProcessService) {
         self.cache = cache
@@ -40,7 +43,7 @@ public final class BrewSearchService: ObservableObject {
 
         let queryLowerCase = query.lowercased()
 
-        self.queryResult = .loading
+        queryResult = .loading
 
         searchTask?.cancel()
         let task = Task.detached {
@@ -77,13 +80,12 @@ public final class BrewSearchService: ObservableObject {
             try Task.checkCancellation()
 
             try await self.signposter.measure(withNewId: "searchRemote") {
-
                 let remoteResult = try await self.process.searchFormula(query: queryLowerCase)
                 let results = try await self.fetchInfo(for: remoteResult)
 
                 Task {
                     try await self.cache.sync(all: results.compactMap {
-                        if case .success(.remote(let remote)) = $0 {
+                        if case let .success(.remote(remote)) = $0 {
                             return remote
                         } else {
                             return nil
@@ -117,8 +119,10 @@ public final class BrewSearchService: ObservableObject {
                 _ = group.addTaskUnlessCancelled {
                     do {
                         return try await measure("infoFormula") {
-
-                            if let local = await self.fetchInfoLocal(for: pkg, maxTtl: .seconds(60 * 60 * 24)) {
+                            if let local = await self.fetchInfoLocal(
+                                for: pkg,
+                                maxTtl: .seconds(60 * 60 * 24)
+                            ) {
                                 return [.success(.cached(local))]
                             }
 
@@ -140,7 +144,7 @@ public final class BrewSearchService: ObservableObject {
         for packageIdentifier: PackageIdentifier,
         maxTtl: Duration
     ) async -> PackageCache? {
-        guard let package = try? await self.cache.package(by: packageIdentifier) else {
+        guard let package = try? await cache.package(by: packageIdentifier) else {
             return nil
         }
 

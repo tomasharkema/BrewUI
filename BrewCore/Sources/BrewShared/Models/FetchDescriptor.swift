@@ -8,8 +8,8 @@
 import Foundation
 import SwiftData
 
-extension FetchDescriptor {
-    public func withFetchLimit(_ fetchLimit: Int?) -> FetchDescriptor {
+public extension FetchDescriptor {
+    func withFetchLimit(_ fetchLimit: Int?) -> FetchDescriptor {
         var new = self
         new.fetchLimit = fetchLimit
         return new

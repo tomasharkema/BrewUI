@@ -5,11 +5,11 @@
 //  Created by Tomas Harkema on 09/09/2023.
 //
 
-import Foundation
-import XCTest
-import PowerAssert
 @testable import BrewCore
 import BrewShared
+import Foundation
+import PowerAssert
+import XCTest
 
 class BrewServiceTests: XCTestCase {
     func testParseListVersions() {
@@ -24,4 +24,3 @@ class BrewServiceTests: XCTestCase {
         #assert(list[1] == ListResult(name: "wineskin", version: "1.8.4.2"))
     }
 }
-

@@ -5,14 +5,13 @@
 //  Created by Tomas Harkema on 05/09/2023.
 //
 
-import Foundation
-import Combine
 import BrewShared
+import Combine
+import Foundation
 import SwiftTracing
 
 @MainActor
 public final class BrewStreaming: ObservableObject, Identifiable {
-
     private let service: BrewService
     private let process: BrewProcessService
 
@@ -30,9 +29,9 @@ public final class BrewStreaming: ObservableObject, Identifiable {
             self.objectWillChange.send()
         }
 
-#if DEBUG
-        _printChanges()
-#endif
+        #if DEBUG
+//            _printChanges()
+        #endif
     }
 
     static func install(
@@ -55,6 +54,14 @@ public final class BrewStreaming: ObservableObject, Identifiable {
         service: BrewService, process: BrewProcessService, name: PackageIdentifier
     ) async throws -> BrewStreaming {
         let stream = try await process.stream(command: "upgrade \(name.name)")
+
+        return BrewStreaming(service: service, process: process, stream: stream)
+    }
+
+    static func upgrade(
+        service: BrewService, process: BrewProcessService
+    ) async throws -> BrewStreaming {
+        let stream = try await process.stream(command: "upgrade")
 
         return BrewStreaming(service: service, process: process, stream: stream)
     }

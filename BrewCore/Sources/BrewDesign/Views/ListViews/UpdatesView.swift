@@ -5,13 +5,13 @@
 //  Created by Tomas Harkema on 09/05/2023.
 //
 
-import SwiftData
-import SwiftUI
 import BrewCore
 import BrewShared
+import SwiftData
+import SwiftUI
 
 public struct UpdatesView: View {
-    @Binding 
+    @Binding
     private var selection: PackageIdentifier?
 
     @Query(

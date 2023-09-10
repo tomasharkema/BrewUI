@@ -1,5 +1,5 @@
-import XCTest
 @testable import BrewCore
+import XCTest
 
 final class BrewCoreTests: XCTestCase {
     func testExample() throws {

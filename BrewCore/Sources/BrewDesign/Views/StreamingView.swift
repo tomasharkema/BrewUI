@@ -5,21 +5,21 @@
 //  Created by Tomas Harkema on 07/09/2023.
 //
 
-import SwiftUI
 import BrewCore
+import SwiftUI
 
-struct StreamingView: View {
+public struct StreamingView: View {
     @Namespace private var bottomID
     @ObservedObject private var stream: BrewStreaming
 
-    private let dismiss: () -> ()
+    private let dismiss: () -> Void
 
-    init(stream: BrewStreaming, dismiss: @escaping () -> ()) {
+    public init(stream: BrewStreaming, dismiss: @escaping () -> Void) {
         self.stream = stream
         self.dismiss = dismiss
     }
 
-    var body: some View {
+    public var body: some View {
         VStack {
             if !stream.stream.isStreamingDone {
                 Button("Cancel") {
@@ -38,13 +38,13 @@ struct StreamingView: View {
                             .padding()
                         Spacer()
                     }
-                    Text("End")
+                    Spacer()
                         .tag(bottomID)
-                        .onReceive(stream.$stream) { _ in
-                            scroll.scrollTo(bottomID, anchor: .bottom)
-                        }
                 }
                 .frame(minWidth: 600, minHeight: 400)
+                .onReceive(stream.$stream) { _ in
+                    scroll.scrollTo(bottomID, anchor: .bottom)
+                }
             }
             if stream.stream.isStreamingDone {
                 Button("Done") {

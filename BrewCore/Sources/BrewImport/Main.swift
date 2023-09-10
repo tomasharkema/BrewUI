@@ -1,16 +1,16 @@
 //
-//  main.swift
+//  Main.swift
 //
 //
 //  Created by Tomas Harkema on 02/09/2023.
 //
 
-import Foundation
 import BrewCore
 import BrewShared
+import Foundation
 
 @main
-struct Main {
+enum Main {
     static func main() async throws {
         let api = BrewApi()
 
@@ -26,7 +26,8 @@ struct Main {
 //         let api = BrewApi.shared
 //         let tmp = URL.temporaryDirectory
 //         print(tmp)
-//         let cache = try await BrewCache(container: .brew(url: .brewStorage)) //, inMemoryStore: true)
+//         let cache = try await BrewCache(container: .brew(url: .brewStorage)) //, inMemoryStore:
+//         true)
 
 //         async let formulaRequest = api.formula()
 //         async let caskRequest = api.cask()

@@ -5,10 +5,10 @@
 //  Created by Tomas Harkema on 09/05/2023.
 //
 
-import SwiftData
-import SwiftUI
 import BrewCore
 import BrewShared
+import SwiftData
+import SwiftUI
 
 public struct AllPackagesView: View {
     @Binding
@@ -21,7 +21,7 @@ public struct AllPackagesView: View {
     private var all: [PackageCache]
 
     public init(selection: Binding<PackageIdentifier?>) {
-        self._selection = selection
+        _selection = selection
     }
 
     public var body: some View {

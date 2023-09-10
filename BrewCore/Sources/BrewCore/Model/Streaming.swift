@@ -1,11 +1,12 @@
 //
 //  Streaming.swift
-//  
+//
 //
 //  Created by Tomas Harkema on 07/09/2023.
 //
 
 import Foundation
+import Combine
 
 @MainActor
 final class StreamStreaming: ObservableObject {
@@ -19,7 +20,6 @@ final class StreamStreaming: ObservableObject {
     private func append(_ line: StreamElement) {
         stream.append(line)
     }
-    
 
     //    @MainActor
     //    func append(_ line: String) {
@@ -38,8 +38,14 @@ public final class StreamStreamingAndTask: ObservableObject, Identifiable {
     private let task: Task<Void, any Error>
     public let id = UUID()
 
+    private var streamCancellable: AnyCancellable?
+
     init(stream: StreamStreaming, task: Task<Void, any Error>) {
         self.task = task
+        streamCancellable = stream.objectWillChange.sink {
+            self.objectWillChange.send()
+        }
+
         stream.$stream.assign(to: &$stream)
         stream.$isStreamingDone.assign(to: &$isStreamingDone)
     }
@@ -82,14 +88,14 @@ public struct StreamElement {
         case .dev:
             var attr = AttributedString(rawEntry)
             attr.foregroundColor = .blue
-            self.attributedString = attr
+            attributedString = attr
         case .err:
             var attr = AttributedString(rawEntry)
             attr.foregroundColor = .red
-            self.attributedString = attr
+            attributedString = attr
         case .out:
             let attr = AttributedString(rawEntry)
-            self.attributedString = attr
+            attributedString = attr
         }
     }
 
