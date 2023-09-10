@@ -39,11 +39,13 @@ public struct StreamingView: View {
                         Spacer()
                     }
                     Spacer()
-                        .tag(bottomID)
+                        .id(bottomID)
                 }
                 .frame(minWidth: 600, minHeight: 400)
                 .onReceive(stream.$stream) { _ in
-                    scroll.scrollTo(bottomID, anchor: .bottom)
+                    withAnimation {
+                        scroll.scrollTo(bottomID, anchor: .bottom)
+                    }
                 }
             }
             if stream.stream.isStreamingDone {
