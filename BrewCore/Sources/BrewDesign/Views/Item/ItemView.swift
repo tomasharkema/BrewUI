@@ -40,7 +40,7 @@ struct ItemView: View {
             VStack(alignment: .leading) {
                 Text((try? package.identifier.name) ?? "")
                     .font(.body.monospaced())
-                    .foregroundColor(PublicColor.foreground)
+                    .foregroundColor(Color(.foreground))
                 Text((try? package.identifier.tap) ?? "")
                     .font(.body.monospaced())
                     .foregroundColor(.gray)

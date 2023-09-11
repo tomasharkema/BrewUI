@@ -17,19 +17,19 @@ public final class BrewApi {
 
     public init() {}
 
-    private nonisolated func request<ResultType: Codable>(url: URL,
-                                                          _: ResultType
-                                                              .Type) async throws -> ResultType
-    {
+    private nonisolated func request<ResultType: Codable>(
+        url: URL,
+        _: ResultType.Type
+    ) async throws -> ResultType {
         let (data, response) = try await session.data(from: url)
 
         guard let httpResponse = response as? HTTPURLResponse else {
             throw NSError(domain: "no http response", code: 0)
         }
 
-        for (name, value) in httpResponse.allHeaderFields {
-            print("\(name) \(value)")
-        }
+//        for (name, value) in httpResponse.allHeaderFields {
+//            print("\(name) \(value)")
+//        }
 
         guard (200 ..< 400).contains(httpResponse.statusCode) else {
             throw NSError(domain: "status code", code: httpResponse.statusCode)

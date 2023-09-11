@@ -97,8 +97,8 @@ public final class BrewService: ObservableObject {
     }
 
     nonisolated func listFormula() async throws -> [ListResult] {
-        let listResult = try await process.shell(command: "list --versions")
-        return Self.parseListVersions(input: listResult.out)
+        let listResult = try await process.shell(command: .list(.versions))
+        return Self.parseListVersions(input: listResult.outString)
     }
 
     public nonisolated func install(name: PackageIdentifier) async throws -> BrewStreaming {

@@ -1,0 +1,29 @@
+{
+  "configurations" : [
+    {
+      "id" : "FFD3D629-6288-42CD-9469-C63BFF0F6404",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : false,
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:BrewUI.xcodeproj",
+      "identifier" : "C37751AF2A04674D00473607",
+      "name" : "BrewUI"
+    }
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:BrewCore",
+        "identifier" : "BrewCoreTests",
+        "name" : "BrewCoreTests"
+      }
+    }
+  ],
+  "version" : 1
+}

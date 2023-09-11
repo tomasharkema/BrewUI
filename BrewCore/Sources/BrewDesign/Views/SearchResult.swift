@@ -50,11 +50,11 @@ public struct SearchResult: View {
 
         case let .failure(error as StdErr):
             VStack {
-                Text(error.out.out)
+                Text(error.out.attributed)
                     .font(.body.monospaced())
-                Text(error.out.err)
-                    .font(.body.monospaced())
-                    .foregroundColor(.red)
+//                Text(error.out.err)
+//                    .font(.body.monospaced())
+//                    .foregroundColor(.red)
             }
 
         case let .failure(error):

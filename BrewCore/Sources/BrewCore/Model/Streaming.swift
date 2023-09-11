@@ -8,8 +8,7 @@
 import Foundation
 import Combine
 
-@MainActor
-final class StreamStreaming: ObservableObject {
+final actor StreamStreaming: ObservableObject {
     @Published public var stream = [StreamElement]()
     @Published var isStreamingDone = false
 
@@ -19,6 +18,10 @@ final class StreamStreaming: ObservableObject {
 
     private func append(_ line: StreamElement) {
         stream.append(line)
+    }
+
+    func done() {
+        isStreamingDone = true
     }
 
     //    @MainActor
@@ -35,19 +38,27 @@ final class StreamStreaming: ObservableObject {
 public final class StreamStreamingAndTask: ObservableObject, Identifiable {
     @Published public var stream = [StreamElement]()
     @Published public var isStreamingDone = false
-    private let task: Task<Void, any Error>
+    let task: Task<Void, any Error>
     public let id = UUID()
+    let streaming: StreamStreaming
 
     private var streamCancellable: AnyCancellable?
 
-    init(stream: StreamStreaming, task: Task<Void, any Error>) {
+    init(stream: StreamStreaming, task: Task<Void, any Error>) async {
+        self.streaming = stream
         self.task = task
-        streamCancellable = stream.objectWillChange.sink {
-            self.objectWillChange.send()
-        }
 
-        stream.$stream.assign(to: &$stream)
-        stream.$isStreamingDone.assign(to: &$isStreamingDone)
+        await streaming.$stream.receive(on: DispatchQueue.main).assign(to: &self.$stream)
+        await streaming.$isStreamingDone.receive(on: DispatchQueue.main).assign(to: &self.$isStreamingDone)
+
+        streamCancellable = stream.objectWillChange
+            .receive(on: DispatchQueue.main)
+            .sink {
+                self.objectWillChange.send()
+            }
+
+//        await stream.$stream.receive(on: DispatchQueue.main).assign(to: &$stream)
+//        await stream.$isStreamingDone.receive(on: DispatchQueue.main).assign(to: &$isStreamingDone)
     }
 
     public func cancel() {
@@ -60,48 +71,5 @@ public final class StreamStreamingAndTask: ObservableObject, Identifiable {
         }
     }
 
-    public var attributed: AttributedString {
-        stream.reduce(into: AttributedString()) { prev, new in
-            prev += (new.attributedString + AttributedString("\n"))
-        }
-    }
-
-    public var strings: [String] {
-        stream.map(\.rawEntry)
-    }
-
-    public var out: any Sequence<String> {
-        stream.lazy.filter { $0.level == .out }.map(\.rawEntry)
-    }
-}
-
-public struct StreamElement {
-    public let level: Level
-    public let rawEntry: String
-    public let attributedString: AttributedString
-
-    init(level: Level, rawEntry: String) {
-        self.level = level
-        self.rawEntry = rawEntry
-
-        switch level {
-        case .dev:
-            var attr = AttributedString(rawEntry)
-            attr.foregroundColor = .blue
-            attributedString = attr
-        case .err:
-            var attr = AttributedString(rawEntry)
-            attr.foregroundColor = .red
-            attributedString = attr
-        case .out:
-            let attr = AttributedString(rawEntry)
-            attributedString = attr
-        }
-    }
-
-    public enum Level {
-        case out
-        case err
-        case dev
-    }
+    
 }

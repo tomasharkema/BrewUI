@@ -37,7 +37,7 @@ public final class BrewStreaming: ObservableObject, Identifiable {
     static func install(
         service: BrewService, process: BrewProcessService, name: PackageIdentifier
     ) async throws -> BrewStreaming {
-        let stream = try await process.stream(command: "install \(name.name)")
+        let stream = try await process.stream(command: .install(name))
 
         return BrewStreaming(service: service, process: process, stream: stream)
     }
@@ -45,7 +45,7 @@ public final class BrewStreaming: ObservableObject, Identifiable {
     static func uninstall(
         service: BrewService, process: BrewProcessService, name: PackageIdentifier
     ) async throws -> BrewStreaming {
-        let stream = try await process.stream(command: "uninstall \(name.name)")
+        let stream = try await process.stream(command: .uninstall(name))
 
         return BrewStreaming(service: service, process: process, stream: stream)
     }
@@ -53,7 +53,7 @@ public final class BrewStreaming: ObservableObject, Identifiable {
     static func upgrade(
         service: BrewService, process: BrewProcessService, name: PackageIdentifier
     ) async throws -> BrewStreaming {
-        let stream = try await process.stream(command: "upgrade \(name.name)")
+        let stream = try await process.stream(command: .upgrade(.package(name)))
 
         return BrewStreaming(service: service, process: process, stream: stream)
     }
@@ -61,7 +61,7 @@ public final class BrewStreaming: ObservableObject, Identifiable {
     static func upgrade(
         service: BrewService, process: BrewProcessService
     ) async throws -> BrewStreaming {
-        let stream = try await process.stream(command: "upgrade")
+        let stream = try await process.stream(command: .upgrade(.all))
 
         return BrewStreaming(service: service, process: process, stream: stream)
     }

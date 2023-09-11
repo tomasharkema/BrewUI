@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import BrewShared
 
 public struct StdErr: Error {
     public let out: CommandOutput
@@ -17,19 +18,19 @@ public struct StdErr: Error {
     }
 
     init(stream: [StreamElement], command: String) {
-        let stdout = stream.lazy.filter {
-            $0.level == .out
-        }
-        .map(\.rawEntry)
-        .joined(separator: "\n")
+//        let stdout = stream.lazy.filter {
+//            $0.level == .out
+//        }
+//        .map(\.rawEntry)
+//        .joined(separator: "\n")
+//
+//        let stderr = stream.lazy.filter {
+//            $0.level == .err
+//        }
+//        .map(\.rawEntry)
+//        .joined(separator: "\n")
 
-        let stderr = stream.lazy.filter {
-            $0.level == .err
-        }
-        .map(\.rawEntry)
-        .joined(separator: "\n")
-
-        self.out = .init(out: stdout, err: stderr)
+        self.out = .init(stream: stream)
         self.command = command
     }
 }
