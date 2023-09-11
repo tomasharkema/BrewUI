@@ -11,7 +11,7 @@ enum UpdateResult: Equatable {
     case alreadyUpToDate
     case updated(
         updatedTaps: Substring,
-        updatedCasks: Substring,
+        updatedCasks: [Substring],
         newFormulae: [Substring],
         newCasks: [Substring],
         outdatedFormulae: [Substring],
@@ -62,13 +62,19 @@ struct UpdateResultParser {
         let outdatedCasksMatch = outErrString.firstMatch(of: outdatedCasks)?
             .output.names.split(separator: "\n") ?? []
 
+        let casks = updatedCasksMatch.output.casks
+            .split(separator: ", ")
+            .flatMap {
+                $0.split(separator: " and ")
+            }
+
         guard !newFormulaeMatch.isEmpty || !newCasksMatch.isEmpty || !outdatetFormulaeMatch.isEmpty || !outdatedCasksMatch.isEmpty else {
             return nil
         }
 
         return UpdateResult.updated(
             updatedTaps: updatedCasksMatch.output.taps,
-            updatedCasks: updatedCasksMatch.output.casks,
+            updatedCasks: casks,
             newFormulae: newFormulaeMatch,
             newCasks: newCasksMatch,
             outdatedFormulae: outdatetFormulaeMatch,

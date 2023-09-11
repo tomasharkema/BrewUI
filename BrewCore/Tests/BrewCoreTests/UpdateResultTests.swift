@@ -13,25 +13,19 @@ import PowerAssert
 class UpdateResultTests: XCTestCase {
 
     func testAlreadyUpToDateOut() throws {
-        let cmd = CommandOutput(stream: [
-            .out("Already up-to-date")
-        ])
+        let cmd = CommandOutput(stream: .out("Already up-to-date"))
         let result = try UpdateResult(cmd)
         #assert(result == .alreadyUpToDate)
     }    
 
     func testAlreadyUpToDateErr() throws {
-        let cmd = CommandOutput(stream: [
-            .err("Already up-to-date")
-        ])
+        let cmd = CommandOutput(stream: .err("Already up-to-date"))
         let result = try UpdateResult(cmd)
         #assert(result == .alreadyUpToDate)
     }
 
     func testTestString() throws {
-        let result = try UpdateResult(CommandOutput(stream: [
-            .err(testString)
-        ]))
+        let result = try UpdateResult(CommandOutput(stream: .err(testString)))
 
         guard case .updated(
             let updatedTaps, let updatedCasks, 
@@ -40,6 +34,11 @@ class UpdateResultTests: XCTestCase {
             XCTFail()
             return
         }
+
+        print(updatedTaps)
+        print(updatedCasks)
+        print(updatedTaps)
+        print(updatedCasks)
 
         #assert(newFormulae.count == 4)
         #assert(newCasks.count == 2)

@@ -34,8 +34,8 @@ public struct StreamElement {
     static func err(_ error: String) -> StreamElement {
         StreamElement(level: .err, rawEntry: error)
     }    
-    static func out(_ error: String) -> StreamElement {
-        StreamElement(level: .out, rawEntry: error)
+    static func out(_ out: String) -> StreamElement {
+        StreamElement(level: .out, rawEntry: out)
     }
 
     public enum Level {
@@ -65,5 +65,12 @@ extension [StreamElement] {
     }
     var err: any Sequence<String> {
         lazy.filter { $0.level == .err }.map(\.rawEntry)
+    }
+
+    static func err(_ error: String) -> [StreamElement] {
+        [.err(error)]
+    }
+    static func out(_ out: String) -> [StreamElement] {
+        [.out(out)]
     }
 }

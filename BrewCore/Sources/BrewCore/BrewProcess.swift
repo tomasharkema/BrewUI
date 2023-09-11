@@ -234,7 +234,7 @@ private extension Process {
     }
 
     nonisolated static func stream(logger: Logger, command: String) async -> StreamStreamingAndTask {
-        let stream = await StreamStreaming()
+        let stream = StreamStreaming()
         await stream.append(level: .dev, rawEntry: "EXECUTE: \(command)")
         let task = defaultShell(command: command)
 
