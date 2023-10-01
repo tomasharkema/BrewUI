@@ -13,9 +13,6 @@ struct ItemDetailItemView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var brewService: BrewService
 
-    @State
-    private var updatingState: UpdateButton.LoadingState = .idle
-
     private let package: PackageInfo
 
     init(package: PackageInfo) {
@@ -27,7 +24,7 @@ struct ItemDetailItemView: View {
     var body: some View {
         VStack {
             HStack {
-                UpdateButton(type: .package(package), state: $updatingState)
+                PackageButton(type: .package(package))
                 Button("Close") {
                     dismiss()
                 }

@@ -1,6 +1,6 @@
 //
 //  UpdateResult.swift
-//  
+//
 //
 //  Created by Tomas Harkema on 11/09/2023.
 //
@@ -39,7 +39,7 @@ enum UpdateResultError: Error {
     case output(CommandOutput)
 }
 
-struct UpdateResultParser {
+enum UpdateResultParser {
     static func parseUpdates(_ command: CommandOutput) -> UpdateResult? {
         let updatedCasks = /Updated (?<taps>\d+) taps \((?<casks>.+)\)/
         let newFormulae = /==> New Formulae\n(?<names>[a-z0-9-\n]*)/
@@ -68,7 +68,9 @@ struct UpdateResultParser {
                 $0.split(separator: " and ")
             }
 
-        guard !newFormulaeMatch.isEmpty || !newCasksMatch.isEmpty || !outdatetFormulaeMatch.isEmpty || !outdatedCasksMatch.isEmpty else {
+        guard !newFormulaeMatch.isEmpty || !newCasksMatch.isEmpty || !outdatetFormulaeMatch
+            .isEmpty || !outdatedCasksMatch.isEmpty
+        else {
             return nil
         }
 

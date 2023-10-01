@@ -11,7 +11,7 @@ import Foundation
 import PowerAssert
 import XCTest
 
-class BrewServiceTests: XCTestCase {
+final class BrewServiceTests: XCTestCase {
     func testParseListVersions() {
         let string = """
         abseil 20230802.0

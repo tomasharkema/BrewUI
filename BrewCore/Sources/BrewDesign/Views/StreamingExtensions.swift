@@ -1,16 +1,16 @@
 //
 //  StreamingExtensions.swift
-//  
+//
 //
 //  Created by Tomas Harkema on 11/09/2023.
 //
 
-import Foundation
-import BrewShared
 import BrewCore
+import BrewShared
+import Foundation
 
-extension CommandOutput {
-    public var attributed: AttributedString {
+public extension CommandOutput {
+    var attributed: AttributedString {
         stream.attributed
     }
 }

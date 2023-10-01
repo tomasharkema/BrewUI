@@ -1,35 +1,37 @@
 //
-//  App.swift
+//  Dependencies.swift
 //  BrewUI
 //
 //  Created by Tomas Harkema on 03/09/2023.
 //
 
-import Foundation
 import BrewCore
-import SwiftData
 import BrewShared
+import Foundation
+import SwiftData
 
 @MainActor
 final class Dependencies {
     let modelContainer: ModelContainer
     let search: BrewSearchService
-    private let process: BrewProcessService
+    private let processService: BrewProcessService
     let brewService: BrewService
     let api: BrewApi
+    let update: BrewUpdateService
 
     init() async throws {
         let container = try ModelContainer(
             for: PackageCache.self, InstalledCache.self, OutdatedCache.self, UpdateCache.self,
-            configurations: ModelConfiguration(url: .brewStorage)
+            configurations: ModelConfiguration("BrewUIDB", url: .brewStorage)
         )
-        self.modelContainer = container
+        modelContainer = container
         let cache = try await BrewCache(container: container)
         api = BrewApi()
-        process = BrewProcessService()
-        brewService = BrewService(cache: cache, api: api, process: process)
+        processService = BrewProcessService()
+        brewService = BrewService(cache: cache, api: api, processService: processService)
 
-        search = BrewSearchService(cache: cache, service: brewService, process: process)
+        search = BrewSearchService(cache: cache, service: brewService, processService: processService)
+        update = BrewUpdateService(service: brewService, processService: processService)
     }
 
     private static var sharedTask: Task<Dependencies, Error>?

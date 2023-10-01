@@ -9,8 +9,17 @@ import BrewCore
 import SwiftUI
 
 public struct StreamingView: View {
-    @Namespace private var bottomID
-    @ObservedObject private var stream: BrewStreaming
+    @Namespace 
+    private var bottomID
+
+    @EnvironmentObject
+    private var brewService: BrewService
+
+    @EnvironmentObject 
+    private var update: BrewUpdateService
+
+    @ObservedObject 
+    private var stream: BrewStreaming
 
     private let dismiss: () -> Void
 
@@ -48,17 +57,20 @@ public struct StreamingView: View {
                     }
                 }
             }
-            if stream.stream.isStreamingDone {
-                Button("Done") {
-                    dismiss()
-
-                    //                        Task {
-                    //                            await Dependencies.shared().brewService.done()
-                    //                        }
+            HStack {
+                if stream.stream.isStreamingDone {
+                    if update.updating.isLoading {
+                        ProgressView()
+                            .controlSize(.small)
+                        Text("Running brew update...")
+                    }
+                    Button("Done") {
+                        dismiss()
+                    }.disabled(update.updating.isLoading)
+                } else {
+                    ProgressView()
+                        .controlSize(.small)
                 }
-            } else {
-                ProgressView()
-                    .controlSize(.small)
             }
         }
         .padding()

@@ -26,14 +26,15 @@ public extension InfoResult {
     }
 
     var installedAsDependency: Bool? {
-        installed.first?.installed_as_dependency
+        installed.first?.installedAsDependency
     }
 
 //    var installedOther: String? {
 //        #if DEBUG
 //            dispatchPrecondition(condition: .notOnQueue(.main))
 //        #endif
-//        return (try? JSONEncoder().encode(installed)).flatMap { String(data: $0, encoding: .utf8) }
+//        return (try? JSONEncoder().encode(installed)).flatMap { String(data: $0, encoding: .utf8)
+//        }
 //    }
 
     var versionsStable: String? {
@@ -130,7 +131,7 @@ extension PackageInfo {
         switch self {
         case let .cached(cached):
             return cached
-            
+
         case .remote:
             return nil
         }

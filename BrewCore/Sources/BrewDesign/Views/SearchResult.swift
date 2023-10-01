@@ -9,7 +9,7 @@ import BrewCore
 import BrewShared
 import SwiftUI
 
-public struct SearchResult: View {
+public struct SearchResultView: View {
     @Binding private var selection: PackageIdentifier?
     @EnvironmentObject private var search: BrewSearchService
 
@@ -20,9 +20,8 @@ public struct SearchResult: View {
     @ViewBuilder
     private func remoteSection() -> some View {
         switch search.queryRemoteResult {
-        case .idle:
-            let _ = print("idle!")
-
+        case .absent:
+            EmptyView()
         case .loading:
             HStack {
                 Text("Also looking remotely...").font(.body.monospaced())
@@ -30,13 +29,15 @@ public struct SearchResult: View {
                     .controlSize(.small)
             }
 
-        case .error:
-            Text("ERROR")
+        case .error(let error):
+            Text("ERROR \(error.localizedDescription)")
 
-        case let .result(result):
-            Section("Remote") {
-                ForEach(result) { item in
-                    remoteSection(item: item)
+        case let .loaded(result):
+            if !result.isEmpty {
+                Section("Remote") {
+                    ForEach(result) { item in
+                        remoteSection(item: item)
+                    }
                 }
             }
         }
@@ -68,17 +69,16 @@ public struct SearchResult: View {
     private func localSection() -> some View {
         Section("Local") {
             switch search.queryResult {
-            case .loading, .idle:
+            case .loading, .absent:
                 HStack {
-                    Text("Also looking remotely...").font(.body.monospaced())
                     ProgressView()
                         .controlSize(.small)
                 }
 
-            case .error:
-                Text("ERROR")
+            case .error(let error):
+                Text("ERROR \(error.localizedDescription)")
 
-            case let .result(result):
+            case let .loaded(result):
                 ForEach(result) { item in
                     ItemView(package: .cached(item), showInstalled: true)
                 }
@@ -87,8 +87,7 @@ public struct SearchResult: View {
     }
 
     public var body: some View {
-        if case .idle = search.queryResult {
-        } else {
+        if !search.queryResult.isAbsent {
             List {
                 remoteSection()
                 localSection()

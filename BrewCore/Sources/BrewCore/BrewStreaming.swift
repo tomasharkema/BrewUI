@@ -8,62 +8,57 @@
 import BrewShared
 import Combine
 import Foundation
-import SwiftTracing
 
 @MainActor
 public final class BrewStreaming: ObservableObject, Identifiable {
     private let service: BrewService
-    private let process: BrewProcessService
+    private let processService: BrewProcessService
 
     public let id = UUID()
 
     private var streamCancellable: AnyCancellable?
     @Published public var stream: StreamStreamingAndTask
 
-    init(service: BrewService, process: BrewProcessService, stream: StreamStreamingAndTask) {
+    init(service: BrewService, processService: BrewProcessService, stream: StreamStreamingAndTask) {
         self.service = service
-        self.process = process
+        self.processService = processService
         self.stream = stream
 
-        streamCancellable = stream.objectWillChange.sink {
-            self.objectWillChange.send()
-        }
-
-        #if DEBUG
-//            _printChanges()
-        #endif
+//        streamCancellable = stream.objectWillChange.sink {
+//            self.objectWillChange.send()
+//        }
     }
 
     static func install(
-        service: BrewService, process: BrewProcessService, name: PackageIdentifier
+        service: BrewService, processService: BrewProcessService, name: PackageIdentifier
     ) async throws -> BrewStreaming {
-        let stream = try await process.stream(command: .install(name))
+        let stream = try await processService.stream(command: .install(name))
 
-        return BrewStreaming(service: service, process: process, stream: stream)
+        return BrewStreaming(service: service, processService: processService, stream: stream)
     }
 
     static func uninstall(
-        service: BrewService, process: BrewProcessService, name: PackageIdentifier
+        service: BrewService, processService: BrewProcessService, name: PackageIdentifier
     ) async throws -> BrewStreaming {
-        let stream = try await process.stream(command: .uninstall(name))
+        let stream = try await processService.stream(command: .uninstall(name))
 
-        return BrewStreaming(service: service, process: process, stream: stream)
+        return BrewStreaming(service: service, processService: processService, stream: stream)
     }
 
     static func upgrade(
-        service: BrewService, process: BrewProcessService, name: PackageIdentifier
+        service: BrewService, processService: BrewProcessService, name: PackageIdentifier
     ) async throws -> BrewStreaming {
-        let stream = try await process.stream(command: .upgrade(.package(name)))
+        let stream = try await processService.stream(command: .upgrade(.package(name)))
 
-        return BrewStreaming(service: service, process: process, stream: stream)
+        return BrewStreaming(service: service, processService: processService, stream: stream)
     }
 
     static func upgrade(
-        service: BrewService, process: BrewProcessService
+        service: BrewService, processService: BrewProcessService
     ) async throws -> BrewStreaming {
-        let stream = try await process.stream(command: .upgrade(.all))
+        let stream = try await processService.stream(command: .upgrade(.all))
 
-        return BrewStreaming(service: service, process: process, stream: stream)
+        return BrewStreaming(service: service, processService: processService, stream: stream)
     }
 
 //    public func done() async {

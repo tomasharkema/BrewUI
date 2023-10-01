@@ -1,12 +1,12 @@
 //
-//  File.swift
-//  
+//  StdErr.swift
+//
 //
 //  Created by Tomas Harkema on 10/09/2023.
 //
 
-import Foundation
 import BrewShared
+import Foundation
 
 public struct StdErr: Error {
     public let out: CommandOutput
@@ -30,7 +30,7 @@ public struct StdErr: Error {
 //        .map(\.rawEntry)
 //        .joined(separator: "\n")
 
-        self.out = .init(stream: stream)
+        out = .init(stream: stream)
         self.command = command
     }
 }

@@ -1,22 +1,21 @@
 //
 //  UpdateResultTests.swift
-//  
+//
 //
 //  Created by Tomas Harkema on 11/09/2023.
 //
 
-import Foundation
-import XCTest
 @testable import BrewCore
+import Foundation
 import PowerAssert
+import XCTest
 
-class UpdateResultTests: XCTestCase {
-
+final class UpdateResultTests: XCTestCase {
     func testAlreadyUpToDateOut() throws {
         let cmd = CommandOutput(stream: .out("Already up-to-date"))
         let result = try UpdateResult(cmd)
         #assert(result == .alreadyUpToDate)
-    }    
+    }
 
     func testAlreadyUpToDateErr() throws {
         let cmd = CommandOutput(stream: .err("Already up-to-date"))
@@ -27,23 +26,28 @@ class UpdateResultTests: XCTestCase {
     func testTestString() throws {
         let result = try UpdateResult(CommandOutput(stream: .err(testString)))
 
-        guard case .updated(
-            let updatedTaps, let updatedCasks, 
-            let newFormulae, let newCasks, let outdatedFormulae, let outdatedCasks
+        guard case let .updated(
+            updatedTaps, updatedCasks,
+            newFormulae, newCasks, outdatedFormulae, outdatedCasks
         ) = result else {
             XCTFail()
             return
         }
 
-        print(updatedTaps)
-        print(updatedCasks)
-        print(updatedTaps)
-        print(updatedCasks)
+        #assert(updatedTaps == "3")
+        #assert(updatedCasks[0] == "homebrew/cask-versions")
+        #assert(updatedCasks[1] == "homebrew/core")
+        #assert(updatedCasks[2] == "homebrew/cask")
 
         #assert(newFormulae.count == 4)
         #assert(newCasks.count == 2)
         #assert(outdatedFormulae.count == 8)
         #assert(outdatedCasks.count == 5)
+
+        #assert(newFormulae.contains("vulkan-utility-libraries"))
+        #assert(newCasks.contains("draw-things"))
+        #assert(outdatedFormulae.contains("cryfs"))
+        #assert(outdatedCasks.contains("1password-cli"))
     }
 }
 
@@ -77,4 +81,3 @@ You have 8 outdated formulae and 5 outdated casks installed.
 You can upgrade them with brew upgrade
 or list them with brew outdated.
 """
-

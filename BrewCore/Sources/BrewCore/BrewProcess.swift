@@ -49,24 +49,34 @@ public final class BrewProcessService {
         return await Process.stream(logger: logger, command: "\(brew.rawValue) \(command.command)")
     }
 
-    nonisolated func shellStreaming(brew brewOverride: Brew? = nil, command: BrewCommand) async throws -> CommandOutput {
+    nonisolated func shellStreaming(brew brewOverride: Brew? = nil,
+                                    command: BrewCommand) async throws -> CommandOutput
+    {
         let brew: Brew
         if let brewOverride {
             brew = brewOverride
         } else {
             brew = try await whichBrew()
         }
-        return try await Process.shellStreaming(logger: logger, command: "\(brew.rawValue) \(command.command)")
+        return try await Process.shellStreaming(
+            logger: logger,
+            command: "\(brew.rawValue) \(command.command)"
+        )
     }
 
-    nonisolated func shell(brew brewOverride: Brew? = nil, command: BrewCommand) async throws -> CommandOutput {
+    nonisolated func shell(brew brewOverride: Brew? = nil,
+                           command: BrewCommand) async throws -> CommandOutput
+    {
         let brew: Brew
         if let brewOverride {
             brew = brewOverride
         } else {
             brew = try await whichBrew()
         }
-        return try await Process.shell(logger: logger, command: "\(brew.rawValue) \(command.command)")
+        return try await Process.shell(
+            logger: logger,
+            command: "\(brew.rawValue) \(command.command)"
+        )
     }
 
     nonisolated func infoFromBrew(command: InfoCommand) async throws -> [InfoResult] {
@@ -119,7 +129,7 @@ public final class BrewProcessService {
 private extension Process {
     func awaitTermination() async throws -> Process.TerminationReason {
         let result = try await withTaskCancellationHandler(operation: {
-            return try await withCheckedThrowingContinuation { res in
+            try await withCheckedThrowingContinuation { res in
                 do {
                     terminationHandler = {
                         res.resume(returning: $0.terminationReason)
@@ -178,7 +188,7 @@ private extension Process {
 
         let out = CommandOutput(stream: [
             .init(level: .out, rawEntry: output),
-            .init(level: .err, rawEntry: outputErr)
+            .init(level: .err, rawEntry: outputErr),
         ])
 
         guard termination == .exit else {
@@ -188,7 +198,11 @@ private extension Process {
         return out
     }
 
-    nonisolated static func shellStreaming(logger: Logger, command: String) async throws -> CommandOutput {
+    nonisolated static func shellStreaming(
+        logger: Logger,
+                                           command: String
+    ) async throws -> CommandOutput {
+        
         logger.info("EXECUTING \(command)")
         let streaming = await stream(logger: logger, command: command)
         logger.info("STREAMING \(command)")
@@ -233,7 +247,9 @@ private extension Process {
 //        return CommandOutput(out: output, err: outputErr)
     }
 
-    nonisolated static func stream(logger: Logger, command: String) async -> StreamStreamingAndTask {
+    nonisolated static func stream(logger: Logger,
+                                   command: String) async -> StreamStreamingAndTask
+    {
         let stream = StreamStreaming()
         await stream.append(level: .dev, rawEntry: "EXECUTE: \(command)")
         let task = defaultShell(command: command)
@@ -267,7 +283,6 @@ private extension Process {
         }
 
         let awaitTask = Task.detached {
-
             logger.info("\(command) awaitTask")
             defer { logger.info("\(command) awaitTask done") }
 

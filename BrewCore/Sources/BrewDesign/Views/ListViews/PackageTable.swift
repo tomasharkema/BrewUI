@@ -12,7 +12,7 @@ import SwiftUI
 
 // swiftlint:disable type_name
 
-//#if DEBUG
+// #if DEBUG
 //    public struct _PackageTable: View {
 //        @Query(
 //            FetchDescriptor<PackageCache>(sortBy: [SortDescriptor(\.sortValue)])
@@ -35,6 +35,6 @@ import SwiftUI
 //            .font(.body.monospaced())
 //        }
 //    }
-//#endif
+// #endif
 
 // swiftlint:enable type_name

@@ -5,8 +5,8 @@
 //  Created by Tomas Harkema on 07/09/2023.
 //
 
-import Foundation
 import Combine
+import Foundation
 
 final actor StreamStreaming: ObservableObject {
     @Published public var stream = [StreamElement]()
@@ -45,11 +45,12 @@ public final class StreamStreamingAndTask: ObservableObject, Identifiable {
     private var streamCancellable: AnyCancellable?
 
     init(stream: StreamStreaming, task: Task<Void, any Error>) async {
-        self.streaming = stream
+        streaming = stream
         self.task = task
 
         await streaming.$stream.receive(on: DispatchQueue.main).assign(to: &self.$stream)
-        await streaming.$isStreamingDone.receive(on: DispatchQueue.main).assign(to: &self.$isStreamingDone)
+        await streaming.$isStreamingDone.receive(on: DispatchQueue.main)
+            .assign(to: &$isStreamingDone)
 
         streamCancellable = stream.objectWillChange
             .receive(on: DispatchQueue.main)
@@ -58,7 +59,8 @@ public final class StreamStreamingAndTask: ObservableObject, Identifiable {
             }
 
 //        await stream.$stream.receive(on: DispatchQueue.main).assign(to: &$stream)
-//        await stream.$isStreamingDone.receive(on: DispatchQueue.main).assign(to: &$isStreamingDone)
+//        await stream.$isStreamingDone.receive(on: DispatchQueue.main).assign(to:
+//        &$isStreamingDone)
     }
 
     public func cancel() {
@@ -70,6 +72,4 @@ public final class StreamStreamingAndTask: ObservableObject, Identifiable {
             try await task.value
         }
     }
-
-    
 }

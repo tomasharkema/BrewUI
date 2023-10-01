@@ -6,22 +6,11 @@
 //
 
 import Foundation
+import MetaCodable
 import SwiftData
 
-public struct ListResult: Hashable, Equatable {
-    let name: String
-    let version: String
-    //  let cask: Bool
-
-    public init(name: String, version: String) {
-        self.name = name
-        self.version = version
-    }
-}
-
-// swiftlint:disable identifier_name
-
-public struct InfoResult: Codable, Hashable, Equatable {
+@Codable
+public struct InfoResult: Hashable, Equatable {
     public let name: String
     public let tap: String
     public let desc: String?
@@ -33,14 +22,25 @@ public struct InfoResult: Codable, Hashable, Equatable {
     public let pinned: Bool
     public let outdated: Bool
     public let deprecated: Bool
-    public let deprecation_date: String?
-    public let deprecation_reason: String?
+
+    @CodedAt("deprecation_date")
+    public let deprecationDate: String?
+
+    @CodedAt("deprecation_reason")
+    public let deprecationReason: String?
+
     public let disabled: Bool
-    public let disable_date: String?
-    public let disable_reason: String?
+
+    @CodedAt("disable_date")
+    public let disableDate: String?
+
+    @CodedAt("disable_reason")
+    public let disableReason: String?
+
     //  let service: String?
 
-    public let ruby_source_checksum: Checksum
+    @CodedAt("ruby_source_checksum")
+    public let rubySourceChecksum: Checksum
 
     public var identifier: PackageIdentifier {
         PackageIdentifier(tap: tap, name: name)
@@ -51,12 +51,13 @@ public struct Checksum: Codable, Hashable {
     public let sha256: String
 }
 
-public struct InstalledVersion: Codable, Hashable {
+@Codable
+public struct InstalledVersion: Hashable {
     public let version: String
-    public let installed_as_dependency: Bool
-}
 
-// swiftlint:enable identifier_name
+    @CodedAt("installed_as_dependency")
+    public let installedAsDependency: Bool
+}
 
 public struct Versions: Codable, Hashable {
     public let stable: String?

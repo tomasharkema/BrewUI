@@ -6,12 +6,18 @@
 //
 
 import Foundation
-import SwiftMacros
-
-@AddAssociatedValueVariable
-public enum LoadingState<Result> {
-    case idle
-    case loading
-    case result(Result)
-    case error
-}
+// import SwiftMacros
+//
+// @AddAssociatedValueVariable
+// public enum LoadingState<Result> {
+//    case idle
+//    case loading
+//    case result(Result)
+//    case error
+// }
+//
+// extension LoadingState: Equatable where Result: Equatable { }
+//
+// extension LoadingState: Hashable where Result: Hashable { }
+//
+// extension LoadingState: Sendable where Result: Sendable { }

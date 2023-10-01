@@ -1,6 +1,6 @@
 //
 //  CommandResult.swift
-//  
+//
 //
 //  Created by Tomas Harkema on 10/09/2023.
 //
@@ -13,6 +13,7 @@ public struct CommandOutput {
     var outErrString: String {
         stream.outErrString
     }
+
     var outString: String {
         stream.outString
     }

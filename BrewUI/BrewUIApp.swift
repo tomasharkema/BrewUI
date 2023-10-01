@@ -5,15 +5,14 @@
 //  Created by Tomas Harkema on 05/05/2023.
 //
 
-import SwiftData
 import SwiftUI
-import BrewCore
+import BrewUIKit
 
 @main
 struct BrewUIApp: App {
     var body: some Scene {
         WindowGroup {
-            MainContainer()
+            BrewAppMainContainer()
         }
     }
 }

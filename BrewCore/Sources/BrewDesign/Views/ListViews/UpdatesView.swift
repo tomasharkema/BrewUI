@@ -11,6 +11,9 @@ import SwiftData
 import SwiftUI
 
 public struct UpdatesView: View {
+    @EnvironmentObject
+    var update: BrewUpdateService
+
     @Binding
     private var selection: PackageIdentifier?
 
@@ -27,6 +30,13 @@ public struct UpdatesView: View {
     public var body: some View {
         List(outdated, selection: $selection) { item in
             ItemView(package: .cached(item.package), showInstalled: false)
+        }
+        .refreshable {
+            do {
+                try await update.update()
+            } catch {
+                print(error)
+            }
         }
         .tabItem {
             Text("Updates (\(outdated.count))")

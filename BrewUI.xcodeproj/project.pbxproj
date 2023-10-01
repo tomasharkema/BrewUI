@@ -7,16 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		C32999962AA40905007408B2 /* Dependencies.swift in Sources */ = {isa = PBXBuildFile; fileRef = C32999952AA40905007408B2 /* Dependencies.swift */; };
-		C329C8502AAD4D0D008EE487 /* BrewCore in Frameworks */ = {isa = PBXBuildFile; productRef = C329C84F2AAD4D0D008EE487 /* BrewCore */; };
-		C329C8522AAD4D0D008EE487 /* BrewDesign in Frameworks */ = {isa = PBXBuildFile; productRef = C329C8512AAD4D0D008EE487 /* BrewDesign */; };
-		C329C8542AAD4D0D008EE487 /* BrewShared in Frameworks */ = {isa = PBXBuildFile; productRef = C329C8532AAD4D0D008EE487 /* BrewShared */; };
-		C33B7A162AA40D0800351780 /* MainContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C33B7A152AA40D0800351780 /* MainContainer.swift */; };
-		C365B5922AA9706300A40621 /* Alert.swift in Sources */ = {isa = PBXBuildFile; fileRef = C365B5912AA9706300A40621 /* Alert.swift */; };
+		C33AE4DC2AC9B3D400AF92CF /* BrewUIKit in Frameworks */ = {isa = PBXBuildFile; productRef = C33AE4DB2AC9B3D400AF92CF /* BrewUIKit */; };
 		C37751B42A04674D00473607 /* BrewUIApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C37751B32A04674D00473607 /* BrewUIApp.swift */; };
-		C37751B82A04674F00473607 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C37751B72A04674F00473607 /* Assets.xcassets */; };
-		C37751BB2A04674F00473607 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C37751BA2A04674F00473607 /* Preview Assets.xcassets */; };
-		C3D8BF312AA9215A00D2A088 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3D8BF302AA9215A00D2A088 /* MainView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -34,16 +26,10 @@
 
 /* Begin PBXFileReference section */
 		C30AEC572AAEB44600D0F2B1 /* BrewUI.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = BrewUI.xctestplan; sourceTree = "<group>"; };
-		C32999952AA40905007408B2 /* Dependencies.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dependencies.swift; sourceTree = "<group>"; };
 		C32A73232AA154A50015A66A /* BrewCore */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = BrewCore; sourceTree = "<group>"; };
-		C33B7A152AA40D0800351780 /* MainContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainContainer.swift; sourceTree = "<group>"; };
-		C365B5912AA9706300A40621 /* Alert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Alert.swift; sourceTree = "<group>"; };
 		C37751B02A04674D00473607 /* BrewUI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BrewUI.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C37751B32A04674D00473607 /* BrewUIApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrewUIApp.swift; sourceTree = "<group>"; };
-		C37751B72A04674F00473607 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		C37751BA2A04674F00473607 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		C37751BC2A04674F00473607 /* BrewUI.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BrewUI.entitlements; sourceTree = "<group>"; };
-		C3D8BF302AA9215A00D2A088 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -51,9 +37,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C329C8522AAD4D0D008EE487 /* BrewDesign in Frameworks */,
-				C329C8542AAD4D0D008EE487 /* BrewShared in Frameworks */,
-				C329C8502AAD4D0D008EE487 /* BrewCore in Frameworks */,
+				C33AE4DC2AC9B3D400AF92CF /* BrewUIKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -83,23 +67,9 @@
 			isa = PBXGroup;
 			children = (
 				C37751B32A04674D00473607 /* BrewUIApp.swift */,
-				C32999952AA40905007408B2 /* Dependencies.swift */,
-				C33B7A152AA40D0800351780 /* MainContainer.swift */,
-				C3D8BF302AA9215A00D2A088 /* MainView.swift */,
-				C37751B72A04674F00473607 /* Assets.xcassets */,
 				C37751BC2A04674F00473607 /* BrewUI.entitlements */,
-				C37751B92A04674F00473607 /* Preview Content */,
-				C365B5912AA9706300A40621 /* Alert.swift */,
 			);
 			path = BrewUI;
-			sourceTree = "<group>";
-		};
-		C37751B92A04674F00473607 /* Preview Content */ = {
-			isa = PBXGroup;
-			children = (
-				C37751BA2A04674F00473607 /* Preview Assets.xcassets */,
-			);
-			path = "Preview Content";
 			sourceTree = "<group>";
 		};
 		C3CE7B1C2A9D415B002809F3 /* Frameworks */ = {
@@ -127,9 +97,7 @@
 			);
 			name = BrewUI;
 			packageProductDependencies = (
-				C329C84F2AAD4D0D008EE487 /* BrewCore */,
-				C329C8512AAD4D0D008EE487 /* BrewDesign */,
-				C329C8532AAD4D0D008EE487 /* BrewShared */,
+				C33AE4DB2AC9B3D400AF92CF /* BrewUIKit */,
 			);
 			productName = BrewUI;
 			productReference = C37751B02A04674D00473607 /* BrewUI.app */;
@@ -175,8 +143,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C37751BB2A04674F00473607 /* Preview Assets.xcassets in Resources */,
-				C37751B82A04674F00473607 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -187,10 +153,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C32999962AA40905007408B2 /* Dependencies.swift in Sources */,
-				C365B5922AA9706300A40621 /* Alert.swift in Sources */,
-				C3D8BF312AA9215A00D2A088 /* MainView.swift in Sources */,
-				C33B7A162AA40D0800351780 /* MainContainer.swift in Sources */,
 				C37751B42A04674D00473607 /* BrewUIApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -337,16 +299,17 @@
 				ASSETCATALOG_COMPILER_GENERATE_ASSET_SYMBOLS = YES;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_ENTITLEMENTS = BrewUI/BrewUI.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 17;
 				DEAD_CODE_STRIPPING = NO;
-				DEVELOPMENT_ASSET_PATHS = "\"BrewUI/Preview Content\"";
 				DEVELOPMENT_TEAM = RSRVS8D9PW;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = BrewUI;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -371,16 +334,17 @@
 				ASSETCATALOG_COMPILER_GENERATE_ASSET_SYMBOLS = YES;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_ENTITLEMENTS = BrewUI/BrewUI.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 17;
 				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_ASSET_PATHS = "\"BrewUI/Preview Content\"";
 				DEVELOPMENT_TEAM = RSRVS8D9PW;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = BrewUI;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -422,17 +386,9 @@
 /* End XCConfigurationList section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		C329C84F2AAD4D0D008EE487 /* BrewCore */ = {
+		C33AE4DB2AC9B3D400AF92CF /* BrewUIKit */ = {
 			isa = XCSwiftPackageProductDependency;
-			productName = BrewCore;
-		};
-		C329C8512AAD4D0D008EE487 /* BrewDesign */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = BrewDesign;
-		};
-		C329C8532AAD4D0D008EE487 /* BrewShared */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = BrewShared;
+			productName = BrewUIKit;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

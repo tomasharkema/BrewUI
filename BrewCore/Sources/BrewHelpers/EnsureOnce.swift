@@ -1,6 +1,6 @@
 //
 //  EnsureOnce.swift
-//  
+//
 //
 //  Created by Tomas Harkema on 09/09/2023.
 //
@@ -8,11 +8,10 @@
 import Foundation
 
 public actor EnsureOnce {
-
     private static var handlers = [HandlerLocation: Task<Void, any Error>]()
 
     public static func once(
-        _ handler: @escaping () async throws -> (),
+        _ handler: @escaping () async throws -> Void,
         file: String = #file, line: UInt = #line, function: String = #function
     ) async throws {
         let handlerLocation = HandlerLocation(file: file, line: line, function: function)
@@ -20,7 +19,7 @@ public actor EnsureOnce {
         if let existingHandler = handlers[handlerLocation] {
             return try await existingHandler.value
         }
-        
+
         defer {
             handlers[handlerLocation] = nil
         }

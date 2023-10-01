@@ -19,6 +19,46 @@
       "args": [],
       "cwd": "${workspaceFolder:BrewCore}",
       "preLaunchTask": "swift: Build Release BrewImport"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "sourceLanguages": ["swift"],
+      "name": "Debug BrewUISPM",
+      "program": "${workspaceFolder:BrewCore}/.build/debug/BrewUISPM",
+      "args": [],
+      "cwd": "${workspaceFolder:BrewCore}",
+      "preLaunchTask": "swift: Build Debug BrewUISPM"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "sourceLanguages": ["swift"],
+      "name": "Release BrewUISPM",
+      "program": "${workspaceFolder:BrewCore}/.build/release/BrewUISPM",
+      "args": [],
+      "cwd": "${workspaceFolder:BrewCore}",
+      "preLaunchTask": "swift: Build Release BrewUISPM"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "sourceLanguages": ["swift"],
+      "name": "Debug BrewUIApp",
+      "program": "${workspaceFolder:BrewCore}/.build/debug/BrewUIApp",
+      "args": [],
+      "cwd": "${workspaceFolder:BrewCore}",
+      "preLaunchTask": "swift: Build Debug BrewUIApp"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "sourceLanguages": ["swift"],
+      "name": "Release BrewUIApp",
+      "program": "${workspaceFolder:BrewCore}/.build/release/BrewUIApp",
+      "args": [],
+      "cwd": "${workspaceFolder:BrewCore}",
+      "preLaunchTask": "swift: Build Release BrewUIApp"
     }
   ]
 }

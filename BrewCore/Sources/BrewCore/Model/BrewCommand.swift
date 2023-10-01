@@ -5,8 +5,8 @@
 //  Created by Tomas Harkema on 11/09/2023.
 //
 
-import Foundation
 import BrewShared
+import Foundation
 
 protocol CommandString {
     var command: String { get }
@@ -23,19 +23,19 @@ enum BrewCommand: CommandString {
 
     var command: String {
         switch self {
-        case .info(let info):
+        case let .info(info):
             return info.command
-        case .install(let pkg):
+        case let .install(pkg):
             return "install \(pkg.nameWithoutCore)"
-        case .uninstall(let pkg):
+        case let .uninstall(pkg):
             return "uninstall \(pkg.nameWithoutCore)"
-        case .upgrade(let upgrade):
+        case let .upgrade(upgrade):
             return upgrade.command
         case .update:
             return "update"
-        case .search(let query):
+        case let .search(query):
             return "search --formula \(query)"
-        case .list(let list):
+        case let .list(list):
             return list.command
         }
     }
@@ -50,7 +50,7 @@ enum InfoCommand: CommandString {
         case .installed:
             return "--json=v1 --installed"
 
-        case .formula(let pkg):
+        case let .formula(pkg):
             return "--json=v1 --formula \(pkg.nameWithoutCore)"
         }
     }
@@ -68,7 +68,7 @@ enum UpgradeCommand: CommandString {
         switch self {
         case .all:
             return "upgrade"
-        case .package(let pkg):
+        case let .package(pkg):
             return "upgrade \(pkg.nameWithoutCore)"
         }
     }

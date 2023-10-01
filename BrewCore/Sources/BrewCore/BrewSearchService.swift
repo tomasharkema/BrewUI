@@ -7,114 +7,118 @@
 
 import BrewShared
 import Foundation
+import Processed
 import SwiftTracing
 
 @MainActor
-public final class BrewSearchService: ObservableObject {
+public final class BrewSearchService: ObservableObject, LoadableSupport {
     private let cache: BrewCache
     private let service: BrewService
-    private let process: BrewProcessService
+    private let processService: BrewProcessService
 
-    private var searchTask: Task<[PackageCache], any Error>?
-    private var searchRemoteTask: Task<Void, any Error>?
-
-    @Published public var queryResult: LoadingState<[PackageCache]> = .idle
-    @Published public var queryRemoteResult: LoadingState<[Result<PackageInfo, any Error>]> = .idle
+    @Published 
+    public var queryResult: LoadableState<[PackageCache]> = .absent
+    
+    @Published
+    public var queryRemoteResult: LoadableState<[Result<PackageInfo, any Error>]> = .absent
 
     private let signposter = Signposter(
         subsystem: Bundle.main.bundleIdentifier!,
         category: "BrewSearchService"
     )
 
-    public init(cache: BrewCache, service: BrewService, process: BrewProcessService) {
+    public init(cache: BrewCache, service: BrewService, processService: BrewProcessService) {
         self.cache = cache
         self.service = service
-        self.process = process
+        self.processService = processService
     }
 
-    public func search(query: String?) async throws {
+    public func search(query: String?) async {
         guard let query, query.count >= 3 else {
-            searchTask?.cancel()
-            queryResult = .idle
+            reset(\.queryResult)
+            reset(\.queryRemoteResult)
             return
         }
-
-        try Task.checkCancellation()
-
-        let queryLowerCase = query.lowercased()
-
-        queryResult = .loading
-
-        searchTask?.cancel()
-        let task = Task.detached {
-            let localResult = try await self.cache.search(query: queryLowerCase)
-
-            try Task.checkCancellation()
-
-            Task { @MainActor in
-                self.queryResult = .result(localResult)
-            }
-
-            return localResult
-        }
-        searchTask = task
-
-        searchRemote(query: query)
-
-        _ = try await task.value
-    }
-
-    private func searchRemote(query: String?) {
-        guard let query, query.count >= 3 else {
-            queryRemoteResult = .idle
+        
+        if Task.isCancelled {
             return
         }
 
         let queryLowerCase = query.lowercased()
 
-        searchRemoteTask?.cancel()
-
-        queryRemoteResult = .loading
-
-        let task = Task.detached {
+        let task = load(\.queryResult, priority: .medium) {
+            let result = try await self.cache.search(query: queryLowerCase)
             try Task.checkCancellation()
 
-            try await self.signposter.measure(withNewId: "searchRemote") {
-                let remoteResult = try await self.process.searchFormula(query: queryLowerCase)
-                let results = try await self.fetchInfo(for: remoteResult)
-
-                Task {
-                    try await self.cache.sync(all: results.compactMap {
-                        if case let .success(.remote(remote)) = $0 {
-                            return remote
-                        } else {
-                            return nil
-                        }
-                    })
-                }
-
+            let task = self.load(\.queryRemoteResult, priority: .medium) {
+                let res = try await self.searchRemote(query: query, fromCache: result)
                 try Task.checkCancellation()
-                Task { @MainActor in
-                    self.queryRemoteResult = .result(results)
-                }
+                return res
             }
+
+            return result
         }
-        searchRemoteTask = task
+
+        await task.value
+    }
+
+    private nonisolated func searchRemote(
+        query: String?, fromCache: [PackageCache] = []
+    ) async throws -> [Result<PackageInfo, any Error>] {
+
+        guard let query, query.count >= 3 else {
+            return []
+        }
+
+        let queryLowerCase = query.lowercased()
+
+        return try await signposter.measure(withNewId: "searchRemote") {
+            let remoteResult = try await self.processService.searchFormula(query: queryLowerCase)
+            try Task.checkCancellation()
+            let results = try await self.fetchInfo(for: remoteResult, fromCache: fromCache)
+
+            Task {
+                await self.storeInCache(results: results)
+            }
+
+            try Task.checkCancellation()
+
+            return results
+        }
+    }
+
+    private nonisolated func storeInCache(results: [Result<PackageInfo, any Error>]) async {
+        try? await cache.sync(all: results.compactMap {
+            if case let .success(.remote(remote)) = $0 {
+                return remote
+            } else {
+                return nil
+            }
+        })
     }
 
     private func fetchInfo(
-        for packageIdentifiers: [PackageIdentifier], concurrentFetches: Int = 4
+        for packageIdentifiers: [PackageIdentifier], 
+        fromCache: [PackageCache] = [],
+        concurrentFetches: Int = 4
     ) async throws -> [Result<PackageInfo, any Error>] {
         try await withThrowingTaskGroup(of: [Result<PackageInfo, any Error>].self) { group in
 
             for (index, pkg) in packageIdentifiers.enumerated() {
                 try Task.checkCancellation()
 
+                let foundInCache = fromCache.first {
+                    $0.id == pkg
+                }
+
+                if let foundInCache {
+                    print("ALREADY FOUND", foundInCache.id)
+                    continue
+                }
+
                 if index % concurrentFetches == 0 {
                     _ = try await group.next()
                 }
-
-//                guard localCandidate == nil else { continue }
 
                 _ = group.addTaskUnlessCancelled {
                     do {
@@ -126,7 +130,7 @@ public final class BrewSearchService: ObservableObject {
                                 return [.success(.cached(local))]
                             }
 
-                            let info = try await self.process.infoFormula(package: pkg)
+                            let info = try await self.processService.infoFormula(package: pkg)
                             return info.map { .success(.remote($0)) }
                         }
                     } catch {

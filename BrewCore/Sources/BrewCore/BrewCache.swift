@@ -6,6 +6,7 @@
 //
 
 import Algorithms
+import BrewShared
 import Foundation
 import SwiftData
 import SwiftUI
@@ -81,7 +82,7 @@ public actor BrewCache: ModelActor {
         let json = try JSONEncoder().encode(info)
         let model = PackageCache(
             identifier: info.identifier,
-            checksum: info.ruby_source_checksum.sha256,
+            checksum: info.rubySourceChecksum.sha256,
             json: json, homepage: info.homepage,
             versionsStable: info.versionsStable ?? info.versions.head ?? "",
             desc: info.desc ?? ""

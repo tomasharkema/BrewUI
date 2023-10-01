@@ -18,39 +18,14 @@ import SwiftUI
 public final class BrewService: ObservableObject {
     private let cache: BrewCache
     private let api: BrewApi
-    private let process: BrewProcessService
+    private let processService: BrewProcessService
 
     private let logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "BrewService")
 
-    @MainActor @Published
-    public var isLoading: Bool = false
-
-    public init(cache: BrewCache, api: BrewApi, process: BrewProcessService) {
+    public init(cache: BrewCache, api: BrewApi, processService: BrewProcessService) {
         self.cache = cache
         self.api = api
-        self.process = process
-    }
-
-    public func update() async throws {
-        try await EnsureOnce.once {
-            await MainActor.run {
-                self.isLoading = true
-            }
-            defer {
-                Task { @MainActor in
-                    self.isLoading = false
-                }
-            }
-            do {
-                let res = try await self.process.update()
-                self.logger.info("UPDATE DONE! \(String(describing: res)), fetching info...")
-                _ = try await self.fetchInfo()
-                self.logger.info("UPDATE DONE!")
-            } catch {
-                self.logger.error("ERROR \(error)")
-                throw error
-            }
-        }
+        self.processService = processService
     }
 
     public func fetchInfo() async throws {
@@ -64,7 +39,7 @@ public final class BrewService: ObservableObject {
 
             let installedTask = Task {
                 _ = try? await resultTask.value
-                return try await self.process.infoFormulaInstalled()
+                return try await self.processService.infoFormulaInstalled()
             }
 
             let installedSyncTask = Task {
@@ -80,7 +55,7 @@ public final class BrewService: ObservableObject {
 
             //            async let list = self.listFormula()
 
-            let (_, _, _, _) = try await (
+            let _ = try await (
                 resultTask.value, installedTask.value, installedSyncTask.value, outdatedTask.value
             )
             //            print(listthing)
@@ -97,24 +72,24 @@ public final class BrewService: ObservableObject {
     }
 
     nonisolated func listFormula() async throws -> [ListResult] {
-        let listResult = try await process.shell(command: .list(.versions))
+        let listResult = try await processService.shell(command: .list(.versions))
         return Self.parseListVersions(input: listResult.outString)
     }
 
-    public nonisolated func install(name: PackageIdentifier) async throws -> BrewStreaming {
-        try await BrewStreaming.install(service: self, process: process, name: name)
+    nonisolated func install(name: PackageIdentifier) async throws -> BrewStreaming {
+        try await BrewStreaming.install(service: self, processService: processService, name: name)
     }
 
-    public nonisolated func uninstall(name: PackageIdentifier) async throws -> BrewStreaming {
-        try await BrewStreaming.uninstall(service: self, process: process, name: name)
+    nonisolated func uninstall(name: PackageIdentifier) async throws -> BrewStreaming {
+        try await BrewStreaming.uninstall(service: self, processService: processService, name: name)
     }
 
-    public nonisolated func upgrade(name: PackageIdentifier) async throws -> BrewStreaming {
-        try await BrewStreaming.upgrade(service: self, process: process, name: name)
+    nonisolated func upgrade(name: PackageIdentifier) async throws -> BrewStreaming {
+        try await BrewStreaming.upgrade(service: self, processService: processService, name: name)
     }
 
-    public nonisolated func upgrade() async throws -> BrewStreaming {
-        try await BrewStreaming.upgrade(service: self, process: process)
+    nonisolated func upgrade() async throws -> BrewStreaming {
+        try await BrewStreaming.upgrade(service: self, processService: processService)
     }
 
 //    public nonisolated func searchFormula(query: String) async throws -> [PackageIdentifier] {

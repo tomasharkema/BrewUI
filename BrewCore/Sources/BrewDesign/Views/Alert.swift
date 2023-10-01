@@ -6,12 +6,15 @@
 //
 
 import SwiftUI
-import BrewDesign
+import Processed
 
-extension View {
+public extension View {
     func errorAlert(error: Binding<Error?>, buttonTitle: String = "OK") -> some View {
         let localizedAlertError = LocalizedAlertError(error: error.wrappedValue)
-        return alert(isPresented: .constant(localizedAlertError != nil), error: localizedAlertError) { _ in
+        return alert(
+            isPresented: .constant(localizedAlertError != nil),
+            error: localizedAlertError
+        ) { _ in
             Button(buttonTitle) {
                 error.wrappedValue = nil
             }
@@ -20,9 +23,11 @@ extension View {
         }
     }
 
-
-    func errorAlert(state: Binding<UpdateButton.LoadingState>, buttonTitle: String = "OK") -> some View {
-        return errorAlert(error: .constant(state.wrappedValue.errorValue), buttonTitle: buttonTitle)
+    func errorAlert(
+        state: LoadableState<Bool>,
+        buttonTitle: String = "OK"
+    ) -> some View {
+        errorAlert(error: .constant(state.error), buttonTitle: buttonTitle)
     }
 }
 
@@ -31,6 +36,7 @@ struct LocalizedAlertError: LocalizedError {
     var errorDescription: String? {
         underlyingError.errorDescription
     }
+
     var recoverySuggestion: String? {
         underlyingError.recoverySuggestion
     }

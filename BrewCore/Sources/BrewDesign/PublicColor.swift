@@ -5,12 +5,9 @@
 //  Created by Tomas Harkema on 05/09/2023.
 //
 
-#if canImport(SwiftUI)
 import SwiftUI
 
-public struct PublicColor {
-    public static let background = Color(ColorResource.background)
-    public static let foreground = Color(ColorResource.foreground)
+public enum PublicColor {
+    public static let backgroundTint = Color(.backgroundTint)
+    public static let foregroundTint = Color(.foregroundTint)
 }
-
-#endif

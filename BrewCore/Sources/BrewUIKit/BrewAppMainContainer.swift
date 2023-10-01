@@ -1,25 +1,28 @@
 //
-//  MainContainer.swift
+//  BrewAppMainContainer.swift
 //  BrewUI
 //
 //  Created by Tomas Harkema on 03/09/2023.
 //
 
+import BrewDesign
 import Foundation
 import SwiftUI
-import BrewDesign
 
-struct MainContainer: View {
+public struct BrewAppMainContainer: View {
     @State
     private var dependencies: Dependencies?
 
-    var body: some View {
+    public init() {}
+
+    public var body: some View {
         Group {
             if let dependencies {
                 MainView()
                     .modelContainer(dependencies.modelContainer)
                     .environmentObject(dependencies.search)
                     .environmentObject(dependencies.brewService)
+                    .environmentObject(dependencies.update)
             } else {
                 ProgressView()
                     .controlSize(.small)
