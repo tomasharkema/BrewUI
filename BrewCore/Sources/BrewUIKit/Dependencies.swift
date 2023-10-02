@@ -21,7 +21,7 @@ final class Dependencies {
 
     init() async throws {
         let container = try ModelContainer(
-            for: PackageCache.self, InstalledCache.self, OutdatedCache.self, UpdateCache.self,
+            for: PackageCache.self, InstalledCache.self, OutdatedCache.self, UpdateCache.self, Tap.self,
             configurations: ModelConfiguration("BrewUIDB", url: .brewStorage)
         )
         modelContainer = container

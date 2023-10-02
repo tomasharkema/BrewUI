@@ -51,12 +51,17 @@ public final class BrewService: ObservableObject {
                 try await self.cache.sync(outdated: outdated)
             }
 
+            let tapsTask = Task {
+                let taps = try await self.processService.taps()
+                try await self.cache.sync(taps: taps)
+            }
+
             let date = Date()
 
             //            async let list = self.listFormula()
 
             let _ = try await (
-                resultTask.value, installedTask.value, installedSyncTask.value, outdatedTask.value
+                resultTask.value, installedTask.value, installedSyncTask.value, outdatedTask.value, tapsTask.value
             )
             //            print(listthing)
             self.logger.info("timetaken \(abs(date.timeIntervalSinceNow))")
