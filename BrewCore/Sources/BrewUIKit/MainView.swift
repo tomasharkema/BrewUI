@@ -91,6 +91,11 @@ struct MainView: View {
             }
         }
         .toolbar {
+            #if DEBUG
+            ToolbarItemGroup {
+                Text("DEBUG: all: \(String(describing: updateService.all)) updating: \(String(describing: updateService.updating)) upgrading: \(String(describing: updateService.upgrading))")
+            }
+            #endif
             ToolbarItemGroup {
                 PackageButton(type: .upgradeAll)
 

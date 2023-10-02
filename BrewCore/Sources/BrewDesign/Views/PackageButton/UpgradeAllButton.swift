@@ -9,10 +9,11 @@ import BrewCore
 import SwiftUI
 
 struct UpgradeAllButton: View {
-    private let updateService: BrewUpdateService
 
-    init(updateService: BrewUpdateService) {
-        self.updateService = updateService
+    @EnvironmentObject
+    private var updateService: BrewUpdateService
+
+    init() {
     }
 
     var body: some View {
@@ -24,6 +25,6 @@ struct UpgradeAllButton: View {
             Text("Upgrade All")
         }
         .keyboardShortcut("r", modifiers: [.command, .shift])
-        .disabled(updateService.upgrading.isLoading)
+        .disabled(updateService.all.isLoading)
     }
 }

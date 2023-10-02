@@ -32,7 +32,7 @@ public final class BrewUpdateService: ObservableObject, LoadableSupport {
     private let processService: BrewProcessService
 
     @MainActor @Published
-    public private(set) var updatingAll: LoadableState<Void> = .absent
+    public private(set) var all: LoadableState<Void> = .absent
 
     @MainActor @Published
     public private(set) var updating: LoadableState<UpdateState> = .absent
@@ -56,14 +56,14 @@ public final class BrewUpdateService: ObservableObject, LoadableSupport {
 
     @MainActor
     public func update() async {
-        let task = load(\.updatingAll, priority: .medium) {
+        let task = load(\.all, priority: .medium) {
             print("updatingAll", "START!")
 
             let taskInner = self.load(\.updating, priority: .medium) { yield in
+                self.logger.info("UPDATEING....")
                 let res = try await self.processService.update()
                 self.logger.info("UPDATE DONE! \(String(describing: res)), fetching info...")
                 yield(.loaded(.updated(res)))
-                try await Task.sleep(for: .seconds(10))
                 _ = try await self.service.fetchInfo()
                 self.logger.info("UPDATE DONE!")
                 yield(.loaded(.synced))

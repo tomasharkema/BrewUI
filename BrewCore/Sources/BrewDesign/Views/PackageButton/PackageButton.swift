@@ -26,23 +26,22 @@ public struct PackageButton: View {
         HStack {
             switch type {
             case .upgradeAll:
-                UpgradeAllButton(updateService: updateService)
+                UpgradeAllButton()
 
             case .updateAll:
-                UpdateAllButton(updateService: updateService)
+                UpdateAllButton()
 
             case let .package(package):
                 if let installedVersion = package.installedVersion {
                     UninstallButton(
                         package: package,
-                        installedVersion: installedVersion,
-                        updateService: updateService
+                        installedVersion: installedVersion
                     )
                     if package.outdated {
-                        UpgradeButton(package: package, updateService: updateService)
+                        UpgradeButton(package: package)
                     }
                 } else {
-                    InstallButton(package: package, updateService: updateService)
+                    InstallButton(package: package)
                 }
             }
         }

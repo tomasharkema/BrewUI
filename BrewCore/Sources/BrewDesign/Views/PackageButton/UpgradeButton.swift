@@ -12,11 +12,12 @@ import SwiftUI
 
 struct UpgradeButton: View {
     private let package: PackageInfo
-    private let updateService: BrewUpdateService
 
-    init(package: PackageInfo, updateService: BrewUpdateService) {
+    @EnvironmentObject
+    private var updateService: BrewUpdateService
+
+    init(package: PackageInfo) {
         self.package = package
-        self.updateService = updateService
     }
 
     var body: some View {

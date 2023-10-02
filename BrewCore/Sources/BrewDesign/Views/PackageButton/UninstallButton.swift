@@ -13,12 +13,13 @@ import SwiftUI
 struct UninstallButton: View {
     private let package: PackageInfo
     private let installedVersion: String
-    private let updateService: BrewUpdateService
 
-    init(package: PackageInfo, installedVersion: String, updateService: BrewUpdateService) {
+    @EnvironmentObject
+    private var updateService: BrewUpdateService
+
+    init(package: PackageInfo, installedVersion: String) {
         self.package = package
         self.installedVersion = installedVersion
-        self.updateService = updateService
     }
 
     var body: some View {

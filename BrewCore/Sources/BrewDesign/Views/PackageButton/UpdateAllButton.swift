@@ -9,10 +9,11 @@ import BrewCore
 import SwiftUI
 
 struct UpdateAllButton: View {
-    private let updateService: BrewUpdateService
 
-    init(updateService: BrewUpdateService) {
-        self.updateService = updateService
+    @EnvironmentObject
+    private var updateService: BrewUpdateService
+
+    init() {
     }
 
     var body: some View {
@@ -21,8 +22,7 @@ struct UpdateAllButton: View {
                 await updateService.update()
             }
         }) {
-            Text("STATE: \(String(describing: updateService.updatingAll))")
-            if updateService.updatingAll.isLoading {
+            if updateService.all.isLoading {
                 ProgressView()
                     .controlSize(.small)
             } else {
@@ -30,6 +30,6 @@ struct UpdateAllButton: View {
             }
         }
         .keyboardShortcut("r", modifiers: [.command])
-        .disabled(updateService.updatingAll.isLoading)
+        .disabled(updateService.all.isLoading)
     }
 }
