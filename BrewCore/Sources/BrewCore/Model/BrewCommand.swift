@@ -20,6 +20,7 @@ enum BrewCommand: CommandString {
     case update
     case search(String)
     case list(ListCommand)
+    case tap
 
     var command: String {
         switch self {
@@ -37,6 +38,8 @@ enum BrewCommand: CommandString {
             "search --formula \(query)"
         case let .list(list):
             list.command
+        case .tap:
+            "tap"
         }
     }
 }

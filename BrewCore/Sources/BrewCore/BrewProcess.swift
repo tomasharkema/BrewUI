@@ -125,6 +125,12 @@ public final class BrewProcessService: ObservableObject {
             throw error
         }
     }
+
+    public nonisolated func taps() async throws -> [String] {
+        let stream = try await shell(command: .tap)
+        try Task.checkCancellation()
+        return stream.outString.split(separator: "\n").map { String($0) }
+    }
 }
 
 private extension Process {

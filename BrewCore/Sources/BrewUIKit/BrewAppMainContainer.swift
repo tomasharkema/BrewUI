@@ -19,7 +19,7 @@ public struct BrewAppMainContainer: View {
     public var body: some View {
         Group {
             if let dependencies {
-                MainView()
+                MainTabView()
                     .modelContainer(dependencies.modelContainer)
                     .environmentObject(dependencies.search)
                     .environmentObject(dependencies.brewService)

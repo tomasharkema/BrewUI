@@ -1,5 +1,5 @@
 //
-//  MainView.swift
+//  MainTabView.swift
 //  BrewUI
 //
 //  Created by Tomas Harkema on 09/05/2023.
@@ -11,7 +11,7 @@ import BrewShared
 import Processed
 import SwiftUI
 
-struct MainView: View {
+struct MainTabView: View {
     @State
     private var searchText = ""
 
@@ -51,6 +51,12 @@ struct MainView: View {
                 .tag(TabViewSelection.all)
                 .tabItem {
                     Text("All Packages")
+                }
+
+            TapsView()
+                .tag(TabViewSelection.taps)
+                .tabItem {
+                    Text("Taps")
                 }
 
             SearchResultView(selection: $selection)

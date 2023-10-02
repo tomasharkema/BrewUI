@@ -11,6 +11,7 @@ enum TabViewSelection: String {
     case installed
     case updates
     case all
+    case taps
     case table
     case searchResult
 }

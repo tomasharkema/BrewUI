@@ -65,6 +65,38 @@ public actor BrewCache: ModelActor {
         return installed
     }
 
+    public func sync(taps: [String]) throws {
+        let tapsSet = Set(taps)
+        try modelContext.transaction {
+
+            let old = try self.modelContext.fetch(FetchDescriptor<Tap>())
+            let oldTapsSet = Set(old.map(\.name))
+
+            let adds = tapsSet.subtracting(oldTapsSet)
+            let removes = oldTapsSet.subtracting(tapsSet)
+
+            for tap in adds {
+                let tapModel = try self.tap(by: tap) ?? Tap(name: tap)
+                tapModel.name = tap
+                modelContext.insert(tapModel)
+            }
+
+            for tap in removes {
+                if let tapModel = try self.tap(by: tap) {
+                    modelContext.delete(tapModel)
+                }
+            }
+        }
+    }
+
+    public func tap(by name: String) throws -> Tap? {
+        var descriptor = FetchDescriptor<Tap>()
+        descriptor.predicate = #Predicate {
+            $0.name == name
+        }
+        return try modelContext.fetch(descriptor).first
+    }
+
     public func package(by name: PackageIdentifier) throws -> PackageCache? {
         var descriptor = FetchDescriptor<PackageCache>()
         descriptor.predicate = #Predicate {
