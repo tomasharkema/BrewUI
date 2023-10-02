@@ -5,8 +5,9 @@
 //  Created by Tomas Harkema on 07/09/2023.
 //
 
-import SwiftUI
+import BrewCore
 import Processed
+import SwiftUI
 
 public extension View {
     func errorAlert(error: Binding<Error?>, buttonTitle: String = "OK") -> some View {
@@ -24,7 +25,7 @@ public extension View {
     }
 
     func errorAlert(
-        state: LoadableState<Bool>,
+        state: LoadableState<UpdateState>,
         buttonTitle: String = "OK"
     ) -> some View {
         errorAlert(error: .constant(state.error), buttonTitle: buttonTitle)

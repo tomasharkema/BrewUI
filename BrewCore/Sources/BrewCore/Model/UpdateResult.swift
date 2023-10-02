@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum UpdateResult: Equatable {
+public enum UpdateResult: Equatable {
     case alreadyUpToDate
     case updated(
         updatedTaps: Substring,
@@ -28,8 +28,6 @@ enum UpdateResult: Equatable {
             self = parseResult
             return
         }
-
-//        print(outdatetFormulaeMatch)
 
         throw UpdateResultError.output(command)
     }

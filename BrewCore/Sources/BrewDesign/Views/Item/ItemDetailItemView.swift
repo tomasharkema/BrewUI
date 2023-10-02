@@ -10,10 +10,13 @@ import BrewShared
 import SwiftUI
 
 struct ItemDetailItemView: View {
-    @Environment(\.dismiss) private var dismiss
-    @EnvironmentObject private var brewService: BrewService
+    @Environment(\.dismiss)
+    private var dismiss
 
     private let package: PackageInfo
+
+    @EnvironmentObject
+    private var updateService: BrewUpdateService
 
     init(package: PackageInfo) {
         self.package = package
@@ -40,5 +43,10 @@ struct ItemDetailItemView: View {
             Link(package.homepage, destination: URL(string: package.homepage)!)
         }
         .textSelection(.enabled)
+        .sheet(item: .constant(updateService.stream)) {
+            StreamingView(stream: $0, updateService: updateService) {
+                updateService.streamIsDone()
+            }
+        }
     }
 }

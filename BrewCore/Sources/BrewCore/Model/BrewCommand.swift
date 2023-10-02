@@ -24,63 +24,65 @@ enum BrewCommand: CommandString {
     var command: String {
         switch self {
         case let .info(info):
-            return info.command
+            info.command
         case let .install(pkg):
-            return "install \(pkg.nameWithoutCore)"
+            "install \(pkg.nameWithoutCore)"
         case let .uninstall(pkg):
-            return "uninstall \(pkg.nameWithoutCore)"
+            "uninstall \(pkg.nameWithoutCore)"
         case let .upgrade(upgrade):
-            return upgrade.command
+            upgrade.command
         case .update:
-            return "update"
+            "update"
         case let .search(query):
-            return "search --formula \(query)"
+            "search --formula \(query)"
         case let .list(list):
-            return list.command
+            list.command
         }
     }
 }
 
-enum InfoCommand: CommandString {
-    case installed
-    case formula(PackageIdentifier)
+extension BrewCommand {
+    enum InfoCommand: CommandString {
+        case installed
+        case formula(PackageIdentifier)
 
-    var commandPartial: String {
-        switch self {
-        case .installed:
-            return "--json=v1 --installed"
+        var commandPartial: String {
+            switch self {
+            case .installed:
+                "--json=v1 --installed"
 
-        case let .formula(pkg):
-            return "--json=v1 --formula \(pkg.nameWithoutCore)"
+            case let .formula(pkg):
+                "--json=v1 --formula \(pkg.nameWithoutCore)"
+            }
+        }
+
+        var command: String {
+            "info \(commandPartial)"
         }
     }
 
-    var command: String {
-        "info \(commandPartial)"
-    }
-}
+    enum UpgradeCommand: CommandString {
+        case all
+        case package(PackageIdentifier)
 
-enum UpgradeCommand: CommandString {
-    case all
-    case package(PackageIdentifier)
-
-    var command: String {
-        switch self {
-        case .all:
-            return "upgrade"
-        case let .package(pkg):
-            return "upgrade \(pkg.nameWithoutCore)"
+        var command: String {
+            switch self {
+            case .all:
+                "upgrade"
+            case let .package(pkg):
+                "upgrade \(pkg.nameWithoutCore)"
+            }
         }
     }
-}
 
-enum ListCommand: CommandString {
-    case versions
+    enum ListCommand: CommandString {
+        case versions
 
-    var command: String {
-        switch self {
-        case .versions:
-            return "list --versions"
+        var command: String {
+            switch self {
+            case .versions:
+                "list --versions"
+            }
         }
     }
 }

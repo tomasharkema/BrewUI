@@ -10,7 +10,7 @@ import Combine
 import Foundation
 import OSLog
 
-public final class BrewProcessService {
+public final class BrewProcessService: ObservableObject {
     private let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
         category: "BrewProcessService"
@@ -40,23 +40,22 @@ public final class BrewProcessService {
         brew brewOverride: Brew? = nil,
         command: BrewCommand
     ) async throws -> StreamStreamingAndTask {
-        let brew: Brew
-        if let brewOverride {
-            brew = brewOverride
+        let brew: Brew = if let brewOverride {
+            brewOverride
         } else {
-            brew = try await whichBrew()
+            try await whichBrew()
         }
         return await Process.stream(logger: logger, command: "\(brew.rawValue) \(command.command)")
     }
 
-    nonisolated func shellStreaming(brew brewOverride: Brew? = nil,
-                                    command: BrewCommand) async throws -> CommandOutput
-    {
-        let brew: Brew
-        if let brewOverride {
-            brew = brewOverride
+    nonisolated func shellStreaming(
+        brew brewOverride: Brew? = nil,
+        command: BrewCommand
+    ) async throws -> CommandOutput {
+        let brew: Brew = if let brewOverride {
+            brewOverride
         } else {
-            brew = try await whichBrew()
+            try await whichBrew()
         }
         return try await Process.shellStreaming(
             logger: logger,
@@ -64,14 +63,14 @@ public final class BrewProcessService {
         )
     }
 
-    nonisolated func shell(brew brewOverride: Brew? = nil,
-                           command: BrewCommand) async throws -> CommandOutput
-    {
-        let brew: Brew
-        if let brewOverride {
-            brew = brewOverride
+    nonisolated func shell(
+        brew brewOverride: Brew? = nil,
+        command: BrewCommand
+    ) async throws -> CommandOutput {
+        let brew: Brew = if let brewOverride {
+            brewOverride
         } else {
-            brew = try await whichBrew()
+            try await whichBrew()
         }
         return try await Process.shell(
             logger: logger,
@@ -79,7 +78,9 @@ public final class BrewProcessService {
         )
     }
 
-    nonisolated func infoFromBrew(command: InfoCommand) async throws -> [InfoResult] {
+    nonisolated func infoFromBrew(
+        command: BrewCommand.InfoCommand
+    ) async throws -> [InfoResult] {
         do {
             let stream = try await shell(command: .info(command))
             try Task.checkCancellation()
@@ -160,7 +161,9 @@ private extension Process {
         return task
     }
 
-    nonisolated static func shell(logger: Logger, command: String) async throws -> CommandOutput {
+    nonisolated static func shell(
+        logger: Logger, command: String
+    ) async throws -> CommandOutput {
         logger.info("EXECUTE: \(command)")
 
         let task = defaultShell(command: command)
@@ -200,9 +203,8 @@ private extension Process {
 
     nonisolated static func shellStreaming(
         logger: Logger,
-                                           command: String
+        command: String
     ) async throws -> CommandOutput {
-        
         logger.info("EXECUTING \(command)")
         let streaming = await stream(logger: logger, command: command)
         logger.info("STREAMING \(command)")
@@ -247,9 +249,10 @@ private extension Process {
 //        return CommandOutput(out: output, err: outputErr)
     }
 
-    nonisolated static func stream(logger: Logger,
-                                   command: String) async -> StreamStreamingAndTask
-    {
+    nonisolated static func stream(
+        logger: Logger,
+        command: String
+    ) async -> StreamStreamingAndTask {
         let stream = StreamStreaming()
         await stream.append(level: .dev, rawEntry: "EXECUTE: \(command)")
         let task = defaultShell(command: command)

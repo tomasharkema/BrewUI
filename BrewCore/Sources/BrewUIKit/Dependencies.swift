@@ -14,10 +14,10 @@ import SwiftData
 final class Dependencies {
     let modelContainer: ModelContainer
     let search: BrewSearchService
-    private let processService: BrewProcessService
+    let processService: BrewProcessService
     let brewService: BrewService
     let api: BrewApi
-    let update: BrewUpdateService
+    let updateService: BrewUpdateService
 
     init() async throws {
         let container = try ModelContainer(
@@ -30,8 +30,16 @@ final class Dependencies {
         processService = BrewProcessService()
         brewService = BrewService(cache: cache, api: api, processService: processService)
 
-        search = BrewSearchService(cache: cache, service: brewService, processService: processService)
-        update = BrewUpdateService(service: brewService, processService: processService)
+        search = BrewSearchService(
+            cache: cache,
+            service: brewService,
+            processService: processService
+        )
+
+        updateService = BrewUpdateService(
+            service: brewService,
+            processService: processService
+        )
     }
 
     private static var sharedTask: Task<Dependencies, Error>?

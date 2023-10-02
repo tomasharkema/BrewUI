@@ -12,7 +12,7 @@ import SwiftUI
 
 public struct AllPackagesView: View {
     @EnvironmentObject
-    var service: BrewUpdateService
+    private var updateService: BrewUpdateService
 
     @Binding
     private var selection: PackageIdentifier?
@@ -35,11 +35,7 @@ public struct AllPackagesView: View {
             ItemView(package: .cached(item), showInstalled: true)
         }
         .refreshable {
-            do {
-                try await service.update()
-            } catch {
-                print(error)
-            }
+            await updateService.update()
         }
     }
 }

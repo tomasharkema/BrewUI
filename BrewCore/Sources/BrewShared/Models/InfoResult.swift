@@ -92,9 +92,9 @@ public struct PackageIdentifier: Hashable, CustomStringConvertible, Codable, Ide
 
     public var nameWithoutCore: String {
         if tap == Self.core {
-            return name
+            name
         } else {
-            return description
+            description
         }
     }
 

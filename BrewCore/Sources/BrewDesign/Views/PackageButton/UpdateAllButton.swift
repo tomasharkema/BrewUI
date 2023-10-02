@@ -1,26 +1,28 @@
 //
 //  UpdateAllButton.swift
-//  
+//
 //
 //  Created by Tomas Harkema on 01/10/2023.
 //
 
-import SwiftUI
 import BrewCore
+import SwiftUI
 
 struct UpdateAllButton: View {
-    @EnvironmentObject
-    private var update: BrewUpdateService
+    private let updateService: BrewUpdateService
 
-    init() {}
+    init(updateService: BrewUpdateService) {
+        self.updateService = updateService
+    }
 
     var body: some View {
         Button(action: {
             Task {
-                await update.update()
+                await updateService.update()
             }
         }) {
-            if update.updating.isLoading {
+            Text("STATE: \(String(describing: updateService.updatingAll))")
+            if updateService.updatingAll.isLoading {
                 ProgressView()
                     .controlSize(.small)
             } else {
@@ -28,6 +30,6 @@ struct UpdateAllButton: View {
             }
         }
         .keyboardShortcut("r", modifiers: [.command])
-        .disabled(update.updating.isLoading)
+        .disabled(updateService.updatingAll.isLoading)
     }
 }

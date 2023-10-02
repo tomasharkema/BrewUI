@@ -9,23 +9,14 @@ import BrewCore
 import BrewShared
 import Foundation
 import OSLog
-import SwiftMacros
-import SwiftUI
 import Processed
+import SwiftUI
 
 public struct PackageButton: View {
-
-    @AddAssociatedValueVariable
-    public enum ButtonType {
-        case updateAll
-        case upgradeAll
-        case package(PackageInfo)
-    }
-
     private let type: ButtonType
 
     @EnvironmentObject
-    private var update: BrewUpdateService
+    private var updateService: BrewUpdateService
 
     public init(type: ButtonType) {
         self.type = type
@@ -35,22 +26,26 @@ public struct PackageButton: View {
         HStack {
             switch type {
             case .upgradeAll:
-                UpgradeAllButton()
+                UpgradeAllButton(updateService: updateService)
 
             case .updateAll:
-                UpdateAllButton()
+                UpdateAllButton(updateService: updateService)
 
             case let .package(package):
                 if let installedVersion = package.installedVersion {
-                    UninstallButton(package: package, installedVersion: installedVersion)
+                    UninstallButton(
+                        package: package,
+                        installedVersion: installedVersion,
+                        updateService: updateService
+                    )
                     if package.outdated {
-                        UpgradeButton(package: package)
+                        UpgradeButton(package: package, updateService: updateService)
                     }
                 } else {
-                    InstallButton(package: package)
+                    InstallButton(package: package, updateService: updateService)
                 }
             }
         }
-        .disabled(update.isAnyLoading)
+        .disabled(updateService.isAnyLoading)
     }
 }

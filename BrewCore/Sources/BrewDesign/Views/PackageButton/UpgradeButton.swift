@@ -1,33 +1,31 @@
 //
 //  UpgradeButton.swift
-//  
+//
 //
 //  Created by Tomas Harkema on 01/10/2023.
 //
 
-import SwiftUI
 import BrewCore
-import Processed
 import BrewShared
+import Processed
+import SwiftUI
 
 struct UpgradeButton: View {
+    private let package: PackageInfo
+    private let updateService: BrewUpdateService
 
-    let package: PackageInfo
-
-    @EnvironmentObject
-    private var update: BrewUpdateService
-
-    init(package: PackageInfo) {
+    init(package: PackageInfo, updateService: BrewUpdateService) {
         self.package = package
+        self.updateService = updateService
     }
 
     var body: some View {
         Button("Upgrade to \(package.versionsStable ?? "")") {
             Task {
-                try await update.upgrade(name: package.identifier)
+                try await updateService.upgrade(name: package.identifier)
             }
         }
         .keyboardShortcut("u", modifiers: [.command])
-        .disabled(update.upgrading.isLoading)
+        .disabled(updateService.upgrading.isLoading)
     }
 }

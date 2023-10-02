@@ -10,8 +10,11 @@ import BrewShared
 import SwiftUI
 
 public struct SearchResultView: View {
-    @Binding private var selection: PackageIdentifier?
-    @EnvironmentObject private var search: BrewSearchService
+    @Binding
+    private var selection: PackageIdentifier?
+
+    @EnvironmentObject
+    private var search: BrewSearchService
 
     public init(selection: Binding<PackageIdentifier?>) {
         _selection = selection
@@ -29,7 +32,7 @@ public struct SearchResultView: View {
                     .controlSize(.small)
             }
 
-        case .error(let error):
+        case let .error(error):
             Text("ERROR \(error.localizedDescription)")
 
         case let .loaded(result):
@@ -53,9 +56,7 @@ public struct SearchResultView: View {
             VStack {
                 Text(error.out.attributed)
                     .font(.body.monospaced())
-//                Text(error.out.err)
-//                    .font(.body.monospaced())
-//                    .foregroundColor(.red)
+                    .foregroundColor(.red)
             }
 
         case let .failure(error):
@@ -75,7 +76,7 @@ public struct SearchResultView: View {
                         .controlSize(.small)
                 }
 
-            case .error(let error):
+            case let .error(error):
                 Text("ERROR \(error.localizedDescription)")
 
             case let .loaded(result):
@@ -100,9 +101,9 @@ extension Result<PackageInfo, Error>: Identifiable where Success: Hashable {
     public var id: Int {
         switch self {
         case let .success(has):
-            return has.hashValue
+            has.hashValue
         case let .failure(err):
-            return "\(err)".hashValue
+            "\(err)".hashValue
         }
     }
 }

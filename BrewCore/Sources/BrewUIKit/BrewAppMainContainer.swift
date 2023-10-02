@@ -5,6 +5,7 @@
 //  Created by Tomas Harkema on 03/09/2023.
 //
 
+import BrewCore
 import BrewDesign
 import Foundation
 import SwiftUI
@@ -22,7 +23,8 @@ public struct BrewAppMainContainer: View {
                     .modelContainer(dependencies.modelContainer)
                     .environmentObject(dependencies.search)
                     .environmentObject(dependencies.brewService)
-                    .environmentObject(dependencies.update)
+                    .environmentObject(dependencies.processService)
+                    .environmentObject(dependencies.updateService)
             } else {
                 ProgressView()
                     .controlSize(.small)

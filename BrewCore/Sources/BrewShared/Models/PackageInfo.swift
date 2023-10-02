@@ -46,30 +46,30 @@ public extension PackageInfo {
     var installedVersion: String? {
         switch self {
         case let .remote(remote):
-            return remote.installedVersion
+            remote.installedVersion
 
         case let .cached(cached):
-            return cached.installedVersion
+            cached.installedVersion
         }
     }
 
     var installedAsDependency: Bool? {
         switch self {
         case let .remote(remote):
-            return remote.installedAsDependency
+            remote.installedAsDependency
 
         case let .cached(cached):
-            return cached.installedAsDependency
+            cached.installedAsDependency
         }
     }
 
     var versionsStable: String? {
         switch self {
         case let .remote(remote):
-            return remote.versionsStable
+            remote.versionsStable
 
         case let .cached(cached):
-            return cached.versionsStable
+            cached.versionsStable
         }
     }
 
@@ -77,10 +77,10 @@ public extension PackageInfo {
         get throws {
             switch self {
             case let .remote(remote):
-                return remote.identifier
+                remote.identifier
 
             case let .cached(cached):
-                return try PackageIdentifier(raw: cached.identifier)
+                try PackageIdentifier(raw: cached.identifier)
             }
         }
     }
@@ -88,30 +88,30 @@ public extension PackageInfo {
     var outdated: Bool {
         switch self {
         case .remote:
-            return false // cause not installed!
+            false // cause not installed!
 
         case let .cached(pkg):
-            return pkg.outdated
+            pkg.outdated
         }
     }
 
     var license: String? {
         switch self {
         case let .remote(remote):
-            return remote.license
+            remote.license
 
         case let .cached(cached):
-            return cached.license
+            cached.license
         }
     }
 
     var homepage: String {
         switch self {
         case let .remote(remote):
-            return remote.homepage
+            remote.homepage
 
         case let .cached(cached):
-            return cached.homepage
+            cached.homepage
         }
     }
 }
@@ -120,20 +120,20 @@ extension PackageInfo {
     var remote: InfoResult? {
         switch self {
         case let .remote(remote):
-            return remote
+            remote
 
         case .cached:
-            return nil
+            nil
         }
     }
 
     var cached: PackageCache? {
         switch self {
         case let .cached(cached):
-            return cached
+            cached
 
         case .remote:
-            return nil
+            nil
         }
     }
 }

@@ -8,8 +8,8 @@
 import BrewCore
 import BrewDesign
 import BrewShared
-import SwiftUI
 import Processed
+import SwiftUI
 
 struct MainView: View {
     @State
@@ -22,13 +22,16 @@ struct MainView: View {
     private var selection: PackageIdentifier?
 
     @EnvironmentObject
-    var service: BrewService
+    private var service: BrewService
 
     @EnvironmentObject
-    var searchService: BrewSearchService
+    private var searchService: BrewSearchService
 
     @EnvironmentObject
-    var updateService: BrewUpdateService
+    private var updateService: BrewUpdateService
+
+    @EnvironmentObject
+    private var processService: BrewProcessService
 
     var body: some View {
         TabView(selection: $tabviewSelection) {
@@ -59,7 +62,8 @@ struct MainView: View {
         .sheet(item: $selection, onDismiss: {
             selection = nil
         }) { item in
-            ItemDetailView(package: item).padding()
+            ItemDetailView(package: item, service: service, processService: processService)
+                .padding()
         }
         .task {
             await updateService.update()
@@ -82,9 +86,8 @@ struct MainView: View {
         .scrollContentBackground(.hidden)
         .navigationTitle("🍺 BrewUI")
         .sheet(item: .constant(updateService.stream)) {
-            StreamingView(stream: $0) {
-                fatalError("DONE!")
-//                stream = nil
+            StreamingView(stream: $0, updateService: updateService) {
+                updateService.streamIsDone()
             }
         }
         .toolbar {

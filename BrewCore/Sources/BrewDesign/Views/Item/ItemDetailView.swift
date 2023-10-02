@@ -15,10 +15,22 @@ public struct ItemDetailView: View {
     //  @Environment(\.dismiss) var dismiss
     private let package: PackageIdentifier
 
+    private let service: BrewService
+
+    @EnvironmentObject
+    var processService: BrewProcessService
+
     @Query
     private var items: [PackageCache]
 
-    public init(package: PackageIdentifier) {
+    @StateObject
+    private var updateService: BrewUpdateService
+
+    public init(
+        package: PackageIdentifier,
+        service: BrewService,
+        processService: BrewProcessService
+    ) {
         let pred = #Predicate<PackageCache> {
             $0.identifier == package.description
         }
@@ -26,11 +38,18 @@ public struct ItemDetailView: View {
         fetcher.fetchLimit = 1
         _items = Query(fetcher)
         self.package = package
+
+        self.service = service
+        _updateService = .init(
+            wrappedValue: BrewUpdateService(service: service, processService: processService)
+        )
     }
 
     public var body: some View {
         if let item = items.first {
-            ItemDetailItemView(package: .cached(item))
+            ItemDetailItemView(
+                package: .cached(item)
+            ).environmentObject(updateService)
         } else {
             Text("Package not found...")
         }

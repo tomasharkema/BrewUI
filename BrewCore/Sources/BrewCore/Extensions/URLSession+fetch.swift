@@ -7,6 +7,11 @@
 
 import Foundation
 
+enum HttpError: Error {
+    case noHttpResponse(URLResponse)
+    case unexpectedHttpResponse(HTTPURLResponse, Int)
+}
+
 extension URLSession {
     nonisolated func request<ResultType: Codable>(
         request: URLRequest,
@@ -16,15 +21,11 @@ extension URLSession {
         let (data, response) = try await data(for: request)
 
         guard let httpResponse = response as? HTTPURLResponse else {
-            throw NSError(domain: "no http response", code: 0)
+            throw HttpError.noHttpResponse(response) // NSError(domain: "no http response", code: 0)
         }
 
-        //        for (name, value) in httpResponse.allHeaderFields {
-        //            print("\(name) \(value)")
-        //        }
-
         guard (200 ..< 400).contains(httpResponse.statusCode) else {
-            throw NSError(domain: "status code", code: httpResponse.statusCode)
+            throw HttpError.unexpectedHttpResponse(httpResponse, httpResponse.statusCode)
         }
 
         #if DEBUG

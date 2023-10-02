@@ -24,9 +24,9 @@ public final class BrewStreaming: ObservableObject, Identifiable {
         self.processService = processService
         self.stream = stream
 
-//        streamCancellable = stream.objectWillChange.sink {
-//            self.objectWillChange.send()
-//        }
+        streamCancellable = stream.objectWillChange.sink {
+            self.objectWillChange.send()
+        }
     }
 
     static func install(

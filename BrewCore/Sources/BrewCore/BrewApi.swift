@@ -18,7 +18,10 @@ public final class BrewApi {
     public init() {}
 
     public nonisolated func formula() async throws -> [PartialCodable<InfoResult>] {
-        let request = URLRequest(url: URL(string: "https://formulae.brew.sh/api/formula.json")!, cachePolicy: .returnCacheDataElseLoad)
+        let request = URLRequest(
+            url: URL(string: "https://formulae.brew.sh/api/formula.json")!,
+            cachePolicy: .returnCacheDataElseLoad
+        )
         return try await session.request(
             request: request,
             [PartialCodable<InfoResult>].self,
@@ -27,7 +30,10 @@ public final class BrewApi {
     }
 
     public nonisolated func cask() async throws -> [PartialCodable<InfoResult>] {
-        let request = URLRequest(url: URL(string: "https://formulae.brew.sh/api/cask.json")!, cachePolicy: .returnCacheDataElseLoad)
+        let request = URLRequest(
+            url: URL(string: "https://formulae.brew.sh/api/cask.json")!,
+            cachePolicy: .returnCacheDataElseLoad
+        )
         return try await session.request(
             request: request,
             [PartialCodable<InfoResult>].self,

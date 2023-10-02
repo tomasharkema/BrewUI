@@ -16,9 +16,9 @@ public final class BrewSearchService: ObservableObject, LoadableSupport {
     private let service: BrewService
     private let processService: BrewProcessService
 
-    @Published 
+    @Published
     public var queryResult: LoadableState<[PackageCache]> = .absent
-    
+
     @Published
     public var queryRemoteResult: LoadableState<[Result<PackageInfo, any Error>]> = .absent
 
@@ -39,7 +39,7 @@ public final class BrewSearchService: ObservableObject, LoadableSupport {
             reset(\.queryRemoteResult)
             return
         }
-        
+
         if Task.isCancelled {
             return
         }
@@ -65,7 +65,6 @@ public final class BrewSearchService: ObservableObject, LoadableSupport {
     private nonisolated func searchRemote(
         query: String?, fromCache: [PackageCache] = []
     ) async throws -> [Result<PackageInfo, any Error>] {
-
         guard let query, query.count >= 3 else {
             return []
         }
@@ -98,7 +97,7 @@ public final class BrewSearchService: ObservableObject, LoadableSupport {
     }
 
     private func fetchInfo(
-        for packageIdentifiers: [PackageIdentifier], 
+        for packageIdentifiers: [PackageIdentifier],
         fromCache: [PackageCache] = [],
         concurrentFetches: Int = 4
     ) async throws -> [Result<PackageInfo, any Error>] {

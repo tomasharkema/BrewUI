@@ -5,24 +5,25 @@
 //  Created by Tomas Harkema on 01/10/2023.
 //
 
-import SwiftUI
 import BrewCore
+import SwiftUI
 
 struct UpgradeAllButton: View {
-    @EnvironmentObject
-    private var update: BrewUpdateService
+    private let updateService: BrewUpdateService
 
-    init() {} 
+    init(updateService: BrewUpdateService) {
+        self.updateService = updateService
+    }
 
     var body: some View {
         Button(action: {
             Task {
-                try await update.upgradeAll()
+                try await updateService.upgradeAll()
             }
         }) {
             Text("Upgrade All")
         }
         .keyboardShortcut("r", modifiers: [.command, .shift])
-        .disabled(update.upgrading.isLoading)
+        .disabled(updateService.upgrading.isLoading)
     }
 }

@@ -15,4 +15,4 @@ enum TabViewSelection: String {
     case searchResult
 }
 
-extension TabViewSelection: Hashable, Equatable { }
+extension TabViewSelection: Hashable, Equatable {}

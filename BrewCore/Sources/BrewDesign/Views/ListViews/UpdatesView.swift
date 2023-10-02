@@ -12,14 +12,14 @@ import SwiftUI
 
 public struct UpdatesView: View {
     @EnvironmentObject
-    var update: BrewUpdateService
+    private var updateService: BrewUpdateService
 
     @Binding
     private var selection: PackageIdentifier?
 
     @Query(
         FetchDescriptor<OutdatedCache>(sortBy: [SortDescriptor(\.identifier)])
-//            .withFetchLimit(BrewCache.globalFetchLimit)
+            .withFetchLimit(BrewCache.globalFetchLimit)
     )
     private var outdated: [OutdatedCache]
 
@@ -32,11 +32,7 @@ public struct UpdatesView: View {
             ItemView(package: .cached(item.package), showInstalled: false)
         }
         .refreshable {
-            do {
-                try await update.update()
-            } catch {
-                print(error)
-            }
+            await updateService.update()
         }
         .tabItem {
             Text("Updates (\(outdated.count))")

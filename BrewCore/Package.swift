@@ -29,8 +29,8 @@ let package = Package(
             targets: ["BrewCore"]
         ),
     ],
-    dependencies: [        
-//        .package(path: "../../ActoolBuildPlugin"),
+    dependencies: [
+        //        .package(path: "../../ActoolBuildPlugin"),
 
         .package(url: "https://github.com/tomasharkema/swift-rawjson", from: "0.0.26"),
         .package(url: "https://github.com/tomasharkema/swift-tracing", from: "0.0.25"),
