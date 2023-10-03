@@ -20,8 +20,10 @@ public struct TapsView: View {
     public init() {}
 
     public var body: some View {
-        List(taps) { tap in
-            Text(tap.name).font(.body.monospaced())
+        if !taps.isEmpty {
+            List(taps) { tap in
+                TapItemView(tap: tap)
+            }
         }
     }
 }

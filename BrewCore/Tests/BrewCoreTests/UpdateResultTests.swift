@@ -36,7 +36,7 @@ final class UpdateResultTests: XCTestCase {
 
         #assert(updatedTaps == "3")
         #assert(updatedCasks[0] == "homebrew/cask-versions")
-        #assert(updatedCasks[1] == "homebrew/core")
+        #assert(updatedCasks[1] == PackageIdentifier.core)
         #assert(updatedCasks[2] == "homebrew/cask")
 
         #assert(newFormulae.count == 4)

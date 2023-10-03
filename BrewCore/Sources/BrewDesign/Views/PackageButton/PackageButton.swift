@@ -36,7 +36,7 @@ public struct PackageButton: View {
                     UninstallButton(
                         package: package,
                         installedVersion: installedVersion
-                    )
+                    ).disabled(package.installedAsDependency)
                     if package.outdated {
                         UpgradeButton(package: package)
                     }

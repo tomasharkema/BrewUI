@@ -50,7 +50,7 @@ public final class BrewSearchService: ObservableObject, LoadableSupport {
             let result = try await self.cache.search(query: queryLowerCase)
             try Task.checkCancellation()
 
-            let task = self.load(\.queryRemoteResult, priority: .medium) {
+            self.load(\.queryRemoteResult, priority: .medium) {
                 let res = try await self.searchRemote(query: query, fromCache: result)
                 try Task.checkCancellation()
                 return res
@@ -130,7 +130,7 @@ public final class BrewSearchService: ObservableObject, LoadableSupport {
                             }
 
                             let info = try await self.processService.infoFormula(package: pkg)
-                            return info.map { .success(.remote($0)) }
+                            return info.map { .success(.remote($0.onlyRemote)) }
                         }
                     } catch {
                         print(error)

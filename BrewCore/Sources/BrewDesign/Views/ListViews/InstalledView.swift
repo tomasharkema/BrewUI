@@ -19,7 +19,7 @@ public struct InstalledView: View {
 
     @Query(
         FetchDescriptor<InstalledCache>(sortBy: [SortDescriptor(\.identifier)])
-            .withFetchLimit(BrewCache.globalFetchLimit)
+//            .withFetchLimit(BrewCache.globalFetchLimit)
     )
     private var installed: [InstalledCache]
 
@@ -33,6 +33,9 @@ public struct InstalledView: View {
         }
         .refreshable {
             await updateService.update()
+        }
+        .tabItem {
+            Text("Installed Packages (\(installed.count))")
         }
     }
 }

@@ -51,21 +51,52 @@ public final class BrewService: ObservableObject {
                 try await self.cache.sync(outdated: outdated)
             }
 
-            let tapsTask = Task {
+            let tapInfosTask = Task {
                 let taps = try await self.processService.taps()
-                try await self.cache.sync(taps: taps)
+                let tapsInfos = try await self.fetchTapInfos(taps: taps)
+                try await self.cache.sync(taps: tapsInfos)
+                print(tapsInfos)
+                return tapsInfos
             }
 
             let date = Date()
 
             //            async let list = self.listFormula()
 
-            let _ = try await (
-                resultTask.value, installedTask.value, installedSyncTask.value, outdatedTask.value, tapsTask.value
+            _ = try await (
+                resultTask.value, installedTask.value, installedSyncTask.value,
+                outdatedTask.value, tapInfosTask.value
             )
             //            print(listthing)
             self.logger.info("timetaken \(abs(date.timeIntervalSinceNow))")
 //            return res
+        }
+    }
+
+    private func fetchTapInfos(
+        taps: [String],
+        concurrentFetches: Int = 4
+    ) async throws -> [TapInfo] {
+        return try await withThrowingTaskGroup(of: [TapInfo].self) { group in
+
+            let taps = taps.filter {
+                $0 != PackageIdentifier.core
+            }
+
+            for (index, tap) in taps.enumerated() {
+
+                if index % concurrentFetches == 0 {
+                    _ = try await group.next()
+                }
+
+                group.addTask {
+                    try await self.processService.tap(name: tap)
+                }
+            }
+
+            return try await group.reduce(into: []) {
+                $0.append(contentsOf: $1)
+            }
         }
     }
 

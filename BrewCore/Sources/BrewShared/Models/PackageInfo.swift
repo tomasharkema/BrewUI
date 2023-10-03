@@ -10,7 +10,7 @@ import SwiftMacros
 
 @AddAssociatedValueVariable
 public enum PackageInfo: Hashable, Equatable {
-    case remote(InfoResult)
+    case remote(InfoResultOnlyRemote)
     case cached(PackageCache)
 }
 
@@ -25,8 +25,8 @@ public extension InfoResult {
         installed.first?.version
     }
 
-    var installedAsDependency: Bool? {
-        installed.first?.installedAsDependency
+    var installedAsDependency: Bool {
+        installed.first?.installedAsDependency ?? false
     }
 
 //    var installedOther: String? {
@@ -45,31 +45,33 @@ public extension InfoResult {
 public extension PackageInfo {
     var installedVersion: String? {
         switch self {
-        case let .remote(remote):
-            remote.installedVersion
+        case .remote:
+//            remote.installedVersion
+            return nil
 
         case let .cached(cached):
-            cached.installedVersion
+            return cached.installedVersion
         }
     }
 
-    var installedAsDependency: Bool? {
+    var installedAsDependency: Bool {
         switch self {
-        case let .remote(remote):
-            remote.installedAsDependency
+        case .remote:
+            return false
 
         case let .cached(cached):
-            cached.installedAsDependency
+            return cached.installedAsDependency
         }
     }
 
     var versionsStable: String? {
         switch self {
-        case let .remote(remote):
-            remote.versionsStable
+        case .remote:
+//            remote.versionsStable
+            return nil
 
         case let .cached(cached):
-            cached.versionsStable
+            return cached.versionsStable
         }
     }
 
@@ -117,13 +119,13 @@ public extension PackageInfo {
 }
 
 extension PackageInfo {
-    var remote: InfoResult? {
+    var remote: InfoResultOnlyRemote? {
         switch self {
         case let .remote(remote):
-            remote
+            return remote
 
         case .cached:
-            nil
+            return nil
         }
     }
 

@@ -12,6 +12,14 @@ let swiftSettings: [SwiftSetting] = [
 // .package(url: "https://github.com/securevale/swift-confidential", from: "0.3.0"),
 // .package(url: "https://github.com/securevale/swift-confidential-plugin", from: "0.3.0"),
 
+let swiftUiDependency: [Package.Dependency] = [
+    .package(url: "https://github.com/realm/SwiftLint", from: "0.53.0"),
+]
+
+let swiftUiPlugin: [Target.PluginUsage] = [
+    .plugin(name: "SwiftLintPlugin", package: "SwiftLint"),
+]
+
 let package = Package(
     name: "BrewCore",
     platforms: [.macOS(.v14)],
@@ -38,11 +46,9 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-algorithms", from: "1.0.0"),
         .package(url: "https://github.com/apple/swift-collections", from: "1.0.0"),
         .package(url: "https://github.com/SwiftyLab/MetaCodable", from: "1.0.0"),
-        .package(url: "https://github.com/realm/SwiftLint", from: "0.53.0"),
-//        .package(url: "https://github.com/nicklockwood/SwiftFormat", from: "0.52.0"),
         .package(url: "https://github.com/SwiftedMind/Processed", from: "1.0.0"),
         .package(url: "https://github.com/kishikawakatsumi/swift-power-assert", from: "0.12.0"),
-    ],
+    ] + swiftUiDependency,
     targets: [
         .executableTarget(
             name: "BrewUIApp",
@@ -65,9 +71,8 @@ let package = Package(
                 ]),
             ],
             plugins: [
-                .plugin(name: "SwiftLintPlugin", package: "SwiftLint"),
 //                .plugin(name: "ActoolBuildPlugin", package: "ActoolBuildPlugin"),
-            ]
+            ] + swiftUiPlugin
         ),
         .target(
             name: "BrewUIKit",
@@ -80,9 +85,8 @@ let package = Package(
             ],
             swiftSettings: swiftSettings,
             plugins: [
-                .plugin(name: "SwiftLintPlugin", package: "SwiftLint"),
 //                .plugin(name: "ActoolBuildPlugin", package: "ActoolBuildPlugin"),
-            ]
+            ] + swiftUiPlugin
         ),
         .target(
             name: "BrewCore",
@@ -99,8 +103,7 @@ let package = Package(
             ],
             swiftSettings: swiftSettings,
             plugins: [
-                .plugin(name: "SwiftLintPlugin", package: "SwiftLint"),
-            ]
+            ] + swiftUiPlugin
         ),
         .target(
             name: "BrewDesign",
@@ -115,9 +118,8 @@ let package = Package(
             ],
             swiftSettings: swiftSettings,
             plugins: [
-                .plugin(name: "SwiftLintPlugin", package: "SwiftLint"),
 //                .plugin(name: "ActoolBuildPlugin", package: "ActoolBuildPlugin"),
-            ]
+            ] + swiftUiPlugin
         ),
         .target(
             name: "BrewHelpers",
@@ -134,8 +136,7 @@ let package = Package(
             ],
             swiftSettings: swiftSettings,
             plugins: [
-                .plugin(name: "SwiftLintPlugin", package: "SwiftLint"),
-            ]
+            ] + swiftUiPlugin
         ),
         .testTarget(
             name: "BrewCoreTests",

@@ -131,6 +131,20 @@ public final class BrewProcessService: ObservableObject {
         try Task.checkCancellation()
         return stream.outString.split(separator: "\n").map { String($0) }
     }
+
+    public nonisolated func tap(name: String) async throws -> [TapInfo] {
+        do {
+            let stream = try await shell(command: .tapInfo(name))
+            try Task.checkCancellation()
+            guard let data = stream.outString.data(using: .utf8) else {
+                throw NSError(domain: "data error", code: 0)
+            }
+            return try JSONDecoder().decode([TapInfo].self, from: data)
+        } catch {
+            print(error)
+            throw error
+        }
+    }
 }
 
 private extension Process {
@@ -160,7 +174,7 @@ private extension Process {
         // "^/Users/'$USER'/(Documents|Desktop|Developer|Movies|Music|Pictures)"))'
         task.launchPath = userShell ?? "/bin/sh"
         task.arguments = [
-            "-l", "-c", command,
+            "-l", "-c", command
         ]
         task.standardInput = nil
 
@@ -197,7 +211,7 @@ private extension Process {
 
         let out = CommandOutput(stream: [
             .init(level: .out, rawEntry: output),
-            .init(level: .err, rawEntry: outputErr),
+            .init(level: .err, rawEntry: outputErr)
         ])
 
         guard termination == .exit else {
@@ -302,7 +316,7 @@ private extension Process {
             await stream.append(level: .dev, rawEntry: "Done: \(command)")
 
             logger.info("\(command) waiting for stream tasks")
-            let _ = try await (receiveStreamTask.value, receiveStreamErrTask.value)
+            _ = try await (receiveStreamTask.value, receiveStreamErrTask.value)
 
             try Task.checkCancellation()
 

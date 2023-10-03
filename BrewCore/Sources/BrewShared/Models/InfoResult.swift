@@ -10,7 +10,7 @@ import MetaCodable
 import SwiftData
 
 @Codable
-public struct InfoResult: Hashable, Equatable {
+public struct InfoResult {
     public let name: String
     public let tap: String
     public let desc: String?
@@ -37,13 +37,21 @@ public struct InfoResult: Hashable, Equatable {
     @CodedAt("disable_reason")
     public let disableReason: String?
 
-    //  let service: String?
-
     @CodedAt("ruby_source_checksum")
     public let rubySourceChecksum: Checksum
 
     public var identifier: PackageIdentifier {
         PackageIdentifier(tap: tap, name: name)
+    }
+}
+
+extension InfoResult: Hashable {
+    public func hash(into hasher: inout Hasher) {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting.insert(.sortedKeys)
+        if let json = try? encoder.encode(self) {
+            hasher.combine(json)
+        }
     }
 }
 
@@ -66,7 +74,7 @@ public struct Versions: Codable, Hashable {
 
 public struct PackageIdentifier: Hashable, CustomStringConvertible, Codable, Identifiable {
     static let empty = PackageIdentifier(tap: "", name: "")
-    private static let core = "homebrew/core"
+    public static let core = "homebrew/core"
 
     public let tap: String
     public let name: String
@@ -110,6 +118,72 @@ extension ListResult: Identifiable {
 }
 
 extension InfoResult: Identifiable {
+    public var id: PackageIdentifier {
+        identifier
+    }
+}
+
+@Codable
+public struct InfoResultOnlyRemote {
+
+    public let name: String
+    public let tap: String
+    public let desc: String?
+    public let license: String?
+    public let homepage: String
+    public let versions: Versions
+
+    public let deprecated: Bool
+
+    @CodedAt("deprecation_date")
+    public let deprecationDate: String?
+
+    @CodedAt("deprecation_reason")
+    public let deprecationReason: String?
+
+    public let disabled: Bool
+
+    @CodedAt("disable_date")
+    public let disableDate: String?
+
+    @CodedAt("disable_reason")
+    public let disableReason: String?
+
+    public var identifier: PackageIdentifier {
+        PackageIdentifier(tap: tap, name: name)
+    }
+}
+
+extension InfoResultOnlyRemote: Hashable {
+    public func hash(into hasher: inout Hasher) {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting.insert(.sortedKeys)
+        if let json = try? encoder.encode(self) {
+            hasher.combine(json)
+        }
+    }
+}
+
+extension InfoResult {
+    public var onlyRemote: InfoResultOnlyRemote {
+        .init(
+            name: self.name,
+            tap: self.tap,
+            desc: self.desc,
+            license: self.license,
+            homepage: self.homepage,
+            versions: self.versions,
+            deprecated: self.deprecated,
+            deprecationDate: self.deprecationDate,
+            deprecationReason: self.deprecationReason,
+            disabled: self.disabled,
+            disableDate: self.disableDate,
+            disableReason: self.disableReason
+        )
+    }
+}
+
+extension InfoResultOnlyRemote: Identifiable {
     public var id: PackageIdentifier {
         identifier
     }

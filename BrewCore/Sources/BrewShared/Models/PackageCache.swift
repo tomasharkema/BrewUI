@@ -17,15 +17,17 @@ public final class PackageCache {
     public internal(set) var identifier: PackageIdentifierString
 
     public internal(set) var json: Data
+    public internal(set) var jsonRemote: Data
+
     public internal(set) var lastUpdated: Date
     public internal(set) var checksum: String
     public internal(set) var sortValue: String
     public internal(set) var outdated: Bool
     public internal(set) var installedVersion: String?
-    public internal(set) var installedAsDependency: Bool?
+    public internal(set) var installedAsDependency: Bool
     public internal(set) var installedOther: String?
 
-    public internal(set) var versionsStable: String
+    public internal(set) var versionsStable: String?
     public internal(set) var versionsHead: String?
 
     public internal(set) var license: String?
@@ -35,46 +37,70 @@ public final class PackageCache {
     public internal(set) var tap: String
     public internal(set) var desc: String
 
-    public init(
-        identifier: PackageIdentifier, checksum: String, json: Data,
-        homepage: String, versionsStable: String, desc: String,
-        lastUpdated: Date = .now
-    ) {
-        self.identifier = identifier.description
-        sortValue = "\(identifier.name)--\(identifier.tap)"
-        self.checksum = checksum
-        self.json = json
-        self.lastUpdated = lastUpdated
-        outdated = false
-        self.lastUpdated = lastUpdated
-        self.homepage = homepage
-        baseName = identifier.name
-        tap = identifier.tap
-        self.versionsStable = versionsStable
-        self.desc = desc
+    public init(info: InfoResult, encoder: JSONEncoder = .init()) throws {
+        encoder.outputFormatting.insert(.sortedKeys)
+
+        self.identifier = info.identifier.description
+        self.sortValue = "\(info.identifier.name)--\(info.identifier.tap)"
+
+        self.checksum = info.rubySourceChecksum.sha256
+
+        self.jsonRemote = try encoder.encode(info.onlyRemote)
+        self.json = try encoder.encode(info)
+
+        self.outdated = false
+
+        self.homepage = info.homepage
+        self.baseName = info.identifier.name
+
+        self.tap = info.identifier.tap
+
+        self.desc = info.desc ?? ""
+
+        self.versionsHead = info.versions.head
+        self.versionsStable = info.versions.stable ?? info.versions.head ?? ""
+
+        self.license = info.license
+
+        self.lastUpdated = .now
+
+        self.installedAsDependency = info.installedAsDependency
     }
 
-    public func update(info: InfoResult, isLocal: Bool) {
-        var isChanged = false
+    public init(info: InfoResultOnlyRemote, encoder: JSONEncoder = .init()) throws {
+        encoder.outputFormatting.insert(.sortedKeys)
 
-        if isLocal {
-            if outdated != info.outdated {
-                outdated = info.outdated
-                isChanged = true
-            }
-            if installedVersion != info.installedVersion {
-                installedVersion = info.installedVersion
-                isChanged = true
-            }
-            if installedAsDependency != info.installedAsDependency {
-                installedAsDependency = info.installedAsDependency
-                isChanged = true
-            }
-//            if installedOther != info.installedOther {
-//                installedOther = info.installedOther
-//                isChanged = true
-//            }
-        }
+        self.identifier = info.identifier.description
+        self.sortValue = "\(info.identifier.name)--\(info.identifier.tap)"
+
+        self.checksum = ""
+
+        self.jsonRemote = try encoder.encode(info)
+        self.json = Data()
+
+        self.outdated = false
+
+        self.homepage = info.homepage
+        self.baseName = info.identifier.name
+
+        self.tap = info.identifier.tap
+
+        self.desc = info.desc ?? ""
+
+        self.versionsHead = info.versions.head
+        self.versionsStable = info.versions.stable ?? info.versions.head ?? ""
+
+        self.license = info.license
+
+        self.lastUpdated = .now
+
+        self.installedAsDependency = false
+    }
+
+    public func update(infoRemote info: InfoResultOnlyRemote, encoder: JSONEncoder = .init()) throws {
+        encoder.outputFormatting.insert(.sortedKeys)
+
+        var isChanged = false
 
         let newVersionsStable = info.versions.stable ?? info.versions.head ?? ""
         if versionsStable != newVersionsStable {
@@ -100,9 +126,54 @@ public final class PackageCache {
             isChanged = true
         }
 
+        let json = try encoder.encode(info)
+        if jsonRemote != json {
+            isChanged = true
+
+            jsonRemote = json
+        }
+
         if isChanged {
             lastUpdated = .now
         }
+    }
+
+    public func update(info: InfoResult, encoder: JSONEncoder = .init()) throws {
+        encoder.outputFormatting.insert(.sortedKeys)
+
+        var isChanged = false
+
+        if outdated != info.outdated {
+            outdated = info.outdated
+            isChanged = true
+        }
+        if installedVersion != info.installedVersion {
+            installedVersion = info.installedVersion
+            isChanged = true
+        }
+        if installedAsDependency != info.installedAsDependency {
+            installedAsDependency = info.installedAsDependency
+            isChanged = true
+        }
+
+        let json = try encoder.encode(info)
+        if self.json != json {
+            isChanged = true
+
+            self.json = json
+        }
+
+        if isChanged {
+            lastUpdated = .now
+        }
+
+        try update(infoRemote: info.onlyRemote)
+    }
+}
+
+extension PackageCache: Hashable {
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(json)
     }
 }
 

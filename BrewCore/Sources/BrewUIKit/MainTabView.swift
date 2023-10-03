@@ -97,16 +97,17 @@ struct MainTabView: View {
             }
         }
         .toolbar {
-            #if DEBUG
-            ToolbarItemGroup {
-                Text("DEBUG: all: \(String(describing: updateService.all)) updating: \(String(describing: updateService.updating)) upgrading: \(String(describing: updateService.upgrading))")
-            }
-            #endif
-            ToolbarItemGroup {
+            ToolbarItemGroup(placement: .automatic) {
                 PackageButton(type: .upgradeAll)
-
                 PackageButton(type: .updateAll)
             }
+#if DEBUG
+            ToolbarItemGroup(placement: .status) {
+                if updateService.all.isLoading {
+                    Text("DEBUG: all: \(String(describing: updateService.all)) updating: \(String(describing: updateService.updating)) upgrading: \(String(describing: updateService.upgrading))")
+                }
+            }
+#endif
         }
     }
 }

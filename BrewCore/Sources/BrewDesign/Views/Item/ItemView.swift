@@ -20,12 +20,12 @@ struct ItemView: View {
 
     @ViewBuilder
     private func version() -> some View {
-        if package.outdated, let installedVersion = package.installedVersion,
-           let stable = package.versionsStable
-        {
+        if package.outdated, let installedVersion = package.installedVersion, let stable = package.versionsStable {
             Text("\(installedVersion) > \(stable)").font(.body.monospaced())
         } else {
-            if let version = package.installedVersion {
+            if package.installedAsDependency {
+                Text("DEP \(package.installedVersion ?? package.versionsStable ?? "")").font(.body.monospaced())
+            } else if let version = package.installedVersion {
                 Text(version).font(.body.monospaced())
             } else if let stable = package.versionsStable {
                 Text(stable).font(.body.monospaced())
@@ -49,18 +49,6 @@ struct ItemView: View {
 
             Spacer()
             version()
-//            if let installed = info.installed.first {
-//                if showInstalled {
-//                    Text("INSTALLED").font(.body.monospaced()) //
-//                    .bold()//.background(Color.accentColor).cornerRadius(5)
-//                }
-//                if installed.installed_as_dependency {
-//                    Text("DEP").font(.body.monospaced()) //
-//                    .bold()//.background(Color.accentColor).cornerRadius(5)
-//                }
-//            }
-
-            //      Text(info.name).font(.body.monospaced())
         }
     }
 }

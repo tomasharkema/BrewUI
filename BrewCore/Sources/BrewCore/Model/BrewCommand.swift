@@ -21,6 +21,7 @@ enum BrewCommand: CommandString {
     case search(String)
     case list(ListCommand)
     case tap
+    case tapInfo(String)
 
     var command: String {
         switch self {
@@ -40,6 +41,8 @@ enum BrewCommand: CommandString {
             list.command
         case .tap:
             "tap"
+        case .tapInfo(let name):
+            "tap-info \(name) --json"
         }
     }
 }

@@ -17,14 +17,14 @@ public final class BrewApi {
 
     public init() {}
 
-    public nonisolated func formula() async throws -> [PartialCodable<InfoResult>] {
+    public nonisolated func formula() async throws -> [PartialCodable<InfoResultOnlyRemote>] {
         let request = URLRequest(
             url: URL(string: "https://formulae.brew.sh/api/formula.json")!,
             cachePolicy: .returnCacheDataElseLoad
         )
         return try await session.request(
             request: request,
-            [PartialCodable<InfoResult>].self,
+            [PartialCodable<InfoResultOnlyRemote>].self,
             decoder: decoder
         )
     }
