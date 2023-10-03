@@ -50,7 +50,7 @@ extension InfoResult: Hashable {
         let encoder = JSONEncoder()
         encoder.outputFormatting.insert(.sortedKeys)
         if let json = try? encoder.encode(self) {
-            hasher.combine(json)
+            hasher.combine(json.sha256Hash())
         }
     }
 }
@@ -159,7 +159,7 @@ extension InfoResultOnlyRemote: Hashable {
         let encoder = JSONEncoder()
         encoder.outputFormatting.insert(.sortedKeys)
         if let json = try? encoder.encode(self) {
-            hasher.combine(json)
+            hasher.combine(json.sha256Hash())
         }
     }
 }

@@ -8,8 +8,15 @@
 import Foundation
 import SwiftData
 import SwiftUI
+import CryptoKit
 
 public typealias PackageIdentifierString = String
+
+extension Data {
+    public func sha256Hash() -> String {
+        SHA256.hash(data: self).compactMap { String(format: "%02x", $0) }.joined()
+    }
+}
 
 @Model
 public final class PackageCache {
@@ -18,6 +25,9 @@ public final class PackageCache {
 
     public internal(set) var json: Data
     public internal(set) var jsonRemote: Data
+
+    public internal(set) var hash: String
+    public internal(set) var hashRemote: String
 
     public internal(set) var lastUpdated: Date
     public internal(set) var checksum: String
@@ -45,8 +55,14 @@ public final class PackageCache {
 
         self.checksum = info.rubySourceChecksum.sha256
 
-        self.jsonRemote = try encoder.encode(info.onlyRemote)
-        self.json = try encoder.encode(info)
+        let json = try encoder.encode(info)
+        let jsonRemote = try encoder.encode(info.onlyRemote)
+
+        let hash = json.sha256Hash()
+        let hashRemote = jsonRemote.sha256Hash()
+
+        self.hash = hash
+        self.hashRemote = hashRemote
 
         self.outdated = false
 
@@ -65,6 +81,9 @@ public final class PackageCache {
         self.lastUpdated = .now
 
         self.installedAsDependency = info.installedAsDependency
+
+        self.json = json
+        self.jsonRemote = jsonRemote
     }
 
     public init(info: InfoResultOnlyRemote, encoder: JSONEncoder = .init()) throws {
@@ -75,8 +94,14 @@ public final class PackageCache {
 
         self.checksum = ""
 
-        self.jsonRemote = try encoder.encode(info)
-        self.json = Data()
+        let jsonRemote = try encoder.encode(info)
+        let json = Data()
+
+        let hash = json.sha256Hash()
+        let hashRemote = jsonRemote.sha256Hash()
+
+        self.hash = hash
+        self.hashRemote = hashRemote
 
         self.outdated = false
 
@@ -95,6 +120,9 @@ public final class PackageCache {
         self.lastUpdated = .now
 
         self.installedAsDependency = false
+
+        self.json = json
+        self.jsonRemote = jsonRemote
     }
 
     public func update(infoRemote info: InfoResultOnlyRemote, encoder: JSONEncoder = .init()) throws {
@@ -127,6 +155,8 @@ public final class PackageCache {
         }
 
         let json = try encoder.encode(info)
+        self.hashRemote = json.sha256Hash()
+
         if jsonRemote != json {
             isChanged = true
 
@@ -157,6 +187,8 @@ public final class PackageCache {
         }
 
         let json = try encoder.encode(info)
+        self.hash = json.sha256Hash()
+
         if self.json != json {
             isChanged = true
 
@@ -173,7 +205,7 @@ public final class PackageCache {
 
 extension PackageCache: Hashable {
     public func hash(into hasher: inout Hasher) {
-        hasher.combine(json)
+        hasher.combine(hash)
     }
 }
 

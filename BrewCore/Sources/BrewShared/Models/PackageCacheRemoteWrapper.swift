@@ -19,6 +19,6 @@ public struct PackageCacheRemoteWrapper: Hashable, Identifiable {
     }
 
     public func hash(into hasher: inout Hasher) {
-        hasher.combine(package.jsonRemote)
+        hasher.combine(package.hashRemote)
     }
 }
