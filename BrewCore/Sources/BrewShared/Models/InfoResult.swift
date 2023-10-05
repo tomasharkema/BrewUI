@@ -10,7 +10,7 @@ import MetaCodable
 import SwiftData
 
 @Codable
-public struct InfoResult {
+public struct InfoResult: Hashable {
     public let name: String
     public let tap: String
     public let desc: String?
@@ -45,15 +45,16 @@ public struct InfoResult {
     }
 }
 
-extension InfoResult: Hashable {
-    public func hash(into hasher: inout Hasher) {
-        let encoder = JSONEncoder()
-        encoder.outputFormatting.insert(.sortedKeys)
-        if let json = try? encoder.encode(self) {
-            hasher.combine(json.sha256Hash())
-        }
-    }
-}
+//extension InfoResult: Hashable {
+//    public func hash(into hasher: inout Hasher) {
+//        let encoder = JSONEncoder()
+//        encoder.outputFormatting.insert(.sortedKeys)
+//        if let json = try? encoder.encode(self) {
+//            hasher.combine(json.sha256Hash())
+//        }
+//    }
+//}
+
 
 public struct Checksum: Codable, Hashable {
     public let sha256: String
@@ -149,6 +150,7 @@ public struct InfoResultOnlyRemote {
     @CodedAt("disable_reason")
     public let disableReason: String?
 
+    @Transient
     public var identifier: PackageIdentifier {
         PackageIdentifier(tap: tap, name: name)
     }

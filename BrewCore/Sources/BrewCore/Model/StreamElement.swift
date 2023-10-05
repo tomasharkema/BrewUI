@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct StreamElement {
+public struct StreamElement: Equatable {
     public let level: Level
     public let rawEntry: String
     public let attributedString: AttributedString

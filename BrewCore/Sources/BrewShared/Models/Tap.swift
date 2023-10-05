@@ -21,11 +21,11 @@ public final class Tap {
     public var remote: String
 
     public var json: Data
-    public var hash: String
+    public var calculatedHash: String
 
     public init(
         name: String, user: String, repo: String, path: String,
-        installed: Bool, official: Bool, remote: String, json: Data, calculatedHash: Int
+        installed: Bool, official: Bool, remote: String, json: Data
     ) {
         self.name = name
         self.user = user
@@ -35,7 +35,7 @@ public final class Tap {
         self.official = official
         self.remote = remote
         self.json = json
-        self.hash = json.sha256Hash()
+        self.calculatedHash = json.sha256Hash()
     }
 
     public init(info: TapInfo, encoder: JSONEncoder = .init()) throws {
@@ -48,9 +48,26 @@ public final class Tap {
         self.installed = info.installed
         self.official = info.official
         self.remote = info.remote
-        let hash = try encoder.encode(info)
-        self.json = hash
-        self.hash = hash.sha256Hash()
+
+        let json = try encoder.encode(info)
+        self.json = json
+        self.calculatedHash = json.sha256Hash()
+    }
+
+    public func update(tapInfo: TapInfo, encoder: JSONEncoder = .init()) throws {
+        encoder.outputFormatting.insert(.sortedKeys)
+
+        self.name = tapInfo.name
+        self.user = tapInfo.user
+        self.repo = tapInfo.repo
+        self.path = tapInfo.path
+        self.installed = tapInfo.installed
+        self.official = tapInfo.official
+        self.remote = tapInfo.remote
+
+        let json = try encoder.encode(tapInfo)
+        self.json = json
+        self.calculatedHash = json.sha256Hash()
     }
 }
 
@@ -62,6 +79,6 @@ extension Tap: Identifiable {
 
 extension Tap: Hashable {
     public func hash(into hasher: inout Hasher) {
-        hasher.combine(hash)
+        hasher.combine(calculatedHash)
     }
 }

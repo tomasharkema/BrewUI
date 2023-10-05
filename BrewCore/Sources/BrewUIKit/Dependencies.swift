@@ -13,33 +13,22 @@ import SwiftData
 @MainActor
 final class Dependencies {
     let modelContainer: ModelContainer
-    let search: BrewSearchService
-    let processService: BrewProcessService
-    let brewService: BrewService
-    let api: BrewApi
-    let updateService: BrewUpdateService
+//    let search: BrewSearchService
+//    let processService: BrewProcessService
+//    let brewService: BrewService
+//    let api: BrewApi
+//    let updateService: BrewUpdateService
 
     init() async throws {
-        let container = try ModelContainer(
-            for: PackageCache.self, InstalledCache.self, OutdatedCache.self, UpdateCache.self, Tap.self,
-            configurations: ModelConfiguration("BrewUIDB", url: .brewStorage)
-        )
-        modelContainer = container
-        let cache = try await BrewCache(container: container)
-        api = BrewApi()
-        processService = BrewProcessService()
-        brewService = BrewService(cache: cache, api: api, processService: processService)
+        modelContainer = .brew
+        let cache = try await BrewCache()
+        let api = BrewApi()
+        let processService = BrewProcessService()
+        let brewService = BrewService()
 
-        search = BrewSearchService(
-            cache: cache,
-            service: brewService,
-            processService: processService
-        )
+        let search = BrewSearchService()
 
-        updateService = BrewUpdateService(
-            service: brewService,
-            processService: processService
-        )
+        let updateService = BrewUpdateService()
     }
 
     private static var sharedTask: Task<Dependencies, Error>?

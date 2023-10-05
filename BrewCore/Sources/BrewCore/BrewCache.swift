@@ -10,74 +10,20 @@ import BrewShared
 import Foundation
 import SwiftData
 import SwiftUI
-
-public struct Differ<InputType: Hashable & Identifiable, OutputType: Hashable & Identifiable>
-where InputType.ID == OutputType.ID {
-
-    private let old: Set<InputType>
-    private let new: Set<OutputType>
-
-    let adds: Set<InputType.ID>
-    let removes: Set<InputType.ID>
-    let updates: Set<InputType.ID>
-
-    private let oldDict: [InputType.ID: InputType]
-    private let newDict: [InputType.ID: OutputType]
-
-    init(old: Set<InputType>, new: Set<OutputType>) {
-        self.old = old
-        self.new = new
-
-        let oldDict = Dictionary(old.map { ($0.id, $0) }, uniquingKeysWith: { (first, _) in first })
-        let newDict = Dictionary(new.map { ($0.id, $0) }, uniquingKeysWith: { (first, _) in first })
-
-        let oldIds = Set(oldDict.keys)
-        let newIds = Set(newDict.keys)
-
-        adds = newIds.subtracting(oldIds)
-        removes = oldIds.subtracting(newIds)
-
-        let unions = newIds.union(oldIds)
-
-        let updates: Set<InputType.ID> = Set(unions.compactMap { id in
-            guard let oldItem = oldDict[id] else {
-                return nil
-            }
-            guard let newItem = newDict[id] else {
-                return nil
-            }
-            guard oldItem.hashValue != newItem.hashValue else {
-                return nil
-            }
-            return newItem.id
-        })
-
-        self.updates = updates
-        self.oldDict = oldDict
-        self.newDict = newDict
-    }
-
-    func element(_ id: InputType.ID) -> OutputType? {
-        newDict[id]
-    }
-}
-
-extension Differ {
-    init(old: any Sequence<InputType>, new: any Sequence<OutputType>) {
-        self.init(old: Set(old), new: Set(new))
-    }
-}
+import Inject
 
 public actor BrewCache: ModelActor {
+
     public static let globalFetchLimit = 100
     public let modelExecutor: any ModelExecutor
+
     public nonisolated let modelContainer: ModelContainer
 
-    public nonisolated init(container: ModelContainer) async throws {
+    public nonisolated init() async throws {
         #if DEBUG
             dispatchPrecondition(condition: .notOnQueue(.main))
         #endif
-
+        let container = ModelContainer.brew
         modelContainer = container
         let context = ModelContext(container)
         modelExecutor = DefaultSerialModelExecutor(modelContext: context)
@@ -154,8 +100,8 @@ public actor BrewCache: ModelActor {
         let old = try self.modelContext.fetch(
             FetchDescriptor<InstalledCache>()
         )
-        let oldSet = Set(old)
-        let allSet = Set(installed)
+        let oldSet = Set(old) //.byId())
+        let allSet = Set(installed) //.byId())
 
         let diff = Differ(old: oldSet, new: allSet)
 
@@ -190,16 +136,11 @@ public actor BrewCache: ModelActor {
             for tap in diff.adds {
                 let tapInfo = diff.element(tap)!
 
-                let tapModel = try self.tap(by: tap) ?? Tap(info: tapInfo)
-                tapModel.name = tapInfo.name
-                tapModel.user = tapInfo.user
-                tapModel.repo = tapInfo.repo
-                tapModel.path = tapInfo.path
-                tapModel.installed = tapInfo.installed
-                tapModel.official = tapInfo.official
-                tapModel.remote = tapInfo.remote
-
-                modelContext.insert(tapModel)
+                if let tapModel = try self.tap(by: tap) {
+                    try tapModel.update(tapInfo: tapInfo)
+                } else {
+                    try modelContext.insert(Tap(info: tapInfo))
+                }
             }
 
             if !diff.removes.isEmpty {
@@ -257,5 +198,15 @@ public actor BrewCache: ModelActor {
             $0.identifier.contains(query) || $0.desc.contains(query)
         }
         return try modelContext.fetch(descriptor)
+    }
+}
+
+extension ModelContainer {
+    public static var brew: ModelContainer {
+        // swiftlint:disable:next force_try
+        try! ModelContainer(
+            for: PackageCache.self, InstalledCache.self, OutdatedCache.self, UpdateCache.self, Tap.self,
+            configurations: ModelConfiguration("BrewUIDB", url: .brewStorage)
+        )
     }
 }

@@ -14,26 +14,36 @@ import RawJson
 import SwiftData
 import SwiftTracing
 import SwiftUI
+import Inject
 
 public final class BrewService: ObservableObject {
-    private let cache: BrewCache
-    private let api: BrewApi
-    private let processService: BrewProcessService
+
+//    @Injected(\.brewCache)
+//    private var cache: BrewCache
+
+    @Injected(\.brewApi)
+    private var api: BrewApi
+
+    @Injected(\.brewProcessService)
+    private var processService: BrewProcessService
 
     private let logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "BrewService")
 
-    public init(cache: BrewCache, api: BrewApi, processService: BrewProcessService) {
-        self.cache = cache
-        self.api = api
-        self.processService = processService
-    }
+//    public init(cache: BrewCache, api: BrewApi, processService: BrewProcessService) {
+//        self.cache = cache
+//        self.api = api
+//        self.processService = processService
+//    }
+
+    public init() { }
 
     public func fetchInfo() async throws {
         try await EnsureOnce.once {
+            let cache = try await BrewCache()
             let resultTask = Task {
                 let formulaResult = try await self.api.formula()
                 let formula = formulaResult.compactMap(\.value)
-                try await self.cache.sync(all: formula)
+                try await cache.sync(all: formula)
                 return formula
             }
 
@@ -43,18 +53,18 @@ public final class BrewService: ObservableObject {
             }
 
             let installedSyncTask = Task {
-                try await self.cache.sync(installed: installedTask.value)
+                try await cache.sync(installed: installedTask.value)
             }
 
             let outdatedTask = Task {
                 let outdated = try await installedTask.value.filter(\.outdated)
-                try await self.cache.sync(outdated: outdated)
+                try await cache.sync(outdated: outdated)
             }
 
             let tapInfosTask = Task {
                 let taps = try await self.processService.taps()
                 let tapsInfos = try await self.fetchTapInfos(taps: taps)
-                try await self.cache.sync(taps: tapsInfos)
+                try await cache.sync(taps: tapsInfos)
                 print(tapsInfos)
                 return tapsInfos
             }
@@ -112,20 +122,30 @@ public final class BrewService: ObservableObject {
         return Self.parseListVersions(input: listResult.outString)
     }
 
-    nonisolated func install(name: PackageIdentifier) async throws -> BrewStreaming {
-        try await BrewStreaming.install(service: self, processService: processService, name: name)
+    nonisolated func install(
+        processService: BrewProcessService, name: PackageIdentifier
+    ) async throws -> BrewStreaming {
+        try await BrewStreaming.install(processService: processService, name: name)
     }
 
-    nonisolated func uninstall(name: PackageIdentifier) async throws -> BrewStreaming {
-        try await BrewStreaming.uninstall(service: self, processService: processService, name: name)
+    nonisolated func uninstall(
+        processService: BrewProcessService,
+        name: PackageIdentifier
+    ) async throws -> BrewStreaming {
+        try await BrewStreaming.uninstall(processService: processService, name: name)
     }
 
-    nonisolated func upgrade(name: PackageIdentifier) async throws -> BrewStreaming {
-        try await BrewStreaming.upgrade(service: self, processService: processService, name: name)
+    nonisolated func upgrade(
+        processService: BrewProcessService,
+        name: PackageIdentifier
+    ) async throws -> BrewStreaming {
+        try await BrewStreaming.upgrade(processService: processService, name: name)
     }
 
-    nonisolated func upgrade() async throws -> BrewStreaming {
-        try await BrewStreaming.upgrade(service: self, processService: processService)
+    nonisolated func upgrade(
+        processService: BrewProcessService
+    ) async throws -> BrewStreaming {
+        try await BrewStreaming.upgrade(processService: processService)
     }
 
 //    public nonisolated func searchFormula(query: String) async throws -> [PackageIdentifier] {
@@ -150,4 +170,15 @@ extension StreamOutput: Identifiable {
 
 struct Brew: RawRepresentable {
     let rawValue: String
+}
+
+extension InjectedValues {
+    public var brewService: BrewService {
+        get { Self[BrewServiceKey.self] }
+        set { Self[BrewServiceKey.self] = newValue }
+    }
+}
+
+private struct BrewServiceKey: InjectionKey {
+    static var currentValue: BrewService = BrewService()
 }

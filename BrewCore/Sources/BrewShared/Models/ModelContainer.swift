@@ -8,15 +8,6 @@
 import Foundation
 import SwiftData
 
-public extension ModelContainer {
-    static func brew(url: URL) throws -> ModelContainer {
-        try ModelContainer(
-            for: PackageCache.self, InstalledCache.self, OutdatedCache.self, UpdateCache.self,
-            configurations: ModelConfiguration(url: url)
-        )
-    }
-}
-
 public extension URL {
     static var brewStorage: URL {
         get throws {

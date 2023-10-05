@@ -21,10 +21,10 @@ public struct BrewAppMainContainer: View {
             if let dependencies {
                 MainTabView()
                     .modelContainer(dependencies.modelContainer)
-                    .environmentObject(dependencies.search)
-                    .environmentObject(dependencies.brewService)
-                    .environmentObject(dependencies.processService)
-                    .environmentObject(dependencies.updateService)
+//                    .environmentObject(dependencies.search)
+//                    .environmentObject(dependencies.brewService)
+//                    .environmentObject(dependencies.processService)
+//                    .environmentObject(dependencies.updateService)
             } else {
                 ProgressView()
                     .controlSize(.small)

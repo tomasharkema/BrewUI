@@ -10,6 +10,7 @@ import Foundation
 import RawJson
 import SwiftData
 import SwiftUI
+import Inject
 
 public final class BrewApi {
     private let session = URLSession(configuration: .default)
@@ -40,4 +41,15 @@ public final class BrewApi {
             decoder: decoder
         )
     }
+}
+
+extension InjectedValues {
+    var brewApi: BrewApi {
+        get { Self[BrewApiKey.self] }
+        set { Self[BrewApiKey.self] = newValue }
+    }
+}
+
+private struct BrewApiKey: InjectionKey {
+    static var currentValue: BrewApi = BrewApi()
 }

@@ -8,19 +8,20 @@
 import BrewCore
 import BrewShared
 import SwiftUI
+import Inject
 
 public struct SearchResultView: View {
     @Binding
     private var selection: PackageIdentifier?
 
-    @EnvironmentObject
+    @Injected(\.brewSearchService)
     private var search: BrewSearchService
 
     public init(selection: Binding<PackageIdentifier?>) {
         _selection = selection
     }
 
-    @ViewBuilder
+    @ViewBuilder @MainActor
     private func remoteSection() -> some View {
         switch search.queryRemoteResult {
         case .absent:
@@ -66,7 +67,7 @@ public struct SearchResultView: View {
         }
     }
 
-    @ViewBuilder
+    @ViewBuilder @MainActor
     private func localSection() -> some View {
         Section("Local") {
             switch search.queryResult {

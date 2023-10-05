@@ -8,20 +8,22 @@
 import BrewShared
 import Combine
 import Foundation
+import Inject
 
 @MainActor
 public final class BrewStreaming: ObservableObject, Identifiable {
-    private let service: BrewService
-    private let processService: BrewProcessService
+
+    @Injected(\.brewService)
+    private var service: BrewService
+    @Injected(\.brewProcessService)
+    private var processService: BrewProcessService
 
     public let id = UUID()
 
     private var streamCancellable: AnyCancellable?
     @Published public var stream: StreamStreamingAndTask
 
-    init(service: BrewService, processService: BrewProcessService, stream: StreamStreamingAndTask) {
-        self.service = service
-        self.processService = processService
+    init(stream: StreamStreamingAndTask) {
         self.stream = stream
 
         streamCancellable = stream.objectWillChange.sink {
@@ -30,35 +32,38 @@ public final class BrewStreaming: ObservableObject, Identifiable {
     }
 
     static func install(
-        service: BrewService, processService: BrewProcessService, name: PackageIdentifier
+        processService: BrewProcessService,
+        name: PackageIdentifier
     ) async throws -> BrewStreaming {
         let stream = try await processService.stream(command: .install(name))
 
-        return BrewStreaming(service: service, processService: processService, stream: stream)
+        return BrewStreaming(stream: stream)
     }
 
     static func uninstall(
-        service: BrewService, processService: BrewProcessService, name: PackageIdentifier
+        processService: BrewProcessService,
+        name: PackageIdentifier
     ) async throws -> BrewStreaming {
         let stream = try await processService.stream(command: .uninstall(name))
 
-        return BrewStreaming(service: service, processService: processService, stream: stream)
+        return BrewStreaming(stream: stream)
     }
 
     static func upgrade(
-        service: BrewService, processService: BrewProcessService, name: PackageIdentifier
+        processService: BrewProcessService,
+        name: PackageIdentifier
     ) async throws -> BrewStreaming {
         let stream = try await processService.stream(command: .upgrade(.package(name)))
 
-        return BrewStreaming(service: service, processService: processService, stream: stream)
+        return BrewStreaming(stream: stream)
     }
 
     static func upgrade(
-        service: BrewService, processService: BrewProcessService
+        processService: BrewProcessService
     ) async throws -> BrewStreaming {
         let stream = try await processService.stream(command: .upgrade(.all))
 
-        return BrewStreaming(service: service, processService: processService, stream: stream)
+        return BrewStreaming(stream: stream)
     }
 
 //    public func done() async {

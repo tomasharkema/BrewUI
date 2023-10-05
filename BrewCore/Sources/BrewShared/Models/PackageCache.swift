@@ -216,34 +216,6 @@ public protocol PackageCachable {
 }
 
 @Model
-public final class InstalledCache: PackageCachable {
-    @Attribute
-    public var package: PackageCache!
-    @Attribute
-    public var lastUpdated: Date
-    @Attribute(.unique)
-    public var identifier: PackageIdentifierString
-//    @Attribute
-//    public var sortValue: String {
-//        package.sortValue
-//    }
-
-    private init() {
-        package = nil
-        lastUpdated = .now
-        identifier = ""
-    }
-
-    public static func create(package: PackageCache) -> InstalledCache {
-        let cached = InstalledCache()
-        cached.package = package
-        cached.lastUpdated = .now
-        cached.identifier = package.identifier
-        return cached
-    }
-}
-
-@Model
 public final class OutdatedCache: PackageCachable {
     @Attribute
     public var package: PackageCache!
@@ -307,12 +279,6 @@ extension PackageCache: Identifiable {
 }
 
 extension UpdateCache: Identifiable {
-    public var id: PackageIdentifier {
-        package.id
-    }
-}
-
-extension InstalledCache: Identifiable {
     public var id: PackageIdentifier {
         package.id
     }

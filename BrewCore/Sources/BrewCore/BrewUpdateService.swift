@@ -11,6 +11,7 @@ import Foundation
 import OSLog
 import Processed
 import SwiftUI
+import Inject
 
 public enum PackageState {
     case executed
@@ -28,8 +29,10 @@ public final class BrewUpdateService: ObservableObject, LoadableSupport {
         category: "BrewUpdateService"
     )
 
-    private let service: BrewService
-    private let processService: BrewProcessService
+    @Injected(\.brewService)
+    private var service: BrewService
+    @Injected(\.brewProcessService)
+    private var processService: BrewProcessService
 
     @MainActor @Published
     public private(set) var all: LoadableState<Void> = .absent
@@ -49,9 +52,7 @@ public final class BrewUpdateService: ObservableObject, LoadableSupport {
     @MainActor @Published
     public private(set) var stream: BrewStreaming?
 
-    public init(service: BrewService, processService: BrewProcessService) {
-        self.service = service
-        self.processService = processService
+    public init() {
     }
 
     @MainActor
@@ -78,7 +79,7 @@ public final class BrewUpdateService: ObservableObject, LoadableSupport {
 
     @MainActor
     public func upgradeAll() async throws {
-        let stream = try await service.upgrade()
+        let stream = try await service.upgrade(processService: processService)
         self.stream = stream
 
         load(\.upgrading, priority: .medium) { yield in
@@ -92,7 +93,7 @@ public final class BrewUpdateService: ObservableObject, LoadableSupport {
 
     @MainActor
     public func upgrade(name: PackageIdentifier) async throws {
-        let stream = try await service.upgrade(name: name)
+        let stream = try await service.upgrade(processService: processService, name: name)
         self.stream = stream
 
         load(\.upgrading, priority: .medium) { yield in
@@ -106,7 +107,7 @@ public final class BrewUpdateService: ObservableObject, LoadableSupport {
 
     @MainActor
     public func install(name: PackageIdentifier) async throws {
-        let stream = try await service.install(name: name)
+        let stream = try await service.install(processService: processService, name: name)
         self.stream = stream
 
         load(\.installing, priority: .medium) { yield in
@@ -120,7 +121,7 @@ public final class BrewUpdateService: ObservableObject, LoadableSupport {
 
     @MainActor
     public func uninstall(name: PackageIdentifier) async throws {
-        let stream = try await service.uninstall(name: name)
+        let stream = try await service.uninstall(processService: processService, name: name)
         self.stream = stream
 
         load(\.uninstalling, priority: .medium) { yield in
@@ -164,4 +165,15 @@ public extension LoadableState<UpdateState> {
             false
         }
     }
+}
+
+extension InjectedValues {
+    public var brewUpdateService: BrewUpdateService {
+        get { Self[BrewUpdateServiceKey.self] }
+        set { Self[BrewUpdateServiceKey.self] = newValue }
+    }
+}
+
+private struct BrewUpdateServiceKey: InjectionKey {
+    static var currentValue: BrewUpdateService = BrewUpdateService()
 }

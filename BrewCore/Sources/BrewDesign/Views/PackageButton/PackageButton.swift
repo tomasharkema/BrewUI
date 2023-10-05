@@ -11,11 +11,12 @@ import Foundation
 import OSLog
 import Processed
 import SwiftUI
+import Inject
 
 public struct PackageButton: View {
     private let type: ButtonType
 
-    @EnvironmentObject
+    @Injected(\.brewUpdateService)
     private var updateService: BrewUpdateService
 
     public init(type: ButtonType) {

@@ -7,10 +7,11 @@
 
 import BrewCore
 import SwiftUI
+import Inject
 
 struct UpdateAllButton: View {
 
-    @EnvironmentObject
+    @Injected(\.brewUpdateService)
     private var updateService: BrewUpdateService
 
     init() {

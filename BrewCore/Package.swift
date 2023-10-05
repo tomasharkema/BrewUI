@@ -48,6 +48,7 @@ let package = Package(
         .package(url: "https://github.com/SwiftyLab/MetaCodable", from: "1.0.0"),
         .package(url: "https://github.com/SwiftedMind/Processed", from: "1.0.0"),
         .package(url: "https://github.com/kishikawakatsumi/swift-power-assert", from: "0.12.0"),
+
     ] + swiftUiDependency,
     targets: [
         .executableTarget(
@@ -57,6 +58,7 @@ let package = Package(
                 "BrewCore",
                 "BrewDesign",
                 "BrewShared",
+                "Inject",
             ],
             resources: [
                 .process("Resources"),
@@ -80,8 +82,12 @@ let package = Package(
                 "BrewCore",
                 "BrewDesign",
                 "BrewShared",
+                "Inject",
 
                 .product(name: "Processed", package: "Processed"),
+            ],
+            resources: [
+                .process("Resources"),
             ],
             swiftSettings: swiftSettings,
             plugins: [
@@ -93,6 +99,8 @@ let package = Package(
             dependencies: [
                 "BrewShared",
                 "BrewHelpers",
+                "Inject",
+
                 .product(name: "RawJson", package: "swift-rawjson"),
                 .product(name: "SwiftTracing", package: "swift-tracing"),
                 .product(name: "Algorithms", package: "swift-algorithms"),
@@ -110,6 +118,7 @@ let package = Package(
             dependencies: [
                 "BrewCore",
                 "BrewShared",
+                "Inject",
 
                 .product(name: "Processed", package: "Processed"),
             ],
@@ -124,12 +133,15 @@ let package = Package(
         .target(
             name: "BrewHelpers",
             dependencies: [
+                "Inject",
             ],
             swiftSettings: swiftSettings
         ),
         .target(
             name: "BrewShared",
             dependencies: [
+                "Inject",
+                
                 .product(name: "SwiftMacros", package: "SwiftMacros"),
                 .product(name: "Algorithms", package: "swift-algorithms"),
                 .product(name: "MetaCodable", package: "MetaCodable"),
@@ -138,11 +150,18 @@ let package = Package(
             plugins: [
             ] + swiftUiPlugin
         ),
+
+        .target(
+            name: "Inject"
+        ),
+
         .testTarget(
             name: "BrewCoreTests",
             dependencies: [
                 "BrewCore",
                 "BrewShared",
+                "Inject",
+
                 .product(name: "PowerAssert", package: "swift-power-assert"),
             ],
             swiftSettings: swiftSettings

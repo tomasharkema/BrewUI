@@ -9,27 +9,27 @@ import BrewCore
 import BrewShared
 import SwiftData
 import SwiftUI
+import Inject
 
 public struct ItemDetailView: View {
     //  @Namespace var bottomID
     //  @Environment(\.dismiss) var dismiss
     private let package: PackageIdentifier
 
-    private let service: BrewService
+    @Injected(\.brewProcessService)
+    private var processService: BrewProcessService
 
-    @EnvironmentObject
-    var processService: BrewProcessService
+    @Injected(\.brewUpdateService)
+    private var updateService: BrewUpdateService
+
+    @Injected(\.brewService)
+    private var service: BrewService
 
     @Query
     private var items: [PackageCache]
 
-    @StateObject
-    private var updateService: BrewUpdateService
-
     public init(
-        package: PackageIdentifier,
-        service: BrewService,
-        processService: BrewProcessService
+        package: PackageIdentifier
     ) {
         let pred = #Predicate<PackageCache> {
             $0.identifier == package.description
@@ -38,11 +38,6 @@ public struct ItemDetailView: View {
         fetcher.fetchLimit = 1
         _items = Query(fetcher)
         self.package = package
-
-        self.service = service
-        _updateService = .init(
-            wrappedValue: BrewUpdateService(service: service, processService: processService)
-        )
     }
 
     public var body: some View {

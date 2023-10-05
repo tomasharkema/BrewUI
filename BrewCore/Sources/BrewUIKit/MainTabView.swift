@@ -10,6 +10,7 @@ import BrewDesign
 import BrewShared
 import Processed
 import SwiftUI
+import Inject
 
 struct MainTabView: View {
     @State
@@ -21,16 +22,16 @@ struct MainTabView: View {
     @State
     private var selection: PackageIdentifier?
 
-    @EnvironmentObject
+    @Injected(\.brewService)
     private var service: BrewService
 
-    @EnvironmentObject
+    @Injected(\.brewSearchService)
     private var searchService: BrewSearchService
 
-    @EnvironmentObject
+    @Injected(\.brewUpdateService)
     private var updateService: BrewUpdateService
 
-    @EnvironmentObject
+    @Injected(\.brewProcessService)
     private var processService: BrewProcessService
 
     var body: some View {
@@ -68,7 +69,7 @@ struct MainTabView: View {
         .sheet(item: $selection, onDismiss: {
             selection = nil
         }) { item in
-            ItemDetailView(package: item, service: service, processService: processService)
+            ItemDetailView(package: item)
                 .padding()
         }
         .task {

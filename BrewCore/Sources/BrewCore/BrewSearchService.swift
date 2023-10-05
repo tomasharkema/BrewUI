@@ -9,12 +9,17 @@ import BrewShared
 import Foundation
 import Processed
 import SwiftTracing
+import Inject
 
 @MainActor
 public final class BrewSearchService: ObservableObject, LoadableSupport {
-    private let cache: BrewCache
-    private let service: BrewService
-    private let processService: BrewProcessService
+//    private let cache: BrewCache
+
+    @Injected(\.brewService)
+    private var service: BrewService
+
+    @Injected(\.brewProcessService)
+    private var processService: BrewProcessService
 
     @Published
     public var queryResult: LoadableState<[PackageCache]> = .absent
@@ -27,12 +32,17 @@ public final class BrewSearchService: ObservableObject, LoadableSupport {
         category: "BrewSearchService"
     )
 
-    public init(cache: BrewCache, service: BrewService, processService: BrewProcessService) {
-        self.cache = cache
-        self.service = service
-        self.processService = processService
-    }
+//    public init(cache: BrewCache, service: BrewService, processService: BrewProcessService) {
+//        self.cache = cache
+//        self.service = service
+//        self.processService = processService
+//    }
 
+//    init() {
+//        let cache = await BrewCache()
+//    }
+    public init() { }
+    
     public func search(query: String?) async {
         guard let query, query.count >= 3 else {
             reset(\.queryResult)
@@ -47,7 +57,8 @@ public final class BrewSearchService: ObservableObject, LoadableSupport {
         let queryLowerCase = query.lowercased()
 
         let task = load(\.queryResult, priority: .medium) {
-            let result = try await self.cache.search(query: queryLowerCase)
+            let cache = try await BrewCache()
+            let result = try await cache.search(query: queryLowerCase)
             try Task.checkCancellation()
 
             self.load(\.queryRemoteResult, priority: .medium) {
@@ -77,7 +88,7 @@ public final class BrewSearchService: ObservableObject, LoadableSupport {
             let results = try await self.fetchInfo(for: remoteResult, fromCache: fromCache)
 
             Task {
-                await self.storeInCache(results: results)
+                try await self.storeInCache(results: results)
             }
 
             try Task.checkCancellation()
@@ -86,7 +97,9 @@ public final class BrewSearchService: ObservableObject, LoadableSupport {
         }
     }
 
-    private nonisolated func storeInCache(results: [Result<PackageInfo, any Error>]) async {
+    private nonisolated func storeInCache(results: [Result<PackageInfo, any Error>]) async throws {
+        let cache = try await BrewCache()
+
         try? await cache.sync(all: results.compactMap {
             if case let .success(.remote(remote)) = $0 {
                 return remote
@@ -122,7 +135,7 @@ public final class BrewSearchService: ObservableObject, LoadableSupport {
                 _ = group.addTaskUnlessCancelled {
                     do {
                         return try await measure("infoFormula") {
-                            if let local = await self.fetchInfoLocal(
+                            if let local = try await self.fetchInfoLocal(
                                 for: pkg,
                                 maxTtl: .seconds(60 * 60 * 24)
                             ) {
@@ -146,7 +159,10 @@ public final class BrewSearchService: ObservableObject, LoadableSupport {
     private func fetchInfoLocal(
         for packageIdentifier: PackageIdentifier,
         maxTtl: Duration
-    ) async -> PackageCache? {
+    ) async throws -> PackageCache? {
+
+        let cache = try await BrewCache()
+
         guard let package = try? await cache.package(by: packageIdentifier) else {
             return nil
         }
@@ -160,4 +176,16 @@ public final class BrewSearchService: ObservableObject, LoadableSupport {
 
         return package
     }
+}
+
+extension InjectedValues {
+    public var brewSearchService: BrewSearchService {
+        get { Self[BrewSearchServiceKey.self] }
+        set { Self[BrewSearchServiceKey.self] = newValue }
+    }
+}
+
+private struct BrewSearchServiceKey: InjectionKey {
+    @MainActor
+    static var currentValue: BrewSearchService = BrewSearchService()
 }
