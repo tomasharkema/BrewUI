@@ -44,7 +44,7 @@ struct ItemDetailItemView: View {
         }
         .textSelection(.enabled)
         .sheet(item: .constant(updateService.stream)) {
-            StreamingView(stream: $0, updateService: updateService) {
+            StreamingView(stream: $0) {
                 updateService.streamIsDone()
             }
         }

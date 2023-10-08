@@ -17,18 +17,20 @@ final class Dependencies {
 //    let processService: BrewProcessService
 //    let brewService: BrewService
 //    let api: BrewApi
-//    let updateService: BrewUpdateService
+    let updateService: BrewUpdateService
 
     init() async throws {
         modelContainer = .brew
-        let cache = try await BrewCache()
-        let api = BrewApi()
-        let processService = BrewProcessService()
-        let brewService = BrewService()
 
-        let search = BrewSearchService()
-
-        let updateService = BrewUpdateService()
+        updateService = BrewUpdateService()
+//        let cache = try await BrewCache()
+//        let api = BrewApi()
+//        let processService = BrewProcessService()
+//        let brewService = BrewService()
+//
+//        let search = BrewSearchService()
+//
+//        let updateService = BrewUpdateService()
     }
 
     private static var sharedTask: Task<Dependencies, Error>?

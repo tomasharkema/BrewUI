@@ -50,8 +50,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-algorithms",
       "state" : {
-        "revision" : "b14b7f4c528c942f121c8b860b9410b2bf57825e",
-        "version" : "1.0.0"
+        "revision" : "bcd4f369ac962bc3e5244c9df778739f8f5bdbf1",
+        "version" : "1.1.0"
       }
     },
     {
@@ -68,8 +68,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-collections",
       "state" : {
-        "revision" : "937e904258d22af6e447a0b72c0bc67583ef64a2",
-        "version" : "1.0.4"
+        "revision" : "a902f1823a7ff3c9ab2fba0f992396b948eda307",
+        "version" : "1.0.5"
       }
     },
     {
@@ -118,6 +118,15 @@
       }
     },
     {
+      "identity" : "swiftconvenience",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Alkenso/SwiftConvenience",
+      "state" : {
+        "revision" : "2ad8ecf64f550c2cd2356467dfb34a9f09a69cb3",
+        "version" : "0.2.0"
+      }
+    },
+    {
       "identity" : "swiftdemangle",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/oozoofrog/SwiftDemangle.git",
@@ -160,6 +169,15 @@
       "state" : {
         "revision" : "a853604c9e9a83ad9954c7e3d2a565273982471f",
         "version" : "7.0.2"
+      }
+    },
+    {
+      "identity" : "sxpc",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Alkenso/sXPC",
+      "state" : {
+        "revision" : "682f8bbc6604160eb121e30dd9af7878fac9b670",
+        "version" : "0.2.2"
       }
     },
     {

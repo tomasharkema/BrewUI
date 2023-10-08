@@ -18,7 +18,7 @@ public enum UpdateResult: Equatable {
         outdatedCasks: [Substring]
     )
 
-    init(_ command: CommandOutput) throws {
+    public init(_ command: CommandOutput) throws {
         if command.outErrString.contains("Already up-to-date") {
             self = .alreadyUpToDate
             return

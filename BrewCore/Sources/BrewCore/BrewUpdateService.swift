@@ -13,16 +13,6 @@ import Processed
 import SwiftUI
 import Inject
 
-public enum PackageState {
-    case executed
-    case updated
-}
-
-public enum UpdateState {
-    case updated(UpdateResult)
-    case synced
-}
-
 public final class BrewUpdateService: ObservableObject, LoadableSupport {
     private let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
@@ -31,8 +21,9 @@ public final class BrewUpdateService: ObservableObject, LoadableSupport {
 
     @Injected(\.brewService)
     private var service: BrewService
-    @Injected(\.brewProcessService)
-    private var processService: BrewProcessService
+
+    @Injected(\.helperProcessService)
+    private var processService
 
     @MainActor @Published
     public private(set) var all: LoadableState<Void> = .absent
@@ -53,6 +44,9 @@ public final class BrewUpdateService: ObservableObject, LoadableSupport {
     public private(set) var stream: BrewStreaming?
 
     public init() {
+//        stream?.objectWillChange.sink {
+//            self.objectWillChange.send()
+//        }
     }
 
     @MainActor
@@ -79,7 +73,7 @@ public final class BrewUpdateService: ObservableObject, LoadableSupport {
 
     @MainActor
     public func upgradeAll() async throws {
-        let stream = try await service.upgrade(processService: processService)
+        let stream = try await service.upgrade(service: processService)
         self.stream = stream
 
         load(\.upgrading, priority: .medium) { yield in
@@ -93,7 +87,7 @@ public final class BrewUpdateService: ObservableObject, LoadableSupport {
 
     @MainActor
     public func upgrade(name: PackageIdentifier) async throws {
-        let stream = try await service.upgrade(processService: processService, name: name)
+        let stream = try await service.upgrade(service: processService, name: name)
         self.stream = stream
 
         load(\.upgrading, priority: .medium) { yield in
@@ -107,7 +101,7 @@ public final class BrewUpdateService: ObservableObject, LoadableSupport {
 
     @MainActor
     public func install(name: PackageIdentifier) async throws {
-        let stream = try await service.install(processService: processService, name: name)
+        let stream = try await service.install(service: processService, name: name)
         self.stream = stream
 
         load(\.installing, priority: .medium) { yield in
@@ -121,7 +115,7 @@ public final class BrewUpdateService: ObservableObject, LoadableSupport {
 
     @MainActor
     public func uninstall(name: PackageIdentifier) async throws {
-        let stream = try await service.uninstall(processService: processService, name: name)
+        let stream = try await service.uninstall(service: processService, name: name)
         self.stream = stream
 
         load(\.uninstalling, priority: .medium) { yield in
@@ -167,13 +161,24 @@ public extension LoadableState<UpdateState> {
     }
 }
 
-extension InjectedValues {
-    public var brewUpdateService: BrewUpdateService {
-        get { Self[BrewUpdateServiceKey.self] }
-        set { Self[BrewUpdateServiceKey.self] = newValue }
-    }
-}
+//extension InjectedValues {
+//    public var brewUpdateService: BrewUpdateService {
+//        get { Self[BrewUpdateServiceKey.self] }
+//        set { Self[BrewUpdateServiceKey.self] = newValue }
+//    }
+//}
+//
+//private struct BrewUpdateServiceKey: InjectionKey {
+//    static var currentValue: BrewUpdateService = BrewUpdateService()
+//}
 
-private struct BrewUpdateServiceKey: InjectionKey {
-    static var currentValue: BrewUpdateService = BrewUpdateService()
-}
+//struct BrewUpdateServiceKey: EnvironmentKey {
+//    static var defaultValue = BrewUpdateService()
+//}
+//
+//extension EnvironmentValues {
+//    public var brewUpdateService: BrewUpdateService {
+//        get { self[BrewUpdateServiceKey.self] }
+//        set { self[BrewUpdateServiceKey.self] = newValue }
+//    }
+//}

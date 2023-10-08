@@ -16,10 +16,10 @@ public struct ItemDetailView: View {
     //  @Environment(\.dismiss) var dismiss
     private let package: PackageIdentifier
 
-    @Injected(\.brewProcessService)
-    private var processService: BrewProcessService
+    @Injected(\.helperProcessService)
+    private var processService
 
-    @Injected(\.brewUpdateService)
+    @EnvironmentObject
     private var updateService: BrewUpdateService
 
     @Injected(\.brewService)
@@ -44,7 +44,7 @@ public struct ItemDetailView: View {
         if let item = items.first {
             ItemDetailItemView(
                 package: .cached(item)
-            ).environmentObject(updateService)
+            )
         } else {
             Text("Package not found...")
         }

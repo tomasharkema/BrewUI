@@ -8,6 +8,8 @@
 import BrewCore
 import Processed
 import SwiftUI
+import BrewHelpers
+import BrewShared
 
 public extension View {
     func errorAlert(error: Binding<Error?>, buttonTitle: String = "OK") -> some View {

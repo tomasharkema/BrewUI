@@ -9,6 +9,7 @@ rm -rf BrewUI.xcarchive.zip || true
 xcodebuild -scheme BrewUI \
 	-destination "platform=macOS" \
 	-archivePath archive/BrewUI \
+	-derivedDataPath /tmp/brewuiderived \
 	archive 2>&1 | xcbeautify
 
 zip -r -9 BrewUI.xcarchive.zip archive/BrewUI.xcarchive

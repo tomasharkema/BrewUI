@@ -8,11 +8,13 @@
 import Combine
 import Foundation
 
-final actor StreamStreaming: ObservableObject {
+public final actor StreamStreaming: ObservableObject {
     @Published public var stream = [StreamElement]()
     @Published var isStreamingDone = false
 
-    func append(level: StreamElement.Level, rawEntry: String) {
+    public init() { }
+    
+    public func append(level: StreamElement.Level, rawEntry: String) {
         append(StreamElement(level: level, rawEntry: rawEntry))
     }
 
@@ -20,7 +22,7 @@ final actor StreamStreaming: ObservableObject {
         stream.append(line)
     }
 
-    func done() {
+    public func done() {
         isStreamingDone = true
     }
 
@@ -38,13 +40,13 @@ final actor StreamStreaming: ObservableObject {
 public final class StreamStreamingAndTask: ObservableObject, Identifiable {
     @Published public var stream = [StreamElement]()
     @Published public var isStreamingDone = false
-    let task: Task<Void, any Error>
+    public let task: Task<Void, any Error>
     public let id = UUID()
-    let streaming: StreamStreaming
+    public let streaming: StreamStreaming
 
     private var streamCancellable: AnyCancellable?
 
-    init(stream: StreamStreaming, task: Task<Void, any Error>) async {
+    public init(stream: StreamStreaming, task: Task<Void, any Error>) async {
         streaming = stream
         self.task = task
 

@@ -8,8 +8,21 @@
 
 /* Begin PBXBuildFile section */
 		C33AE4DC2AC9B3D400AF92CF /* BrewUIKit in Frameworks */ = {isa = PBXBuildFile; productRef = C33AE4DB2AC9B3D400AF92CF /* BrewUIKit */; };
+		C35BD9AC2AD1CBBB00E20FA4 /* XPCService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C35BD9AB2AD1CBBB00E20FA4 /* XPCService.swift */; };
+		C35BD9B52AD1CBBB00E20FA4 /* BrewUIXPCService.xpc in Embed XPC Services */ = {isa = PBXBuildFile; fileRef = C35BD9A92AD1CBBB00E20FA4 /* BrewUIXPCService.xpc */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		C37751B42A04674D00473607 /* BrewUIApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C37751B32A04674D00473607 /* BrewUIApp.swift */; };
+		C38341102AD32833007C95C9 /* BrewUIHelperKit in Frameworks */ = {isa = PBXBuildFile; productRef = C383410F2AD32833007C95C9 /* BrewUIHelperKit */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		C35BD9B32AD1CBBB00E20FA4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C37751A82A04674D00473607 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C35BD9A82AD1CBBB00E20FA4;
+			remoteInfo = XPCService;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		C3381CF02AA9194900D0736B /* Embed Frameworks */ = {
@@ -22,17 +35,40 @@
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		C35BD9B92AD1CBBB00E20FA4 /* Embed XPC Services */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/XPCServices";
+			dstSubfolderSpec = 16;
+			files = (
+				C35BD9B52AD1CBBB00E20FA4 /* BrewUIXPCService.xpc in Embed XPC Services */,
+			);
+			name = "Embed XPC Services";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		C30AEC572AAEB44600D0F2B1 /* BrewUI.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = BrewUI.xctestplan; sourceTree = "<group>"; };
 		C32A73232AA154A50015A66A /* BrewCore */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = BrewCore; sourceTree = "<group>"; };
+		C35BD9A92AD1CBBB00E20FA4 /* BrewUIXPCService.xpc */ = {isa = PBXFileReference; explicitFileType = "wrapper.xpc-service"; includeInIndex = 0; path = BrewUIXPCService.xpc; sourceTree = BUILT_PRODUCTS_DIR; };
+		C35BD9AB2AD1CBBB00E20FA4 /* XPCService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XPCService.swift; sourceTree = "<group>"; };
+		C35BD9B12AD1CBBB00E20FA4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C35BD9B22AD1CBBB00E20FA4 /* XPCService.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = XPCService.entitlements; sourceTree = "<group>"; };
 		C37751B02A04674D00473607 /* BrewUI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BrewUI.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C37751B32A04674D00473607 /* BrewUIApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrewUIApp.swift; sourceTree = "<group>"; };
 		C37751BC2A04674F00473607 /* BrewUI.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BrewUI.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		C35BD9A62AD1CBBB00E20FA4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C38341102AD32833007C95C9 /* BrewUIHelperKit in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		C37751AD2A04674D00473607 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -44,12 +80,23 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		C35BD9AA2AD1CBBB00E20FA4 /* XPCService */ = {
+			isa = PBXGroup;
+			children = (
+				C35BD9AB2AD1CBBB00E20FA4 /* XPCService.swift */,
+				C35BD9B12AD1CBBB00E20FA4 /* Info.plist */,
+				C35BD9B22AD1CBBB00E20FA4 /* XPCService.entitlements */,
+			);
+			path = XPCService;
+			sourceTree = "<group>";
+		};
 		C37751A72A04674D00473607 = {
 			isa = PBXGroup;
 			children = (
 				C30AEC572AAEB44600D0F2B1 /* BrewUI.xctestplan */,
 				C32A73232AA154A50015A66A /* BrewCore */,
 				C37751B22A04674D00473607 /* BrewUI */,
+				C35BD9AA2AD1CBBB00E20FA4 /* XPCService */,
 				C37751B12A04674D00473607 /* Products */,
 				C3CE7B1C2A9D415B002809F3 /* Frameworks */,
 			);
@@ -59,6 +106,7 @@
 			isa = PBXGroup;
 			children = (
 				C37751B02A04674D00473607 /* BrewUI.app */,
+				C35BD9A92AD1CBBB00E20FA4 /* BrewUIXPCService.xpc */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -82,6 +130,26 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		C35BD9A82AD1CBBB00E20FA4 /* BrewUIXPCService */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C35BD9B62AD1CBBB00E20FA4 /* Build configuration list for PBXNativeTarget "BrewUIXPCService" */;
+			buildPhases = (
+				C35BD9A52AD1CBBB00E20FA4 /* Sources */,
+				C35BD9A62AD1CBBB00E20FA4 /* Frameworks */,
+				C35BD9A72AD1CBBB00E20FA4 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = BrewUIXPCService;
+			packageProductDependencies = (
+				C383410F2AD32833007C95C9 /* BrewUIHelperKit */,
+			);
+			productName = XPCService;
+			productReference = C35BD9A92AD1CBBB00E20FA4 /* BrewUIXPCService.xpc */;
+			productType = "com.apple.product-type.xpc-service";
+		};
 		C37751AF2A04674D00473607 /* BrewUI */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = C37751BF2A04674F00473607 /* Build configuration list for PBXNativeTarget "BrewUI" */;
@@ -90,10 +158,12 @@
 				C37751AD2A04674D00473607 /* Frameworks */,
 				C37751AE2A04674D00473607 /* Resources */,
 				C3381CF02AA9194900D0736B /* Embed Frameworks */,
+				C35BD9B92AD1CBBB00E20FA4 /* Embed XPC Services */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				C35BD9B42AD1CBBB00E20FA4 /* PBXTargetDependency */,
 			);
 			name = BrewUI;
 			packageProductDependencies = (
@@ -113,6 +183,9 @@
 				LastSwiftUpdateCheck = 1500;
 				LastUpgradeCheck = 1500;
 				TargetAttributes = {
+					C35BD9A82AD1CBBB00E20FA4 = {
+						CreatedOnToolsVersion = 15.0;
+					};
 					C37751AF2A04674D00473607 = {
 						CreatedOnToolsVersion = 14.3;
 					};
@@ -134,11 +207,19 @@
 			projectRoot = "";
 			targets = (
 				C37751AF2A04674D00473607 /* BrewUI */,
+				C35BD9A82AD1CBBB00E20FA4 /* BrewUIXPCService */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		C35BD9A72AD1CBBB00E20FA4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		C37751AE2A04674D00473607 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -149,6 +230,14 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		C35BD9A52AD1CBBB00E20FA4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C35BD9AC2AD1CBBB00E20FA4 /* XPCService.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		C37751AC2A04674D00473607 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -159,7 +248,64 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		C35BD9B42AD1CBBB00E20FA4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C35BD9A82AD1CBBB00E20FA4 /* BrewUIXPCService */;
+			targetProxy = C35BD9B32AD1CBBB00E20FA4 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		C35BD9B72AD1CBBB00E20FA4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = XPCService/XPCService.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = RSRVS8D9PW;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = XPCService/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = XPCService;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = io.harkema.BrewUIXPCService;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		C35BD9B82AD1CBBB00E20FA4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = XPCService/XPCService.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = RSRVS8D9PW;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = XPCService/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = XPCService;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = io.harkema.BrewUIXPCService;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
 		C37751BD2A04674F00473607 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -295,6 +441,7 @@
 		C37751C02A04674F00473607 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GENERATE_ASSET_SYMBOLS = YES;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -330,6 +477,7 @@
 		C37751C12A04674F00473607 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GENERATE_ASSET_SYMBOLS = YES;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -365,6 +513,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		C35BD9B62AD1CBBB00E20FA4 /* Build configuration list for PBXNativeTarget "BrewUIXPCService" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C35BD9B72AD1CBBB00E20FA4 /* Debug */,
+				C35BD9B82AD1CBBB00E20FA4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		C37751AB2A04674D00473607 /* Build configuration list for PBXProject "BrewUI" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -389,6 +546,10 @@
 		C33AE4DB2AC9B3D400AF92CF /* BrewUIKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = BrewUIKit;
+		};
+		C383410F2AD32833007C95C9 /* BrewUIHelperKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = BrewUIHelperKit;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

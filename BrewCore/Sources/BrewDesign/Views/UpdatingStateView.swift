@@ -8,6 +8,7 @@
 import BrewCore
 import Processed
 import SwiftUI
+import BrewShared
 
 struct UpdatingStateView: View {
     private let isStreamingDone: Bool

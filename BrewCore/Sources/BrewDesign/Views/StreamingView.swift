@@ -7,6 +7,7 @@
 
 import BrewCore
 import SwiftUI
+import BrewShared
 
 public struct StreamingView: View {
     @Namespace
@@ -15,7 +16,8 @@ public struct StreamingView: View {
     @EnvironmentObject
     private var brewService: BrewService
 
-    private let updateService: BrewUpdateService
+    @EnvironmentObject
+    private var updateService: BrewUpdateService
 
     @StateObject
     private var stream: BrewStreaming
@@ -24,11 +26,11 @@ public struct StreamingView: View {
 
     public init(
         stream: BrewStreaming,
-        updateService: BrewUpdateService,
+//        updateService: BrewUpdateService,
         dismiss: @escaping () -> Void
     ) {
         _stream = StateObject(wrappedValue: stream)
-        self.updateService = updateService
+//        self.updateService = updateService
         self.dismiss = dismiss
     }
 

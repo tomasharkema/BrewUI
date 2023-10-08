@@ -28,6 +28,10 @@ let package = Package(
             name: "BrewUIApp",
             targets: ["BrewUIApp"]
         ),
+        .executable(
+            name: "BrewUIHelper",
+            targets: ["BrewUIHelper"]
+        ),
         .library(
             name: "BrewUIKit",
             targets: ["BrewUIKit"]
@@ -36,9 +40,14 @@ let package = Package(
             name: "BrewCore",
             targets: ["BrewCore"]
         ),
+        .library(
+            name: "BrewUIHelperKit", targets: ["BrewUIHelperKit"]
+        ),
     ],
     dependencies: [
         //        .package(path: "../../ActoolBuildPlugin"),
+
+        .package(path: "../Inject"),
 
         .package(url: "https://github.com/tomasharkema/swift-rawjson", from: "0.0.26"),
         .package(url: "https://github.com/tomasharkema/swift-tracing", from: "0.0.25"),
@@ -48,6 +57,9 @@ let package = Package(
         .package(url: "https://github.com/SwiftyLab/MetaCodable", from: "1.0.0"),
         .package(url: "https://github.com/SwiftedMind/Processed", from: "1.0.0"),
         .package(url: "https://github.com/kishikawakatsumi/swift-power-assert", from: "0.12.0"),
+        .package(url: "https://github.com/apple/swift-argument-parser", from: "1.2.3"),
+//        .package(url: "https://github.com/Alkenso/SwiftConvenience", from: "0.2.0"),
+        .package(url: "https://github.com/Alkenso/sXPC", from: "0.2.2"),
 
     ] + swiftUiDependency,
     targets: [
@@ -77,6 +89,30 @@ let package = Package(
             ] + swiftUiPlugin
         ),
         .target(
+            name: "BrewUIHelperKit",
+            dependencies: [
+                "BrewShared",
+                "BrewCore",
+                "sXPC",
+            ],
+            swiftSettings: swiftSettings,
+            plugins: [
+                //                .plugin(name: "ActoolBuildPlugin", package: "ActoolBuildPlugin"),
+            ] + swiftUiPlugin
+        ),
+        .executableTarget(
+            name: "BrewUIHelper",
+            dependencies: [
+                .product(name: "ArgumentParser", package: "swift-argument-parser"),
+                
+                "BrewUIHelperKit",
+            ],
+            swiftSettings: swiftSettings,
+            plugins: [
+                //                .plugin(name: "ActoolBuildPlugin", package: "ActoolBuildPlugin"),
+            ] + swiftUiPlugin
+        ),
+        .target(
             name: "BrewUIKit",
             dependencies: [
                 "BrewCore",
@@ -100,7 +136,8 @@ let package = Package(
                 "BrewShared",
                 "BrewHelpers",
                 "Inject",
-
+                "BrewHelperXPC",
+                
                 .product(name: "RawJson", package: "swift-rawjson"),
                 .product(name: "SwiftTracing", package: "swift-tracing"),
                 .product(name: "Algorithms", package: "swift-algorithms"),
@@ -135,7 +172,10 @@ let package = Package(
             dependencies: [
                 "Inject",
             ],
-            swiftSettings: swiftSettings
+            swiftSettings: swiftSettings,
+            plugins: [
+                //                .plugin(name: "ActoolBuildPlugin", package: "ActoolBuildPlugin"),
+            ] + swiftUiPlugin
         ),
         .target(
             name: "BrewShared",
@@ -150,11 +190,17 @@ let package = Package(
             plugins: [
             ] + swiftUiPlugin
         ),
-
         .target(
-            name: "Inject"
+            name: "BrewHelperXPC",
+            dependencies: [
+                "BrewShared",
+                
+                "sXPC",
+            ],
+            swiftSettings: swiftSettings,
+            plugins: [
+            ] + swiftUiPlugin
         ),
-
         .testTarget(
             name: "BrewCoreTests",
             dependencies: [
@@ -164,7 +210,9 @@ let package = Package(
 
                 .product(name: "PowerAssert", package: "swift-power-assert"),
             ],
-            swiftSettings: swiftSettings
+            swiftSettings: swiftSettings,
+            plugins: [
+            ] + swiftUiPlugin
         ),
     ]
 )

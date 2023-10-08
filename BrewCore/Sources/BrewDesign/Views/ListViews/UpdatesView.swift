@@ -11,6 +11,7 @@ import SwiftData
 import SwiftUI
 
 public struct UpdatesView: View {
+    
     @EnvironmentObject
     private var updateService: BrewUpdateService
 

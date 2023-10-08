@@ -14,9 +14,9 @@ import Inject
 public final class BrewStreaming: ObservableObject, Identifiable {
 
     @Injected(\.brewService)
-    private var service: BrewService
-    @Injected(\.brewProcessService)
-    private var processService: BrewProcessService
+    private var service
+    @Injected(\.helperProcessService)
+    private var processService
 
     public let id = UUID()
 
@@ -32,7 +32,7 @@ public final class BrewStreaming: ObservableObject, Identifiable {
     }
 
     static func install(
-        processService: BrewProcessService,
+        processService: BrewProcessServiceProtocol,
         name: PackageIdentifier
     ) async throws -> BrewStreaming {
         let stream = try await processService.stream(command: .install(name))
@@ -41,7 +41,7 @@ public final class BrewStreaming: ObservableObject, Identifiable {
     }
 
     static func uninstall(
-        processService: BrewProcessService,
+        processService: BrewProcessServiceProtocol,
         name: PackageIdentifier
     ) async throws -> BrewStreaming {
         let stream = try await processService.stream(command: .uninstall(name))
@@ -50,7 +50,7 @@ public final class BrewStreaming: ObservableObject, Identifiable {
     }
 
     static func upgrade(
-        processService: BrewProcessService,
+        processService: BrewProcessServiceProtocol,
         name: PackageIdentifier
     ) async throws -> BrewStreaming {
         let stream = try await processService.stream(command: .upgrade(.package(name)))
@@ -59,7 +59,7 @@ public final class BrewStreaming: ObservableObject, Identifiable {
     }
 
     static func upgrade(
-        processService: BrewProcessService
+        processService: BrewProcessServiceProtocol
     ) async throws -> BrewStreaming {
         let stream = try await processService.stream(command: .upgrade(.all))
 

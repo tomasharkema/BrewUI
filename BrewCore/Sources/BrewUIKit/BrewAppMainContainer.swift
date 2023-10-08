@@ -9,6 +9,7 @@ import BrewCore
 import BrewDesign
 import Foundation
 import SwiftUI
+import Inject
 
 public struct BrewAppMainContainer: View {
     @State
@@ -21,10 +22,10 @@ public struct BrewAppMainContainer: View {
             if let dependencies {
                 MainTabView()
                     .modelContainer(dependencies.modelContainer)
+                    .environmentObject(dependencies.updateService)
 //                    .environmentObject(dependencies.search)
 //                    .environmentObject(dependencies.brewService)
 //                    .environmentObject(dependencies.processService)
-//                    .environmentObject(dependencies.updateService)
             } else {
                 ProgressView()
                     .controlSize(.small)

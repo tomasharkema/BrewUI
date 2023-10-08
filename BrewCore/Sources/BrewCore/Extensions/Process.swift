@@ -7,9 +7,10 @@
 
 import Foundation
 import OSLog
+import BrewShared
 
 extension Process {
-    func awaitTermination() async throws -> Process.TerminationReason {
+    public nonisolated func awaitTermination() async throws -> Process.TerminationReason {
         let result = try await withTaskCancellationHandler(operation: {
             try await withCheckedThrowingContinuation { res in
                 do {
@@ -28,7 +29,7 @@ extension Process {
         return result
     }
 
-    static func defaultShell(command: String) -> Process {
+    public static nonisolated func defaultShell(command: String) -> Process {
         let task = Process()
         let userShell = ProcessInfo.processInfo.environment["SHELL"]
         // sandbox-exec -p '(version 1)(allow default)(deny network*)(deny file-read-data (regex
@@ -42,7 +43,7 @@ extension Process {
         return task
     }
 
-    nonisolated static func shell(
+    public static nonisolated func shell(
         logger: Logger, command: String
     ) async throws -> CommandOutput {
         logger.info("EXECUTE: \(command)")
@@ -82,7 +83,7 @@ extension Process {
         return out
     }
 
-    nonisolated static func shellStreaming(
+    public static nonisolated func shellStreaming(
         logger: Logger,
         command: String
     ) async throws -> CommandOutput {
@@ -130,7 +131,7 @@ extension Process {
         //        return CommandOutput(out: output, err: outputErr)
     }
 
-    nonisolated static func stream(
+    public static nonisolated func stream(
         logger: Logger,
         command: String
     ) async -> StreamStreamingAndTask {

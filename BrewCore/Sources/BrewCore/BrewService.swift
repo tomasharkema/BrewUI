@@ -22,10 +22,10 @@ public final class BrewService: ObservableObject {
 //    private var cache: BrewCache
 
     @Injected(\.brewApi)
-    private var api: BrewApi
+    private var api
 
-    @Injected(\.brewProcessService)
-    private var processService: BrewProcessService
+    @Injected(\.helperProcessService)
+    private var processService
 
     private let logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "BrewService")
 
@@ -110,51 +110,40 @@ public final class BrewService: ObservableObject {
         }
     }
 
-    static func parseListVersions(input: String) -> [ListResult] {
-        let matches = input.matches(of: /(\S+) (\S+)/)
-        return matches.map {
-            ListResult(name: String($0.output.1), version: String($0.output.2))
-        }
-    }
-
-    nonisolated func listFormula() async throws -> [ListResult] {
-        let listResult = try await processService.shell(command: .list(.versions))
-        return Self.parseListVersions(input: listResult.outString)
-    }
-
     nonisolated func install(
-        processService: BrewProcessService, name: PackageIdentifier
+        service: BrewProcessServiceProtocol,
+        name: PackageIdentifier
     ) async throws -> BrewStreaming {
         try await BrewStreaming.install(processService: processService, name: name)
     }
 
     nonisolated func uninstall(
-        processService: BrewProcessService,
+        service: BrewProcessServiceProtocol,
         name: PackageIdentifier
     ) async throws -> BrewStreaming {
         try await BrewStreaming.uninstall(processService: processService, name: name)
     }
 
     nonisolated func upgrade(
-        processService: BrewProcessService,
+        service: BrewProcessServiceProtocol,
         name: PackageIdentifier
     ) async throws -> BrewStreaming {
         try await BrewStreaming.upgrade(processService: processService, name: name)
     }
 
     nonisolated func upgrade(
-        processService: BrewProcessService
+        service: BrewProcessServiceProtocol
     ) async throws -> BrewStreaming {
         try await BrewStreaming.upgrade(processService: processService)
     }
 
-//    public nonisolated func searchFormula(query: String) async throws -> [PackageIdentifier] {
-//        return try await process.searchFormula(query: query)
-//    }
-//
-//    nonisolated func infoFormula(package: PackageIdentifier) async throws -> [InfoResult] {
-//        return try await process.infoFormula(package: package)
-//    }
+    public nonisolated func searchFormula(query: String) async throws -> [PackageIdentifier] {
+        return try await processService.searchFormula(query: query)
+    }
+
+    nonisolated func infoFormula(package: PackageIdentifier) async throws -> [InfoResult] {
+        return try await processService.infoFormula(package: package)
+    }
 }
 
 struct StreamOutput: Hashable {
@@ -166,10 +155,6 @@ extension StreamOutput: Identifiable {
     var id: Int {
         hashValue
     }
-}
-
-struct Brew: RawRepresentable {
-    let rawValue: String
 }
 
 extension InjectedValues {

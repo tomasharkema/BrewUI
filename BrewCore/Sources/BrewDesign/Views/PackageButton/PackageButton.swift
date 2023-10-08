@@ -15,8 +15,8 @@ import Inject
 
 public struct PackageButton: View {
     private let type: ButtonType
-
-    @Injected(\.brewUpdateService)
+    
+    @EnvironmentObject
     private var updateService: BrewUpdateService
 
     public init(type: ButtonType) {

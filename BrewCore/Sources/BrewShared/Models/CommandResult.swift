@@ -7,14 +7,18 @@
 
 import Foundation
 
-public struct CommandOutput {
+public struct CommandOutput: Codable, Equatable {
     public let stream: [StreamElement]
 
-    var outErrString: String {
+    public init(stream: [StreamElement]) {
+        self.stream = stream
+    }
+
+    public var outErrString: String {
         stream.outErrString
     }
 
-    var outString: String {
+    public var outString: String {
         stream.outString
     }
 }

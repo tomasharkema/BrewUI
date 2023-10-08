@@ -10,8 +10,13 @@ import Combine
 import Foundation
 import OSLog
 import Inject
+import BrewCore
 
-public final class BrewProcessService: ObservableObject {
+struct Brew: RawRepresentable {
+    let rawValue: String
+}
+
+public final class BrewProcessService: BrewProcessServiceProtocol {
     private let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier!,
         category: "BrewProcessService"
@@ -35,19 +40,14 @@ public final class BrewProcessService: ObservableObject {
         return Brew(rawValue: result)
     }
 
-    nonisolated func stream(
-        brew brewOverride: Brew? = nil,
+    public func stream(
         command: BrewCommand
     ) async throws -> StreamStreamingAndTask {
-        let brew: Brew = if let brewOverride {
-            brewOverride
-        } else {
-            try await whichBrew()
-        }
+        let brew: Brew = try await whichBrew()
         return await Process.stream(logger: logger, command: "\(brew.rawValue) \(command.command)")
     }
 
-    nonisolated func shellStreaming(
+    func shellStreaming(
         brew brewOverride: Brew? = nil,
         command: BrewCommand
     ) async throws -> CommandOutput {
@@ -62,7 +62,7 @@ public final class BrewProcessService: ObservableObject {
         )
     }
 
-    nonisolated func shell(
+    func shell(
         brew brewOverride: Brew? = nil,
         command: BrewCommand
     ) async throws -> CommandOutput {
@@ -77,7 +77,7 @@ public final class BrewProcessService: ObservableObject {
         )
     }
 
-    nonisolated func infoFromBrew(
+    public func infoFromBrew(
         command: BrewCommand.InfoCommand
     ) async throws -> [InfoResult] {
         do {
@@ -94,20 +94,20 @@ public final class BrewProcessService: ObservableObject {
         }
     }
 
-    nonisolated func infoFormulaInstalled() async throws -> [InfoResult] {
+    public func infoFormulaInstalled() async throws -> [InfoResult] {
         try await infoFromBrew(command: .installed)
     }
 
-    nonisolated func infoFormula(package: PackageIdentifier) async throws -> [InfoResult] {
+    public func infoFormula(package: PackageIdentifier) async throws -> [InfoResult] {
         try await infoFromBrew(command: .formula(package))
     }
 
-    nonisolated func update() async throws -> UpdateResult {
+    public func update() async throws -> UpdateResult {
         let res = try await shell(command: .update)
-        return try .init(res)
+        return try UpdateResult(res)
     }
 
-    nonisolated func searchFormula(query: String) async throws -> [PackageIdentifier] {
+    public func searchFormula(query: String) async throws -> [PackageIdentifier] {
         do {
             logger.info("Search for \(query)")
             let stream = try await shell(command: .search(query))
@@ -125,13 +125,13 @@ public final class BrewProcessService: ObservableObject {
         }
     }
 
-    public nonisolated func taps() async throws -> [String] {
+    public func taps() async throws -> [String] {
         let stream = try await shell(command: .tap)
         try Task.checkCancellation()
         return stream.outString.split(separator: "\n").map { String($0) }
     }
 
-    public nonisolated func tap(name: String) async throws -> [TapInfo] {
+    public func tap(name: String) async throws -> [TapInfo] {
         do {
             let stream = try await shell(command: .tapInfo(name))
             try Task.checkCancellation()
@@ -144,15 +144,16 @@ public final class BrewProcessService: ObservableObject {
             throw error
         }
     }
-}
 
-extension InjectedValues {
-    public var brewProcessService: BrewProcessService {
-        get { Self[BrewProcessServiceKey.self] }
-        set { Self[BrewProcessServiceKey.self] = newValue }
+    static func parseListVersions(input: String) -> [ListResult] {
+        let matches = input.matches(of: /(\S+) (\S+)/)
+        return matches.map {
+            ListResult(name: String($0.output.1), version: String($0.output.2))
+        }
     }
-}
 
-private struct BrewProcessServiceKey: InjectionKey {
-    static var currentValue: BrewProcessService = BrewProcessService()
+    public func listFormula() async throws -> [ListResult] {
+        let listResult = try await shell(command: .list(.versions))
+        return Self.parseListVersions(input: listResult.outString)
+    }
 }

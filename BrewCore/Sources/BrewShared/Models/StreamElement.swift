@@ -7,28 +7,13 @@
 
 import Foundation
 
-public struct StreamElement: Equatable {
+public struct StreamElement: Equatable, Codable {
     public let level: Level
     public let rawEntry: String
-    public let attributedString: AttributedString
 
-    init(level: Level, rawEntry: String) {
+    public init(level: Level, rawEntry: String) {
         self.level = level
         self.rawEntry = rawEntry
-
-        switch level {
-        case .dev:
-            var attr = AttributedString(rawEntry)
-            attr.foregroundColor = .blue
-            attributedString = attr
-        case .err:
-            var attr = AttributedString(rawEntry)
-            attr.foregroundColor = .red
-            attributedString = attr
-        case .out:
-            let attr = AttributedString(rawEntry)
-            attributedString = attr
-        }
     }
 
     static func err(_ error: String) -> StreamElement {
@@ -39,7 +24,7 @@ public struct StreamElement: Equatable {
         StreamElement(level: .out, rawEntry: out)
     }
 
-    public enum Level {
+    public enum Level: Codable {
         case out
         case err
         case dev

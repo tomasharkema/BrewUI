@@ -28,11 +28,11 @@ struct MainTabView: View {
     @Injected(\.brewSearchService)
     private var searchService: BrewSearchService
 
-    @Injected(\.brewUpdateService)
+    @EnvironmentObject
     private var updateService: BrewUpdateService
 
-    @Injected(\.brewProcessService)
-    private var processService: BrewProcessService
+    @Injected(\.helperProcessService)
+    private var processService
 
     var body: some View {
         TabView(selection: $tabviewSelection) {
@@ -93,7 +93,7 @@ struct MainTabView: View {
         .scrollContentBackground(.hidden)
         .navigationTitle("🍺 BrewUI")
         .sheet(item: .constant(updateService.stream)) {
-            StreamingView(stream: $0, updateService: updateService) {
+            StreamingView(stream: $0) {
                 updateService.streamIsDone()
             }
         }

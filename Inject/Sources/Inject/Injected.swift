@@ -6,9 +6,10 @@
 //
 
 import Foundation
+import SwiftUI
 
 @propertyWrapper
-public struct Injected<T> {
+public class Injected<T> {
     private let keyPath: WritableKeyPath<InjectedValues, T>
 
     public var wrappedValue: T {
@@ -21,3 +22,6 @@ public struct Injected<T> {
     }
 }
 
+extension Injected: DynamicProperty where T: ObservableObject {
+
+}

@@ -5,14 +5,14 @@
 //  Created by Tomas Harkema on 11/09/2023.
 //
 
-import BrewShared
 import Foundation
+import MetaCodable
 
-protocol CommandString {
+public protocol CommandString {
     var command: String { get }
 }
 
-enum BrewCommand: CommandString {
+public enum BrewCommand: Codable, Equatable, CommandString {
     case info(InfoCommand)
     case install(PackageIdentifier)
     case uninstall(PackageIdentifier)
@@ -23,7 +23,7 @@ enum BrewCommand: CommandString {
     case tap
     case tapInfo(String)
 
-    var command: String {
+    public var command: String {
         switch self {
         case let .info(info):
             info.command
@@ -48,7 +48,7 @@ enum BrewCommand: CommandString {
 }
 
 extension BrewCommand {
-    enum InfoCommand: CommandString {
+    public enum InfoCommand: Codable, Equatable, CommandString {
         case installed
         case formula(PackageIdentifier)
 
@@ -62,16 +62,16 @@ extension BrewCommand {
             }
         }
 
-        var command: String {
+        public var command: String {
             "info \(commandPartial)"
         }
     }
 
-    enum UpgradeCommand: CommandString {
+    public enum UpgradeCommand: Codable, Equatable, CommandString {
         case all
         case package(PackageIdentifier)
-
-        var command: String {
+        
+        public var command: String {
             switch self {
             case .all:
                 "upgrade"
@@ -81,10 +81,10 @@ extension BrewCommand {
         }
     }
 
-    enum ListCommand: CommandString {
+    public enum ListCommand: Codable, Equatable, CommandString {
         case versions
-
-        var command: String {
+        
+        public var command: String {
             switch self {
             case .versions:
                 "list --versions"

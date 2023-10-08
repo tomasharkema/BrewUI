@@ -100,8 +100,8 @@ public actor BrewCache: ModelActor {
         let old = try self.modelContext.fetch(
             FetchDescriptor<InstalledCache>()
         )
-        let oldSet = Set(old) //.byId())
-        let allSet = Set(installed) //.byId())
+        let oldSet = Set(old) // .byId())
+        let allSet = Set(installed) // .byId())
 
         let diff = Differ(old: oldSet, new: allSet)
 

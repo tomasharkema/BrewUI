@@ -18,8 +18,8 @@ public final class BrewSearchService: ObservableObject, LoadableSupport {
     @Injected(\.brewService)
     private var service: BrewService
 
-    @Injected(\.brewProcessService)
-    private var processService: BrewProcessService
+    @Injected(\.helperProcessService)
+    private var processService
 
     @Published
     public var queryResult: LoadableState<[PackageCache]> = .absent
