@@ -7,45 +7,41 @@
 
 import BrewCore
 import BrewShared
-import Foundation
-import OSLog
-import Processed
 import SwiftUI
-import Inject
 
 public struct PackageButton: View {
-    private let type: ButtonType
-    
-    @EnvironmentObject
-    private var updateService: BrewUpdateService
+  private let type: ButtonType
 
-    public init(type: ButtonType) {
-        self.type = type
-    }
+  @EnvironmentObject
+  private var updateService: BrewUpdateService
 
-    public var body: some View {
-        HStack {
-            switch type {
-            case .upgradeAll:
-                UpgradeAllButton()
+  public init(type: ButtonType) {
+    self.type = type
+  }
 
-            case .updateAll:
-                UpdateAllButton()
+  public var body: some View {
+    HStack {
+      switch type {
+      case .upgradeAll:
+        UpgradeAllButton()
 
-            case let .package(package):
-                if let installedVersion = package.installedVersion {
-                    UninstallButton(
-                        package: package,
-                        installedVersion: installedVersion
-                    ).disabled(package.installedAsDependency)
-                    if package.outdated {
-                        UpgradeButton(package: package)
-                    }
-                } else {
-                    InstallButton(package: package)
-                }
-            }
+      case .updateAll:
+        UpdateAllButton()
+
+      case let .package(package):
+        if let anyVersion = package.versions?.first {
+          UninstallButton(
+            package: package,
+            installedVersion: anyVersion
+          ).disabled(package.firstInstalledAsDependency != nil)
+          if package.outdated {
+            UpgradeButton(package: package)
+          }
+        } else {
+          InstallButton(package: package)
         }
-        .disabled(updateService.isAnyLoading)
+      }
     }
+    .disabled(updateService.isAnyLoading)
+  }
 }

@@ -21,10 +21,10 @@
     {
       "identity" : "metacodable",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/SwiftyLab/MetaCodable.git",
+      "location" : "https://github.com/tomasharkema/MetaCodable",
       "state" : {
-        "revision" : "eeb9f27fc80b4ef21cde1ce22e7dd7e58dbbed38",
-        "version" : "1.0.0"
+        "revision" : "aea01e0aee8f1b3d11f1998e0d15f2454162b887",
+        "version" : "0.0.1"
       }
     },
     {
@@ -34,6 +34,15 @@
       "state" : {
         "revision" : "044882f9d1b04c5538b48f311aa8d89e5d04a025",
         "version" : "1.0.0"
+      }
+    },
+    {
+      "identity" : "semver",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/sersoft-gmbh/semver",
+      "state" : {
+        "revision" : "a03950d7a492b5e0ebb1da99f8b7fe5831448c6e",
+        "version" : "5.0.0"
       }
     },
     {

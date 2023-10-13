@@ -11,31 +11,32 @@ import SwiftData
 import SwiftUI
 
 public struct AllPackagesView: View {
-    @EnvironmentObject
-    private var updateService: BrewUpdateService
+  @EnvironmentObject
+  private var updateService: BrewUpdateService
 
-    @Binding
-    private var selection: PackageIdentifier?
+  @Binding
+  private var selection: PackageIdentifier?
 
-    @Query(
-        FetchDescriptor<PackageCache>(sortBy: [SortDescriptor(\.sortValue)])
-            .withFetchLimit(BrewCache.globalFetchLimit)
-    )
-    private var all: [PackageCache]
+  @Query(
+    FetchDescriptor<PackageCache>(
+      sortBy: [SortDescriptor(\.sortValue)]
+    ).withFetchLimit(BrewCache.globalFetchLimit)
+  )
+  private var all: [PackageCache]
 
-    public init(selection: Binding<PackageIdentifier?>) {
-        _selection = selection
+  public init(selection: Binding<PackageIdentifier?>) {
+    _selection = selection
+  }
+
+  public var body: some View {
+    List(
+      all,
+      selection: $selection
+    ) { item in
+      ItemView(package: .cached(item), showInstalled: true)
     }
-
-    public var body: some View {
-        List(
-            all,
-            selection: $selection
-        ) { item in
-            ItemView(package: .cached(item), showInstalled: true)
-        }
-        .refreshable {
-            await updateService.update()
-        }
+    .refreshable {
+      await updateService.update()
     }
+  }
 }

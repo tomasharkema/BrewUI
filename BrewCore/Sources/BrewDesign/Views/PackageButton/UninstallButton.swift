@@ -11,23 +11,23 @@ import Processed
 import SwiftUI
 
 struct UninstallButton: View {
-    private let package: PackageInfo
-    private let installedVersion: String
+  private let package: PackageInfo
+  private let installedVersion: Version
 
-    @EnvironmentObject
-    private var updateService: BrewUpdateService
+  @EnvironmentObject
+  private var updateService: BrewUpdateService
 
-    init(package: PackageInfo, installedVersion: String) {
-        self.package = package
-        self.installedVersion = installedVersion
+  init(package: PackageInfo, installedVersion: Version) {
+    self.package = package
+    self.installedVersion = installedVersion
+  }
+
+  var body: some View {
+    Button("Uninstall \(installedVersion.description)") {
+      Task {
+        try await updateService.uninstall(name: package.identifier)
+      }
     }
-
-    var body: some View {
-        Button("Uninstall \(installedVersion)") {
-            Task {
-                try await updateService.uninstall(name: package.identifier)
-            }
-        }
-        .disabled(updateService.uninstalling.isLoading)
-    }
+    .disabled(updateService.uninstalling.isLoading)
+  }
 }

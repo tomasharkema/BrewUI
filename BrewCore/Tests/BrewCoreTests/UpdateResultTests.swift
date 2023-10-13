@@ -11,44 +11,44 @@ import PowerAssert
 import XCTest
 
 final class UpdateResultTests: XCTestCase {
-    func testAlreadyUpToDateOut() throws {
-        let cmd = CommandOutput(stream: .out("Already up-to-date"))
-        let result = try UpdateResult(cmd)
-        #assert(result == .alreadyUpToDate)
+  func testAlreadyUpToDateOut() throws {
+    let cmd = CommandOutput(stream: .out("Already up-to-date"))
+    let result = try UpdateResult(cmd)
+    #assert(result == .alreadyUpToDate)
+  }
+
+  func testAlreadyUpToDateErr() throws {
+    let cmd = CommandOutput(stream: .err("Already up-to-date"))
+    let result = try UpdateResult(cmd)
+    #assert(result == .alreadyUpToDate)
+  }
+
+  func testTestString() throws {
+    let result = try UpdateResult(CommandOutput(stream: .err(testString)))
+
+    guard case let .updated(
+      updatedTaps, updatedCasks,
+      newFormulae, newCasks, outdatedFormulae, outdatedCasks
+    ) = result else {
+      XCTFail()
+      return
     }
 
-    func testAlreadyUpToDateErr() throws {
-        let cmd = CommandOutput(stream: .err("Already up-to-date"))
-        let result = try UpdateResult(cmd)
-        #assert(result == .alreadyUpToDate)
-    }
+    #assert(updatedTaps == "3")
+    #assert(updatedCasks[0] == "homebrew/cask-versions")
+    #assert(updatedCasks[1] == PackageIdentifier.core)
+    #assert(updatedCasks[2] == "homebrew/cask")
 
-    func testTestString() throws {
-        let result = try UpdateResult(CommandOutput(stream: .err(testString)))
+    #assert(newFormulae.count == 4)
+    #assert(newCasks.count == 2)
+    #assert(outdatedFormulae.count == 8)
+    #assert(outdatedCasks.count == 5)
 
-        guard case let .updated(
-            updatedTaps, updatedCasks,
-            newFormulae, newCasks, outdatedFormulae, outdatedCasks
-        ) = result else {
-            XCTFail()
-            return
-        }
-
-        #assert(updatedTaps == "3")
-        #assert(updatedCasks[0] == "homebrew/cask-versions")
-        #assert(updatedCasks[1] == PackageIdentifier.core)
-        #assert(updatedCasks[2] == "homebrew/cask")
-
-        #assert(newFormulae.count == 4)
-        #assert(newCasks.count == 2)
-        #assert(outdatedFormulae.count == 8)
-        #assert(outdatedCasks.count == 5)
-
-        #assert(newFormulae.contains("vulkan-utility-libraries"))
-        #assert(newCasks.contains("draw-things"))
-        #assert(outdatedFormulae.contains("cryfs"))
-        #assert(outdatedCasks.contains("1password-cli"))
-    }
+    #assert(newFormulae.contains("vulkan-utility-libraries"))
+    #assert(newCasks.contains("draw-things"))
+    #assert(outdatedFormulae.contains("cryfs"))
+    #assert(outdatedCasks.contains("1password-cli"))
+  }
 }
 
 let testString = """

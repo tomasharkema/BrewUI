@@ -8,6 +8,6 @@
 import SwiftUI
 
 public enum PublicColor {
-    public static let backgroundTint = Color(.backgroundTint)
-    public static let foregroundTint = Color(.foregroundTint)
+  public static let backgroundTint = Color(.backgroundTint)
+  public static let foregroundTint = Color(.foregroundTint)
 }

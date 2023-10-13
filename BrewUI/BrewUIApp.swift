@@ -10,9 +10,9 @@ import SwiftUI
 
 @main
 struct BrewUIApp: App {
-    var body: some Scene {
-        WindowGroup {
-            BrewAppMainContainer()
-        }
+  var body: some Scene {
+    WindowGroup {
+      BrewAppMainContainer()
     }
+  }
 }

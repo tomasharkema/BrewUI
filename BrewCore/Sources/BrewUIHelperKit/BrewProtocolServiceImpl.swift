@@ -1,29 +1,27 @@
 //
 //  BrewProtocolServiceImpl.swift
-//  
+//
 //
 //  Created by Tomas Harkema on 07/10/2023.
 //
 
-import Foundation
-import BrewShared
-import BrewCore
 import BrewHelperXPC
+import BrewShared
 
 public class BrewProtocolServiceImpl: BrewProtocolService {
+  private let service = BrewProcessService()
 
-    private let service = BrewProcessService()
+  public func shell(command: BrewCommand) async throws -> CommandOutput {
+    try await service.shell(command: command)
+  }
 
-    public func shell(command: BrewCommand) async throws -> CommandOutput {
-        try await service.shell(command: command)
-    }
-
-    public func stream(command: StreamCommand) async throws -> CommandOutput {
-        fatalError()
+  public func stream(command _: StreamCommand) async throws -> CommandOutput {
+    fatalError()
 //        return try await service.stream(command: command)
-    }
+  }
 
-//    public func requestToken(_ request: BrewProtocolRequest) async throws -> BrewProtocolResponse {
+//    public func requestToken(_ request: BrewProtocolRequest) async throws -> BrewProtocolResponse
+//    {
 //        print(request)
 //        do {
 //            switch request.command {

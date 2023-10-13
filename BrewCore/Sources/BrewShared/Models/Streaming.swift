@@ -9,69 +9,69 @@ import Combine
 import Foundation
 
 public final actor StreamStreaming: ObservableObject {
-    @Published public var stream = [StreamElement]()
-    @Published var isStreamingDone = false
+  @Published public var stream = [StreamElement]()
+  @Published var isStreamingDone = false
 
-    public init() { }
-    
-    public func append(level: StreamElement.Level, rawEntry: String) {
-        append(StreamElement(level: level, rawEntry: rawEntry))
-    }
+  public init() {}
 
-    private func append(_ line: StreamElement) {
-        stream.append(line)
-    }
+  public func append(level: StreamElement.Level, rawEntry: String) {
+    append(StreamElement(level: level, rawEntry: rawEntry))
+  }
 
-    public func done() {
-        isStreamingDone = true
-    }
+  private func append(_ line: StreamElement) {
+    stream.append(line)
+  }
 
-    //    @MainActor
-    //    func append(_ line: String) {
-    //        var string = AttributedString(line)
-    //        string.foregroundColor = .blue
-    //        streamAttributed.append(string)
-    //        streamAttributed.append(AttributedString("\n"))
-    //        stream.append(line)
-    //    }
+  public func done() {
+    isStreamingDone = true
+  }
+
+  //    @MainActor
+  //    func append(_ line: String) {
+  //        var string = AttributedString(line)
+  //        string.foregroundColor = .blue
+  //        streamAttributed.append(string)
+  //        streamAttributed.append(AttributedString("\n"))
+  //        stream.append(line)
+  //    }
 }
 
 @MainActor
 public final class StreamStreamingAndTask: ObservableObject, Identifiable {
-    @Published public var stream = [StreamElement]()
-    @Published public var isStreamingDone = false
-    public let task: Task<Void, any Error>
-    public let id = UUID()
-    public let streaming: StreamStreaming
+  @Published public var stream = [StreamElement]()
+  @Published public var isStreamingDone = false
+  public let task: Task<Void, any Error>
+  public let id = UUID()
+  public let streaming: StreamStreaming
 
-    private var streamCancellable: AnyCancellable?
+  private var streamCancellable: AnyCancellable?
 
-    public init(stream: StreamStreaming, task: Task<Void, any Error>) async {
-        streaming = stream
-        self.task = task
+  public init(stream: StreamStreaming, task: Task<Void, any Error>) async {
+    streaming = stream
+    self.task = task
 
-        await streaming.$stream.receive(on: DispatchQueue.main).assign(to: &self.$stream)
-        await streaming.$isStreamingDone.receive(on: DispatchQueue.main)
-            .assign(to: &$isStreamingDone)
+    await streaming.$stream.receive(on: DispatchQueue.main).assign(to: &self.$stream)
+    await streaming.$isStreamingDone.receive(on: DispatchQueue.main)
+      .assign(to: &$isStreamingDone)
 
-        streamCancellable = stream.objectWillChange
-            .receive(on: DispatchQueue.main)
-            .sink {
-                self.objectWillChange.send()
-            }
+    streamCancellable = stream.objectWillChange
+      .receive(on: DispatchQueue.main)
+      .sink {
+        self.objectWillChange.send()
+      }
 
 //        await stream.$stream.receive(on: DispatchQueue.main).assign(to: &$stream)
 //        await stream.$isStreamingDone.receive(on: DispatchQueue.main).assign(to:
 //        &$isStreamingDone)
-    }
+  }
 
-    public func cancel() {
-        task.cancel()
-    }
+  public func cancel() {
+    task.cancel()
+  }
 
-    public var value: Void {
-        get async throws {
-            try await task.value
-        }
+  public var value: Void {
+    get async throws {
+      try await task.value
     }
+  }
 }

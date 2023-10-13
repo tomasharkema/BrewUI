@@ -5,52 +5,36 @@
 //  Created by Tomas Harkema on 09/05/2023.
 //
 
-import BrewCore
 import BrewShared
 import SwiftUI
 
 struct ItemView: View {
-    private let package: PackageInfo
-    private let showInstalled: Bool
+  private let package: PackageInfo
+  private let showInstalled: Bool
 
-    init(package: PackageInfo, showInstalled: Bool) {
-        self.package = package
-        self.showInstalled = showInstalled
-    }
+  init(package: PackageInfo, showInstalled: Bool) {
+    self.package = package
+    self.showInstalled = showInstalled
+  }
 
-    @ViewBuilder
-    private func version() -> some View {
-        if package.outdated, let installedVersion = package.installedVersion, let stable = package.versionsStable {
-            Text("\(installedVersion) > \(stable)").font(.body.monospaced())
-        } else {
-            if package.installedAsDependency {
-                Text("DEP \(package.installedVersion ?? package.versionsStable ?? "")").font(.body.monospaced())
-            } else if let version = package.installedVersion {
-                Text(version).font(.body.monospaced())
-            } else if let stable = package.versionsStable {
-                Text(stable).font(.body.monospaced())
-            }
-        }
-    }
-
-    var body: some View {
-        HStack {
+  var body: some View {
+    HStack {
 //            Text(package.nameTapAttributedString(isInstalled: package.installedVersion != nil))
 
-            VStack(alignment: .leading) {
-                Text((try? package.identifier.name) ?? "")
-                    .font(.body.monospaced())
-                    .foregroundColor(Color(.foregroundTint))
-                Text((try? package.identifier.tap) ?? "")
-                    .font(.body.monospaced())
-                    .foregroundColor(.gray)
-                version()
-            }
+      VStack(alignment: .leading) {
+        Text((try? package.identifier.name) ?? "")
+          .font(.body.monospaced())
+          .foregroundColor(Color(.foregroundTint))
+        Text((try? package.identifier.tap) ?? "")
+          .font(.body.monospaced())
+          .foregroundColor(.gray)
+        AllVersionsView(package: package)
+      }
 
-            Spacer()
-            version()
-        }
+      Spacer()
+      UpdateVersionView(package: package)
     }
+  }
 }
 
 //

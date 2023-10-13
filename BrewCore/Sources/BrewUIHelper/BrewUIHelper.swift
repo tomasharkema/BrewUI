@@ -5,12 +5,12 @@
 //  Created by Tomas Harkema on 07/10/2023.
 //
 
-import Foundation
 import BrewUIHelperLib
+import Foundation
 
 @main
-struct BrewUIHelper {
-    static func main() throws {
-        HelperLib.run()
-    }
+enum BrewUIHelper {
+  static func main() throws {
+    HelperLib.run()
+  }
 }

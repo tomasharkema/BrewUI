@@ -6,52 +6,52 @@
 //
 
 import BrewCore
+import BrewShared
 import Processed
 import SwiftUI
-import BrewShared
 
 struct UpdatingStateView: View {
-    private let isStreamingDone: Bool
-    private let updating: LoadableState<UpdateState>
+  private let isStreamingDone: Bool
+  private let updating: LoadableState<UpdateState>
 
-    private let dismiss: () -> Void
+  private let dismiss: () -> Void
 
-    init(
-        isStreamingDone: Bool,
-        updating: LoadableState<UpdateState>,
-        dismiss: @escaping () -> Void
-    ) {
-        self.isStreamingDone = isStreamingDone
-        self.updating = updating
-        self.dismiss = dismiss
-    }
+  init(
+    isStreamingDone: Bool,
+    updating: LoadableState<UpdateState>,
+    dismiss: @escaping () -> Void
+  ) {
+    self.isStreamingDone = isStreamingDone
+    self.updating = updating
+    self.dismiss = dismiss
+  }
 
-    var body: some View {
-        HStack(spacing: 5) {
-            if isStreamingDone {
-                if updating.isDone {
-                    Button("Done") {
-                        dismiss()
-                    }
-                } else {
-                    ProgressView()
-                        .controlSize(.small)
-                    switch updating.data {
-                    case .none:
-                        Text("Running brew update...")
+  var body: some View {
+    HStack(spacing: 5) {
+      if isStreamingDone {
+        if updating.isDone {
+          Button("Done") {
+            dismiss()
+          }
+        } else {
+          ProgressView()
+            .controlSize(.small)
+          switch updating.data {
+          case .none:
+            Text("Running brew update...")
 
-                    case let .updated(result):
-                        Text("Brew update succeeded: \(String(describing: result)), syncing...")
+          case let .updated(result):
+            Text("Brew update succeeded: \(String(describing: result)), syncing...")
 
-                    case .synced:
-                        Text("Brew synced!")
-                    }
-                }
-            } else {
-                Text("Running brew command...")
-                ProgressView()
-                    .controlSize(.small)
-            }
+          case .synced:
+            Text("Brew synced!")
+          }
         }
+      } else {
+        Text("Running brew command...")
+        ProgressView()
+          .controlSize(.small)
+      }
     }
+  }
 }

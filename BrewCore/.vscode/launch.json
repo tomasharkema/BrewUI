@@ -59,6 +59,26 @@
       "args": [],
       "cwd": "${workspaceFolder:BrewCore}",
       "preLaunchTask": "swift: Build Release BrewUIApp"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "sourceLanguages": ["swift"],
+      "name": "Debug BrewUIHelper",
+      "program": "${workspaceFolder:BrewCore}/.build/debug/BrewUIHelper",
+      "args": [],
+      "cwd": "${workspaceFolder:BrewCore}",
+      "preLaunchTask": "swift: Build Debug BrewUIHelper"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "sourceLanguages": ["swift"],
+      "name": "Release BrewUIHelper",
+      "program": "${workspaceFolder:BrewCore}/.build/release/BrewUIHelper",
+      "args": [],
+      "cwd": "${workspaceFolder:BrewCore}",
+      "preLaunchTask": "swift: Build Release BrewUIHelper"
     }
   ]
 }

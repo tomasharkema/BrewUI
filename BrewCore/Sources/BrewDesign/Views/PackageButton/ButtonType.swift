@@ -6,12 +6,11 @@
 //
 
 import BrewShared
-import Foundation
 import SwiftMacros
 
 @AddAssociatedValueVariable
 public enum ButtonType {
-    case updateAll
-    case upgradeAll
-    case package(PackageInfo)
+  case updateAll
+  case upgradeAll
+  case package(PackageInfo)
 }

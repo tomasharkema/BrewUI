@@ -7,46 +7,46 @@
 
 import BrewCore
 import BrewShared
+import Inject
 import SwiftData
 import SwiftUI
-import Inject
 
 public struct ItemDetailView: View {
-    //  @Namespace var bottomID
-    //  @Environment(\.dismiss) var dismiss
-    private let package: PackageIdentifier
+  //  @Namespace var bottomID
+  //  @Environment(\.dismiss) var dismiss
+  private let package: PackageIdentifier
 
-    @Injected(\.helperProcessService)
-    private var processService
+  @Injected(\.helperProcessService)
+  private var processService
 
-    @EnvironmentObject
-    private var updateService: BrewUpdateService
+  @EnvironmentObject
+  private var updateService: BrewUpdateService
 
-    @Injected(\.brewService)
-    private var service: BrewService
+  @Injected(\.brewService)
+  private var service: BrewService
 
-    @Query
-    private var items: [PackageCache]
+  @Query
+  private var items: [PackageCache]
 
-    public init(
-        package: PackageIdentifier
-    ) {
-        let pred = #Predicate<PackageCache> {
-            $0.identifier == package.description
-        }
-        var fetcher = FetchDescriptor<PackageCache>(predicate: pred)
-        fetcher.fetchLimit = 1
-        _items = Query(fetcher)
-        self.package = package
+  public init(
+    package: PackageIdentifier
+  ) {
+    let pred = #Predicate<PackageCache> {
+      $0.identifier == package.description
     }
+    var fetcher = FetchDescriptor<PackageCache>(predicate: pred)
+    fetcher.fetchLimit = 1
+    _items = Query(fetcher)
+    self.package = package
+  }
 
-    public var body: some View {
-        if let item = items.first {
-            ItemDetailItemView(
-                package: .cached(item)
-            )
-        } else {
-            Text("Package not found...")
-        }
+  public var body: some View {
+    if let item = items.first {
+      ItemDetailItemView(
+        package: .cached(item)
+      )
+    } else {
+      Text("Package not found...")
     }
+  }
 }

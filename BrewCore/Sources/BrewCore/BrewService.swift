@@ -9,25 +9,21 @@ import BrewHelpers
 import BrewShared
 import Combine
 import Foundation
+import Inject
 import OSLog
 import RawJson
-import SwiftData
-import SwiftTracing
-import SwiftUI
-import Inject
 
 public final class BrewService: ObservableObject {
-
 //    @Injected(\.brewCache)
 //    private var cache: BrewCache
 
-    @Injected(\.brewApi)
-    private var api
+  @Injected(\.brewApi)
+  private var api
 
-    @Injected(\.helperProcessService)
-    private var processService
+  @Injected(\.helperProcessService)
+  private var processService
 
-    private let logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "BrewService")
+  private let logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "BrewService")
 
 //    public init(cache: BrewCache, api: BrewApi, processService: BrewProcessService) {
 //        self.cache = cache
@@ -35,135 +31,132 @@ public final class BrewService: ObservableObject {
 //        self.processService = processService
 //    }
 
-    public init() { }
+  public init() {}
 
-    public func fetchInfo() async throws {
-        try await EnsureOnce.once {
-            let cache = try await BrewCache()
-            let resultTask = Task {
-                let formulaResult = try await self.api.formula()
-                let formula = formulaResult.compactMap(\.value)
-                try await cache.sync(all: formula)
-                return formula
-            }
+  public func fetchInfo() async throws {
+    try await EnsureOnce.once {
+      let cache = try await BrewCache()
 
-            let installedTask = Task {
-                _ = try? await resultTask.value
-                return try await self.processService.infoFormulaInstalled()
-            }
+      let formulaResult = try await self.api.formula()
+      let formula = formulaResult.compactMap(\.value)
+      try await cache.sync(all: formula)
 
-            let installedSyncTask = Task {
-                try await cache.sync(installed: installedTask.value)
-            }
+      let installedTask = Task {
+        return try await self.processService.infoFormulaInstalled()
+      }
 
-            let outdatedTask = Task {
-                let outdated = try await installedTask.value.filter(\.outdated)
-                try await cache.sync(outdated: outdated)
-            }
+      let installedSyncTask = Task {
+        try await cache.sync(installed: installedTask.value)
+      }
 
-            let tapInfosTask = Task {
-                let taps = try await self.processService.taps()
-                let tapsInfos = try await self.fetchTapInfos(taps: taps)
-                try await cache.sync(taps: tapsInfos)
-                print(tapsInfos)
-                return tapsInfos
-            }
+//      let outdatedTask = Task {
+//        let outdated = try await installedTask.value.filter(\.outdated)
+//        try await cache.sync(outdated: outdated)
+//      }
 
-            let date = Date()
+      let tapInfosTask = Task {
+        let taps = try await self.processService.taps()
+        let tapsInfos = try await self.fetchTapInfos(taps: taps)
+        try await cache.sync(taps: tapsInfos)
+        print(tapsInfos)
+        return tapsInfos
+      }
 
-            //            async let list = self.listFormula()
+      let date = Date()
 
-            _ = try await (
-                resultTask.value, installedTask.value, installedSyncTask.value,
-                outdatedTask.value, tapInfosTask.value
-            )
-            //            print(listthing)
-            self.logger.info("timetaken \(abs(date.timeIntervalSinceNow))")
+      //            async let list = self.listFormula()
+
+      _ = try await (
+        installedTask.value, installedSyncTask.value,
+//        outdatedTask.value, 
+        tapInfosTask.value
+      )
+      //            print(listthing)
+      self.logger.info("timetaken \(abs(date.timeIntervalSinceNow))")
 //            return res
+    }
+  }
+
+  private func fetchTapInfos(
+    taps: [String],
+    concurrentFetches: Int = 4
+  ) async throws -> [TapInfo] {
+    return try await withThrowingTaskGroup(of: [TapInfo].self) { group in
+
+      let taps = taps.filter {
+        $0 != PackageIdentifier.core
+      }
+
+      for (index, tap) in taps.enumerated() {
+        if index % concurrentFetches == 0 {
+          _ = try await group.next()
         }
-    }
 
-    private func fetchTapInfos(
-        taps: [String],
-        concurrentFetches: Int = 4
-    ) async throws -> [TapInfo] {
-        return try await withThrowingTaskGroup(of: [TapInfo].self) { group in
-
-            let taps = taps.filter {
-                $0 != PackageIdentifier.core
-            }
-
-            for (index, tap) in taps.enumerated() {
-
-                if index % concurrentFetches == 0 {
-                    _ = try await group.next()
-                }
-
-                group.addTask {
-                    try await self.processService.tap(name: tap)
-                }
-            }
-
-            return try await group.reduce(into: []) {
-                $0.append(contentsOf: $1)
-            }
+        group.addTask {
+          try await self.processService.tap(name: tap)
         }
-    }
+      }
 
-    nonisolated func install(
-        service: BrewProcessServiceProtocol,
-        name: PackageIdentifier
-    ) async throws -> BrewStreaming {
-        try await BrewStreaming.install(processService: processService, name: name)
+      return try await group.reduce(into: []) {
+        $0.append(contentsOf: $1)
+      }
     }
+  }
 
-    nonisolated func uninstall(
-        service: BrewProcessServiceProtocol,
-        name: PackageIdentifier
-    ) async throws -> BrewStreaming {
-        try await BrewStreaming.uninstall(processService: processService, name: name)
-    }
+  nonisolated func install(
+    service _: any BrewProcessServiceProtocol,
+    name: PackageIdentifier
+  ) async throws -> BrewStreaming {
+    try await BrewStreaming.install(processService: processService, name: name)
+  }
 
-    nonisolated func upgrade(
-        service: BrewProcessServiceProtocol,
-        name: PackageIdentifier
-    ) async throws -> BrewStreaming {
-        try await BrewStreaming.upgrade(processService: processService, name: name)
-    }
+  nonisolated func uninstall(
+    service _: any BrewProcessServiceProtocol,
+    name: PackageIdentifier
+  ) async throws -> BrewStreaming {
+    try await BrewStreaming.uninstall(processService: processService, name: name)
+  }
 
-    nonisolated func upgrade(
-        service: BrewProcessServiceProtocol
-    ) async throws -> BrewStreaming {
-        try await BrewStreaming.upgrade(processService: processService)
-    }
+  nonisolated func upgrade(
+    service _: any BrewProcessServiceProtocol,
+    name: PackageIdentifier
+  ) async throws -> BrewStreaming {
+    try await BrewStreaming.upgrade(processService: processService, name: name)
+  }
 
-    public nonisolated func searchFormula(query: String) async throws -> [PackageIdentifier] {
-        return try await processService.searchFormula(query: query)
-    }
+  nonisolated func upgrade(
+    service _: any BrewProcessServiceProtocol
+  ) async throws -> BrewStreaming {
+    try await BrewStreaming.upgrade(processService: processService)
+  }
 
-    nonisolated func infoFormula(package: PackageIdentifier) async throws -> [InfoResult] {
-        return try await processService.infoFormula(package: package)
-    }
+  public nonisolated func searchFormula(query: String) async throws -> [PackageIdentifier] {
+    try await processService.searchFormula(query: query)
+  }
+
+  nonisolated func infoFormula(package: PackageIdentifier) async throws -> [InfoResponse] {
+    try await processService.infoFormula(package: package)
+  }
 }
 
 struct StreamOutput: Hashable {
-    var stream: String
-    var isStreamingDone: Bool
+  var stream: String
+  var isStreamingDone: Bool
 }
 
 extension StreamOutput: Identifiable {
-    var id: Int {
-        hashValue
-    }
+  var id: Int {
+    hashValue
+  }
 }
 
-extension InjectedValues {
-    public var brewService: BrewService {
-        get { Self[BrewServiceKey.self] }
-        set { Self[BrewServiceKey.self] = newValue }
-    }
+public extension InjectedValues {
+  var brewService: BrewService {
+    get { Self[BrewServiceKey.self] }
+    set { Self[BrewServiceKey.self] = newValue }
+  }
 }
 
 private struct BrewServiceKey: InjectionKey {
-    static var currentValue: BrewService = BrewService()
+  static var currentValue: BrewService = .init()
 }

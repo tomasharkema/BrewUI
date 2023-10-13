@@ -6,31 +6,29 @@
 //
 
 import BrewCore
+
 import SwiftUI
-import Inject
 
 struct UpdateAllButton: View {
-    
-    @EnvironmentObject
-    private var updateService: BrewUpdateService
+  @EnvironmentObject
+  private var updateService: BrewUpdateService
 
-    init() {
-    }
+  init() {}
 
-    var body: some View {
-        Button(action: {
-            Task {
-                await updateService.update()
-            }
-        }) {
-            if updateService.all.isLoading {
-                ProgressView()
-                    .controlSize(.small)
-            } else {
-                Label("Refresh", systemImage: "arrow.counterclockwise")
-            }
-        }
-        .keyboardShortcut("r", modifiers: [.command])
-        .disabled(updateService.all.isLoading)
+  var body: some View {
+    Button(action: {
+      Task {
+        await updateService.update()
+      }
+    }) {
+      if updateService.all.isLoading {
+        ProgressView()
+          .controlSize(.small)
+      } else {
+        Label("Refresh", systemImage: "arrow.counterclockwise")
+      }
     }
+    .keyboardShortcut("r", modifiers: [.command])
+    .disabled(updateService.all.isLoading)
+  }
 }

@@ -11,32 +11,36 @@ import SwiftData
 import SwiftUI
 
 public struct InstalledView: View {
+  @EnvironmentObject
+  private var updateService: BrewUpdateService
 
-    @EnvironmentObject
-    private var updateService: BrewUpdateService
+  @Binding
+  var selection: PackageIdentifier?
 
-    @Binding
-    var selection: PackageIdentifier?
-
-    @Query(
-        FetchDescriptor<InstalledCache>(sortBy: [SortDescriptor(\.identifier)])
-//            .withFetchLimit(BrewCache.globalFetchLimit)
+  @Query(
+    FetchDescriptor<PackageCache>(
+      predicate: #Predicate {
+        $0.hasInstalledVersion
+      },
+      sortBy: [SortDescriptor(\.identifier)]
     )
-    private var installed: [InstalledCache]
+//            .withFetchLimit(BrewCache.globalFetchLimit)
+  )
+  private var installed: [PackageCache]
 
-    public init(selection: Binding<PackageIdentifier?>) {
-        _selection = selection
-    }
+  public init(selection: Binding<PackageIdentifier?>) {
+    _selection = selection
+  }
 
-    public var body: some View {
-        List(installed, selection: $selection) { item in
-            ItemView(package: .cached(item.package), showInstalled: false)
-        }
-        .refreshable {
-            await updateService.update()
-        }
-        .tabItem {
-            Text("Installed Packages (\(installed.count))")
-        }
+  public var body: some View {
+    List(installed, selection: $selection) { item in
+      ItemView(package: .cached(item), showInstalled: false)
     }
+    .refreshable {
+      await updateService.update()
+    }
+    .tabItem {
+      Text("Installed Packages (\(installed.count))")
+    }
+  }
 }

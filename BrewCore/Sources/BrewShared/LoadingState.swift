@@ -5,7 +5,6 @@
 //  Created by Tomas Harkema on 07/09/2023.
 //
 
-import Foundation
 // import SwiftMacros
 //
 // @AddAssociatedValueVariable
