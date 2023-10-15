@@ -19,6 +19,15 @@
       }
     },
     {
+      "identity" : "gzipswift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/1024jp/GzipSwift",
+      "state" : {
+        "revision" : "731037f6cc2be2ec01562f6597c1d0aa3fe6fd05",
+        "version" : "6.0.1"
+      }
+    },
+    {
       "identity" : "metacodable",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/tomasharkema/MetaCodable",
@@ -34,6 +43,15 @@
       "state" : {
         "revision" : "044882f9d1b04c5538b48f311aa8d89e5d04a025",
         "version" : "1.0.0"
+      }
+    },
+    {
+      "identity" : "runscriptplugin",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/p-x9/RunScriptPlugin",
+      "state" : {
+        "revision" : "5732e3563f1961bb43c02619654ab2036083dd68",
+        "version" : "0.3.0"
       }
     },
     {

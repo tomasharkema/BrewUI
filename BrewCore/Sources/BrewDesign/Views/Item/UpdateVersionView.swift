@@ -10,18 +10,28 @@ import SwiftUI
 
 struct UpdateVersionView: View {
   private let package: PackageInfo
-  private let newestVersion: Version?
 
   init(package: PackageInfo) {
     self.package = package
+  }
 
-    self.newestVersion = package.versions?.sorted().last
+  private var versions: String {
+    package.versions?.map {
+      $0.description
+    }.joined(separator: ", ") ?? ""
+  }
+
+  var attributedString: AttributedString {
+    let oldVersion = AttributedString("\(versions) < ")
+    var newVersion = AttributedString("\(package.versionsStable?.description ?? "")")
+    newVersion.font = .body.monospaced().bold()
+    return oldVersion + newVersion
   }
 
   var body: some View {
-    if let newestVersion, let versionsStable = package.versionsStable {
+    if let versionsStable = package.versionsStable, package.outdated {
       HStack {
-        Text("\(newestVersion.description) > \(versionsStable.description)")
+        Text(attributedString)
       }.font(.body.monospaced())
     }
   }

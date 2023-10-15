@@ -37,8 +37,11 @@ struct UpdatingStateView: View {
           ProgressView()
             .controlSize(.small)
           switch updating.data {
-          case .none:
+          case .none, .initialSynced:
             Text("Running brew update...")
+
+          case .initialSyncing:
+            Text("Running initial sync...")
 
           case let .updated(result):
             Text("Brew update succeeded: \(String(describing: result)), syncing...")

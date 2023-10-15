@@ -10,7 +10,7 @@ import Foundation
 import Inject
 import RawJson
 
-public final class BrewApi {
+public final class BrewApi: Sendable {
   private let session: URLSession
   private let decoder: JSONDecoder
 

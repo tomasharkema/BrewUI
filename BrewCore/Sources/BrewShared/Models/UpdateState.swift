@@ -6,6 +6,9 @@
 //
 
 public enum UpdateState {
+  case initialSyncing
+  case initialSynced
+  
   case updated(UpdateResult)
   case synced
 }

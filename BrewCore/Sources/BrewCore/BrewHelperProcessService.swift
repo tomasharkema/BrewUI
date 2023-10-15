@@ -11,7 +11,7 @@ import Foundation
 import Inject
 import OSLog
 
-public final class BrewHelperProcessService: BrewProcessServiceProtocol, ObservableObject {
+public final class BrewHelperProcessService: BrewProcessServiceProtocol, ObservableObject, Sendable {
   private let logger = Logger(subsystem: "a", category: "b")
   private let connection: BrewProtocolServiceXPCConnection
   private let proxy: any BrewProtocolService

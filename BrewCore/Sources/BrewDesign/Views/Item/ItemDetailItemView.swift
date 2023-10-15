@@ -22,8 +22,6 @@ struct ItemDetailItemView: View {
     self.package = package
   }
 
-  // MARK: - body
-
   var body: some View {
     VStack {
       HStack {

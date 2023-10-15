@@ -20,6 +20,9 @@ public final class BrewSearchService: ObservableObject, LoadableSupport {
 
   @Injected(\.helperProcessService)
   private var processService
+  
+  @Injected(\.brewCache)
+  private var cache
 
   @Published
   public var queryResult: LoadableState<[PackageCache]> = .absent
@@ -57,8 +60,7 @@ public final class BrewSearchService: ObservableObject, LoadableSupport {
     let queryLowerCase = query.lowercased()
 
     let task = load(\.queryResult, priority: .medium) {
-      let cache = try await BrewCache()
-      let result = try await cache.search(query: queryLowerCase)
+      let result = try await self.cache.search(query: queryLowerCase)
       try Task.checkCancellation()
 
       self.load(\.queryRemoteResult, priority: .medium) {
@@ -98,9 +100,7 @@ public final class BrewSearchService: ObservableObject, LoadableSupport {
   }
 
   private nonisolated func storeInCache(results: [Result<PackageInfo, any Error>]) async throws {
-    let cache = try await BrewCache()
-
-    try? await cache.sync(all: results.compactMap {
+    try? await self.cache.sync(all: results.lazy.compactMap {
       if case let .success(.remote(remote)) = $0 {
         remote
       } else {
@@ -160,9 +160,7 @@ public final class BrewSearchService: ObservableObject, LoadableSupport {
     for packageIdentifier: PackageIdentifier,
     maxTtl: Duration
   ) async throws -> PackageCache? {
-    let cache = try await BrewCache()
-
-    guard let package = try? await cache.package(by: packageIdentifier) else {
+    guard let package = try? await self.cache.package(by: packageIdentifier) else {
       return nil
     }
 

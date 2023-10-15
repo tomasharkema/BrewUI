@@ -34,6 +34,7 @@ public struct PackageButton: View {
             package: package,
             installedVersion: anyVersion
           ).disabled(package.firstInstalledAsDependency != nil)
+          
           if package.outdated {
             UpgradeButton(package: package)
           }

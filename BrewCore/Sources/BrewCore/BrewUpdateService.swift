@@ -53,13 +53,23 @@ public final class BrewUpdateService: ObservableObject, LoadableSupport {
       print("updatingAll", "START!")
 
       let taskInner = self.load(\.updating, priority: .medium) { yield in
-        self.logger.info("UPDATEING....")
-        let res = try await self.processService.update()
-        self.logger.info("UPDATE DONE! \(String(describing: res)), fetching info...")
-        yield(.loaded(.updated(res)))
-        _ = try await self.service.fetchInfo()
-        self.logger.info("UPDATE DONE!")
-        yield(.loaded(.synced))
+        do {
+          
+          yield(.loaded(.initialSyncing))
+          await self.service.initialSyncIfNeeded()
+          yield(.loaded(.initialSynced))
+
+          self.logger.info("UPDATEING....")
+          let res = try await self.processService.update()
+          self.logger.info("UPDATE DONE! \(String(describing: res)), fetching info...")
+          yield(.loaded(.updated(res)))
+          _ = try await self.service.fetchInfo()
+          self.logger.info("UPDATE DONE!")
+          yield(.loaded(.synced))
+        } catch {
+          print(error)
+          throw error
+        }
       }
       await taskInner.value
 
@@ -133,7 +143,7 @@ public final class BrewUpdateService: ObservableObject, LoadableSupport {
 public extension UpdateState {
   var isDone: Bool {
     switch self {
-    case .updated:
+    case .updated, .initialSynced, .initialSyncing:
       false
     case .synced:
       true

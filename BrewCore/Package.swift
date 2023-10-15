@@ -49,7 +49,7 @@ let package = Package(
     ),
   ],
   dependencies: [
-    .package(path: "../../ActoolBuildPlugin"),
+//    .package(path: "../../ActoolBuildPlugin"),
 
     .package(path: "../Inject"),
 
@@ -63,9 +63,11 @@ let package = Package(
     .package(url: "https://github.com/SwiftedMind/Processed", from: "1.0.0"),
     .package(url: "https://github.com/kishikawakatsumi/swift-power-assert", from: "0.12.0"),
     .package(url: "https://github.com/apple/swift-argument-parser", from: "1.2.3"),
-    .package(url: "https://github.com/Alkenso/SwiftConvenience", from: "0.2.0"),
+//    .package(url: "https://github.com/Alkenso/SwiftConvenience", from: "0.2.0"),
     .package(url: "https://github.com/Alkenso/sXPC", from: "0.2.2"),
     .package(url: "https://github.com/sersoft-gmbh/semver", from: "5.0.0"),
+    .package(url: "https://github.com/p-x9/RunScriptPlugin", from: "0.3.0"),
+    .package(url: "https://github.com/1024jp/GzipSwift", from: "6.0.0"),
 
   ] + swiftUiDependency,
   targets: [
@@ -91,7 +93,7 @@ let package = Package(
         ]),
       ],
       plugins: [
-        //                .plugin(name: "ActoolBuildPlugin", package: "ActoolBuildPlugin"),
+//                .plugin(name: "ActoolBuildPlugin", package: "ActoolBuildPlugin"),
       ] + swiftUiPlugin
     ),
     .target(
@@ -103,7 +105,7 @@ let package = Package(
       ],
       swiftSettings: swiftSettings,
       plugins: [
-        //                .plugin(name: "ActoolBuildPlugin", package: "ActoolBuildPlugin"),
+//        .plugin(name: "ActoolBuildPlugin", package: "ActoolBuildPlugin"),
       ] + swiftUiPlugin
     ),
     .executableTarget(
@@ -115,7 +117,7 @@ let package = Package(
       ],
       swiftSettings: swiftSettings,
       plugins: [
-        //                .plugin(name: "ActoolBuildPlugin", package: "ActoolBuildPlugin"),
+//        .plugin(name: "ActoolBuildPlugin", package: "ActoolBuildPlugin"),
       ] + swiftUiPlugin
     ),
     .target(
@@ -133,7 +135,7 @@ let package = Package(
       ],
       swiftSettings: swiftSettings,
       plugins: [
-        //                .plugin(name: "ActoolBuildPlugin", package: "ActoolBuildPlugin"),
+//        .plugin(name: "ActoolBuildPlugin", package: "ActoolBuildPlugin"),
       ] + swiftUiPlugin
     ),
     .target(
@@ -151,9 +153,14 @@ let package = Package(
         .product(name: "SwiftMacros", package: "SwiftMacros"),
         .product(name: "MetaCodable", package: "MetaCodable"),
         .product(name: "Processed", package: "Processed"),
+        .product(name: "Gzip", package: "GzipSwift"),
+      ],
+      resources: [
+        .process("Resources"),
       ],
       swiftSettings: swiftSettings,
       plugins: [
+        .plugin(name: "RunScriptPlugin", package: "RunScriptPlugin"),
       ] + swiftUiPlugin
     ),
     .target(
@@ -170,7 +177,7 @@ let package = Package(
       ],
       swiftSettings: swiftSettings,
       plugins: [
-        .plugin(name: "ActoolBuildPlugin", package: "ActoolBuildPlugin"),
+//        .plugin(name: "ActoolBuildPlugin", package: "ActoolBuildPlugin"),
       ] + swiftUiPlugin
     ),
     .target(
@@ -180,7 +187,7 @@ let package = Package(
       ],
       swiftSettings: swiftSettings,
       plugins: [
-        //                .plugin(name: "ActoolBuildPlugin", package: "ActoolBuildPlugin"),
+//        .plugin(name: "ActoolBuildPlugin", package: "ActoolBuildPlugin"),
       ] + swiftUiPlugin
     ),
     .target(

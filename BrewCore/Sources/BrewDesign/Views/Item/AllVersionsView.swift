@@ -15,13 +15,15 @@ struct AllVersionsView: View {
     self.package = package
   }
 
+  private var versions: String {
+    package.versions?.map {
+      $0.description
+    }.joined(separator: ", ") ?? ""
+  }
+
   var body: some View {
-    if let versions = package.versions {
-      HStack {
-        ForEach(Array(versions)) { version in
-          Text("\(version.description)")
-        }
-      }.font(.body.monospaced())
+    if package.versions != nil {
+      Text("\(versions)").font(.body.monospaced())
     }
   }
 }

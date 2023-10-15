@@ -1,0 +1,6 @@
+prebuild:
+  - name: "Download Formulae"
+    script: "curl https://formulae.brew.sh/api/formula.json | gzip -9 > $(pwd)/Sources/BrewCore/Resources/formula.json.gz && echo \"$(date +%s);$(shasum $(pwd)/Sources/BrewCore/Resources/formula.json.gz)\" > $(pwd)/Sources/BrewCore/Resources/formula.update.log"
+
+  - name: "Download Casks"
+    script: "curl https://formulae.brew.sh/api/cask.json | gzip -9 > $(pwd)/Sources/BrewCore/Resources/cask.json.gz && echo \"$(date +%s);$(shasum $(pwd)/Sources/BrewCore/Resources/cask.json.gz)\" > $(pwd)/Sources/BrewCore/Resources/cask.update.log"

@@ -8,6 +8,7 @@
 import BrewShared
 import Foundation
 import SwiftData
+import Inject
 
 public actor BrewCache: ModelActor {
   public static let globalFetchLimit = 100
@@ -15,7 +16,7 @@ public actor BrewCache: ModelActor {
 
   public nonisolated let modelContainer: ModelContainer
 
-  public nonisolated init() async throws {
+  fileprivate init() {
     #if DEBUG
       dispatchPrecondition(condition: .notOnQueue(.main))
     #endif
@@ -25,10 +26,10 @@ public actor BrewCache: ModelActor {
     modelExecutor = DefaultSerialModelExecutor(modelContext: context)
   }
 
-  public func sync(all: [InfoResultOnlyRemote]) throws {
-    guard !all.isEmpty else {
-      return
-    }
+  public func sync(all: any Sequence<InfoResultOnlyRemote>) throws {
+    //    guard !all.isEmpty else {
+    //      return
+    //    }
 
     let core = PackageIdentifier.core
     let old = try modelContext.fetch(
@@ -58,11 +59,12 @@ public actor BrewCache: ModelActor {
         } else {
           fatalError()
         }
-//        if let model = try self.package(by: update.id) {
-//          try model.update(infoRemote: diff.element(update.id)!)
-//        }
+        //        if let model = try self.package(by: update.id) {
+        //          try model.update(infoRemote: diff.element(update.id)!)
+        //        }
       }
     }
+    try modelContext.save()
   }
 
 //  public func sync(outdated: [InfoResponse]) throws {
@@ -206,14 +208,45 @@ public actor BrewCache: ModelActor {
     }
     return try modelContext.fetch(descriptor)
   }
+
+  func lastUpdated() throws -> LocalFileLastUpdated? {
+    var descriptor = FetchDescriptor<LastUpdatedModel>(sortBy: [SortDescriptor(\.updatedDate, order: .reverse)])
+    descriptor.fetchLimit = 1
+
+    guard let lastUpdated = try modelContext.fetch(descriptor).first else {
+      return nil
+    }
+
+    return LocalFileLastUpdated(
+      updatedDate: lastUpdated.updatedDate,
+      updatedHashValue: lastUpdated.updatedHashValue
+    )
+  }
+
+  func updateLastUpdated(local: LocalFileLastUpdated) throws {
+    let model = LastUpdatedModel(updatedDate: local.updatedDate, updatedHashValue: local.updatedHashValue)
+    modelContext.insert(model)
+    try modelContext.save()
+  }
 }
 
 public extension ModelContainer {
   static var brew: ModelContainer {
     // swiftlint:disable:next force_try
     try! ModelContainer(
-      for: PackageCache.self, Tap.self,
+      for: PackageCache.self, Tap.self, LastUpdatedModel.self,
       configurations: ModelConfiguration("BrewUIDB", url: .brewStorage)
     )
   }
+}
+
+extension InjectedValues {
+  var brewCache: BrewCache {
+    get { Self[BrewCacheKey.self] }
+    set { Self[BrewCacheKey.self] = newValue }
+  }
+}
+
+private struct BrewCacheKey: InjectionKey {
+  static var currentValue: BrewCache = .init()
 }

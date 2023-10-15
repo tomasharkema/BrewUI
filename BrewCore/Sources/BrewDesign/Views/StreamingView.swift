@@ -83,6 +83,12 @@ extension UpdateState: CustomStringConvertible {
     case .updated:
       "updated"
 
+    case .initialSynced:
+      "initialSynced"
+
+    case .initialSyncing:
+      "initialSyncing"
+
     case .synced:
       "synced"
     }

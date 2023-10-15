@@ -89,3 +89,6 @@ fastlane/test_output
 
 iOSInjectionProject/
 /Archive
+*.json.gz
+*.log
+*.zip

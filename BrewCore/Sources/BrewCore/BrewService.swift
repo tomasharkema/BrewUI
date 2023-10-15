@@ -13,15 +13,21 @@ import Inject
 import OSLog
 import RawJson
 
-public final class BrewService: ObservableObject {
+public final class BrewService: ObservableObject, Sendable {
 //    @Injected(\.brewCache)
 //    private var cache: BrewCache
 
   @Injected(\.brewApi)
   private var api
+  
+  @Injected(\.brewShippedFileKey)
+  private var localFile
 
   @Injected(\.helperProcessService)
   private var processService
+
+  @Injected(\.brewCache)
+  private var cache
 
   private let logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "BrewService")
 
@@ -35,18 +41,19 @@ public final class BrewService: ObservableObject {
 
   public func fetchInfo() async throws {
     try await EnsureOnce.once {
-      let cache = try await BrewCache()
+
+      try await self.initialSyncIfNeeded()
 
       let formulaResult = try await self.api.formula()
-      let formula = formulaResult.compactMap(\.value)
-      try await cache.sync(all: formula)
+      let formula = formulaResult.lazy.compactMap(\.value)
+      try await self.cache.sync(all: formula)
 
       let installedTask = Task {
         return try await self.processService.infoFormulaInstalled()
       }
 
       let installedSyncTask = Task {
-        try await cache.sync(installed: installedTask.value)
+        try await self.cache.sync(installed: installedTask.value)
       }
 
 //      let outdatedTask = Task {
@@ -57,7 +64,7 @@ public final class BrewService: ObservableObject {
       let tapInfosTask = Task {
         let taps = try await self.processService.taps()
         let tapsInfos = try await self.fetchTapInfos(taps: taps)
-        try await cache.sync(taps: tapsInfos)
+        try await self.cache.sync(taps: tapsInfos)
         print(tapsInfos)
         return tapsInfos
       }
@@ -75,6 +82,39 @@ public final class BrewService: ObservableObject {
       self.logger.info("timetaken \(abs(date.timeIntervalSinceNow))")
 //            return res
     }
+  }
+
+  public nonisolated func initialSyncIfNeeded() async {
+    do {
+      try await self.loadLocalFile(cache: cache)
+    } catch {
+      print(error)
+    }
+  }
+
+  private func loadLocalFile(cache: BrewCache) async throws {
+    async let shippedUpdatedAsync = self.localFile.localFormulaUpdate()
+    async let localUpdatedAsync = cache.lastUpdated()
+
+    let shippedUpdated = try await shippedUpdatedAsync
+    let localUpdated = try await localUpdatedAsync
+
+    print(shippedUpdated, localUpdated)
+
+    if let localUpdated {
+      if shippedUpdated.updatedHashValue == localUpdated.updatedHashValue {
+        return
+      }
+      if shippedUpdated.updatedDate > localUpdated.updatedDate {
+        return
+      }
+    }
+    
+    let local = try await self.localFile.localFormula()
+    let elements = local.lazy.compactMap(\.value)
+    try await cache.sync(all: elements)
+    try await cache.updateLastUpdated(local: shippedUpdated)
+    await Task.yield()
   }
 
   private func fetchTapInfos(
