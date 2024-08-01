@@ -8,7 +8,7 @@
 import BrewShared
 import Combine
 import Foundation
-import Inject
+import Injected
 
 @MainActor
 public final class BrewStreaming: ObservableObject, Identifiable {

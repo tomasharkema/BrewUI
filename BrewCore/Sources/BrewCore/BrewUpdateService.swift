@@ -7,7 +7,7 @@
 
 import BrewShared
 import Foundation
-import Inject
+import Injected
 import OSLog
 import Processed
 

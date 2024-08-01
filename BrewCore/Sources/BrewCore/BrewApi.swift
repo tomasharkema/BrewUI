@@ -7,7 +7,7 @@
 
 import BrewShared
 import Foundation
-import Inject
+import Injected
 import RawJson
 
 public final class BrewApi: Sendable {
@@ -54,5 +54,5 @@ extension InjectedValues {
 }
 
 private struct BrewApiKey: InjectionKey {
-  static var currentValue: BrewApi = .init()
+  static var currentValue: BrewApi? = .init()
 }

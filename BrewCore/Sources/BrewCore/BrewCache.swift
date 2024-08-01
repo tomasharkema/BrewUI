@@ -8,7 +8,7 @@
 import BrewShared
 import Foundation
 import SwiftData
-import Inject
+import Injected
 
 public actor BrewCache: ModelActor {
   public static let globalFetchLimit = 100
@@ -248,5 +248,5 @@ extension InjectedValues {
 }
 
 private struct BrewCacheKey: InjectionKey {
-  static var currentValue: BrewCache = .init()
+  static var currentValue: BrewCache? = .init()
 }

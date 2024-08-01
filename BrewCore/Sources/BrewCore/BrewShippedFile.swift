@@ -8,7 +8,7 @@
 import Foundation
 import RawJson
 import BrewShared
-import Inject
+import Injected
 import Gzip
 
 public final class BrewShippedFile {
@@ -78,5 +78,5 @@ extension InjectedValues {
 }
 
 private struct BrewShippedFileKey: InjectionKey {
-  static var currentValue: BrewShippedFile = .init()
+  static var currentValue: BrewShippedFile? = .init()
 }

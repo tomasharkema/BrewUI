@@ -25,8 +25,8 @@ public final class PackageCache {
   public private(set) var lastUpdated: Date
   @Attribute
   public private(set) var checksum: String
-  @Attribute
-  public private(set) var sortValue: String
+//  @Attribute
+//  public private(set) var sortValue: String
   @Attribute
   public var outdated: Bool
 
@@ -59,7 +59,7 @@ public final class PackageCache {
 
   public init(info: InfoResponse) throws {
     identifier = info.identifier.description
-    sortValue = "\(info.identifier.name)--\(info.identifier.tap)"
+//    sortValue = "\(info.identifier.name)--\(info.identifier.tap)"
 
     checksum = info.rubySourceChecksum.sha256
 
@@ -95,7 +95,7 @@ public final class PackageCache {
 
   public init(info: InfoResultOnlyRemote) throws {
     identifier = info.identifier.description
-    sortValue = "\(info.identifier.name)--\(info.identifier.tap)"
+//    sortValue = "\(info.identifier.name)--\(info.identifier.tap)"
 
     checksum = info.rubySourceChecksum.sha256
 

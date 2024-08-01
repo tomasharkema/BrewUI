@@ -8,7 +8,7 @@
 // import Foundation
 
 /// Provides access to injected dependencies.
-public struct InjectedValues {
+public struct InjectedValues: Sendable {
   /// This is only used as an accessor to the computed properties within extensions of
   /// `InjectedValues`.
   private static var current = InjectedValues()

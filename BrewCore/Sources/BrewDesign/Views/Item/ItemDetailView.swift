@@ -7,7 +7,7 @@
 
 import BrewCore
 import BrewShared
-import Inject
+import Injected
 import SwiftData
 import SwiftUI
 

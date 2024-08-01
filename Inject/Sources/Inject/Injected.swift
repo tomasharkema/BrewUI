@@ -9,17 +9,20 @@ import Foundation
 import SwiftUI
 
 @propertyWrapper
-public class Injected<T> {
-  private let keyPath: WritableKeyPath<InjectedValues, T>
+public class Injected<InjectedType> {
+  private let keyPath: WritableKeyPath<InjectedValues, InjectedType>
 
-  public var wrappedValue: T {
+  public var wrappedValue: InjectedType {
     get { InjectedValues[keyPath] }
     set { InjectedValues[keyPath] = newValue }
   }
 
-  public init(_ keyPath: WritableKeyPath<InjectedValues, T>) {
+  public init(_ keyPath: WritableKeyPath<InjectedValues, InjectedType>) {
     self.keyPath = keyPath
   }
 }
 
-extension Injected: DynamicProperty where T: ObservableObject {}
+extension Injected: DynamicProperty where InjectedType: ObservableObject { }
+
+extension Injected: @unchecked Sendable { }
+extension WritableKeyPath: @unchecked Sendable { }

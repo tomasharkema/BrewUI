@@ -8,7 +8,7 @@
 import BrewCore
 import BrewDesign
 import BrewShared
-import Inject
+import Injected
 import Processed
 import SwiftUI
 

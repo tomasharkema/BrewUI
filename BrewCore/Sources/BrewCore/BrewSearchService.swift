@@ -7,9 +7,9 @@
 
 import BrewShared
 import Foundation
-import Inject
+import Injected
 import Processed
-import SwiftTracing
+//import SwiftTracing
 
 @MainActor
 public final class BrewSearchService: ObservableObject, LoadableSupport {
@@ -30,10 +30,10 @@ public final class BrewSearchService: ObservableObject, LoadableSupport {
   @Published
   public var queryRemoteResult: LoadableState<[Result<PackageInfo, any Error>]> = .absent
 
-  private let signposter = Signposter(
-    subsystem: Bundle.main.bundleIdentifier!,
-    category: "BrewSearchService"
-  )
+//  private let signposter = Signposter(
+//    subsystem: Bundle.main.bundleIdentifier!,
+//    category: "BrewSearchService"
+//  )
 
 //    public init(cache: BrewCache, service: BrewService, processService: BrewProcessService) {
 //        self.cache = cache
@@ -84,7 +84,7 @@ public final class BrewSearchService: ObservableObject, LoadableSupport {
 
     let queryLowerCase = query.lowercased()
 
-    return try await signposter.measure(withNewId: "searchRemote") {
+//    return try await signposter.measure(withNewId: "searchRemote") {
       let remoteResult = try await self.processService.searchFormula(query: queryLowerCase)
       try Task.checkCancellation()
       let results = try await self.fetchInfo(for: remoteResult, fromCache: fromCache)
@@ -96,7 +96,7 @@ public final class BrewSearchService: ObservableObject, LoadableSupport {
       try Task.checkCancellation()
 
       return results
-    }
+//    }
   }
 
   private nonisolated func storeInCache(results: [Result<PackageInfo, any Error>]) async throws {
@@ -134,7 +134,7 @@ public final class BrewSearchService: ObservableObject, LoadableSupport {
 
         _ = group.addTaskUnlessCancelled {
           do {
-            return try await measure("infoFormula") {
+//            return try await measure("infoFormula") {
               if let local = try await self.fetchInfoLocal(
                 for: pkg,
                 maxTtl: .seconds(60 * 60 * 24)
@@ -144,7 +144,7 @@ public final class BrewSearchService: ObservableObject, LoadableSupport {
 
               let info = try await self.processService.infoFormula(package: pkg)
               return info.map { .success(.remote($0.onlyRemote)) }
-            }
+//            }
           } catch {
             print(error)
             return [.failure(error)]
@@ -184,5 +184,5 @@ public extension InjectedValues {
 
 private struct BrewSearchServiceKey: InjectionKey {
   @MainActor
-  static var currentValue: BrewSearchService = .init()
+  static var currentValue: BrewSearchService? = .init()
 }

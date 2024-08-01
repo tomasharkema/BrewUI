@@ -48,7 +48,7 @@ public extension BrewProtocolServiceXPCConnection {
   }
 }
 
-public typealias BrewProtocolServiceXPCListener = sXPC.XPCListener<BrewProtocolService, Never>
+public typealias BrewProtocolServiceXPCListener = sXPC.XPCListener<any BrewProtocolService, Never>
 public extension BrewProtocolServiceXPCListener {
   convenience init(xpc: XPCListenerInit) {
     self.init(xpc, exportedInterface: .service)

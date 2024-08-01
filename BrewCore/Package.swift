@@ -51,10 +51,10 @@ let package = Package(
   dependencies: [
 //    .package(path: "../../ActoolBuildPlugin"),
 
-    .package(path: "../Inject"),
+.package(url: "https://github.com/tomasharkema/Injected", from: "0.0.1"),
 
     .package(url: "https://github.com/tomasharkema/swift-rawjson", from: "0.0.26"),
-    .package(url: "https://github.com/tomasharkema/swift-tracing", from: "0.0.25"),
+//    .package(url: "https://github.com/tomasharkema/swift-tracing", from: "0.0.25"),
     .package(url: "https://github.com/tomasharkema/SwiftMacros", branch: "main"),
     .package(url: "https://github.com/apple/swift-algorithms", from: "1.0.0"),
     .package(url: "https://github.com/apple/swift-collections", from: "1.0.0"),
@@ -78,7 +78,7 @@ let package = Package(
         "BrewCore",
         "BrewDesign",
         "BrewShared",
-        "Inject",
+        "Injected",
       ],
       resources: [
         .process("Resources"),
@@ -126,7 +126,7 @@ let package = Package(
         "BrewCore",
         "BrewDesign",
         "BrewShared",
-        "Inject",
+        "Injected",
 
         .product(name: "Processed", package: "Processed"),
       ],
@@ -143,11 +143,11 @@ let package = Package(
       dependencies: [
         "BrewShared",
         "BrewHelpers",
-        "Inject",
+        "Injected",
         "BrewHelperXPC",
 
         .product(name: "RawJson", package: "swift-rawjson"),
-        .product(name: "SwiftTracing", package: "swift-tracing"),
+//        .product(name: "SwiftTracing", package: "swift-tracing"),
         .product(name: "Algorithms", package: "swift-algorithms"),
         .product(name: "Collections", package: "swift-collections"),
         .product(name: "SwiftMacros", package: "SwiftMacros"),
@@ -168,7 +168,7 @@ let package = Package(
       dependencies: [
         "BrewCore",
         "BrewShared",
-        "Inject",
+        "Injected",
 
         .product(name: "Processed", package: "Processed"),
       ],
@@ -183,7 +183,7 @@ let package = Package(
     .target(
       name: "BrewHelpers",
       dependencies: [
-        "Inject",
+        "Injected",
       ],
       swiftSettings: swiftSettings,
       plugins: [
@@ -193,7 +193,7 @@ let package = Package(
     .target(
       name: "BrewShared",
       dependencies: [
-        "Inject",
+        "Injected",
 
         .product(name: "SwiftMacros", package: "SwiftMacros"),
         .product(name: "Algorithms", package: "swift-algorithms"),
@@ -220,7 +220,7 @@ let package = Package(
       dependencies: [
         "BrewCore",
         "BrewShared",
-        "Inject",
+        "Injected",
 
         .product(name: "PowerAssert", package: "swift-power-assert"),
       ],

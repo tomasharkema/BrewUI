@@ -19,7 +19,7 @@ public struct AllPackagesView: View {
 
   @Query(
     FetchDescriptor<PackageCache>(
-      sortBy: [SortDescriptor(\.sortValue)]
+      sortBy: [SortDescriptor(\.baseName)]
     ).withFetchLimit(BrewCache.globalFetchLimit)
   )
   private var all: [PackageCache]

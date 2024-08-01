@@ -9,7 +9,7 @@ import BrewHelpers
 import BrewShared
 import Combine
 import Foundation
-import Inject
+import Injected
 import OSLog
 import RawJson
 
@@ -198,5 +198,5 @@ public extension InjectedValues {
 }
 
 private struct BrewServiceKey: InjectionKey {
-  static var currentValue: BrewService = .init()
+  static var currentValue: BrewService? = .init()
 }

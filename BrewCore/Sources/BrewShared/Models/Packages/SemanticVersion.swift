@@ -27,7 +27,7 @@ extension SemanticVersion: ExpressibleByStringLiteral {
 
       self = .semver(SemVer.Version(
         major: version.major, minor: version.minor, patch: version.patch,
-        prerelease: version.prerelease, metadata: metadata
+        prerelease: version.prerelease, metadata: [] // metadata
       ), value)
 
       return

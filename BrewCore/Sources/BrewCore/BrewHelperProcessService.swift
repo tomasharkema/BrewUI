@@ -8,7 +8,7 @@
 import BrewHelperXPC
 import BrewShared
 import Foundation
-import Inject
+import Injected
 import OSLog
 
 public final class BrewHelperProcessService: BrewProcessServiceProtocol, ObservableObject, Sendable {
@@ -126,5 +126,5 @@ public extension InjectedValues {
 }
 
 private struct BrewHelperProcessServiceKey: InjectionKey {
-  static var currentValue: any BrewProcessServiceProtocol = BrewHelperProcessService()
+  static var currentValue: (any BrewProcessServiceProtocol)? = BrewHelperProcessService()
 }
